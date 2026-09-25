@@ -1,0 +1,4 @@
+results/
+cases/*.jsonl
+!cases/seed.jsonl
+__pycache__/
