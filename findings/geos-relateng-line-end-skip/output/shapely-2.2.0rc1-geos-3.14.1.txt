@@ -1,0 +1,10 @@
+shapely 2.2.0rc1 GEOS 3.14.1
+case 1                         relate = FF0FFF1F2  exact FF0FFF102  WRONG
+case 1, B's elements swapped   relate = FF0FFF102  exact FF0FFF102  ok
+case 1, operands swapped       relate = FF1FFF0F2  exact FF1FF00F2  WRONG
+case 2                         relate = 1F20011F2  exact 1F2001102  WRONG
+case 3 (JTS #1175)             relate = FF1FF01F2  exact FF1FF0102  WRONG
+case 4 (GC, computeAreaVertex) relate = FF2FFF102  exact FF2FF1102  WRONG
+case 4, squares swapped        relate = FF2FF1102  exact FF2FF1102  ok
+boundary(B) = MULTIPOINT ((5 5), (6 6)) | relate(POINT (5 5), B) = F0FFFF102
+relate_pattern(A, B, "FF*FF**0*") = False (exact: True)

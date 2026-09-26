@@ -1,0 +1,5 @@
+# patch variants on main f9c5eb6: Clipper2 C++ unit tests (CPP/Tests, 48 tests) / repro.cpp / fuzz_inscribed.cpp (4788 configs: Difference wrong, Union({square,A,B}) wrong)
+unpatched main                     : 48/48 pass; repro 3 WRONG;  fuzz Difference(A,B) tree wrong in 4434; Union({square,A,B}) tree wrong in 4574
+prototype_fix.diff (midpoint vote) : PASSED  ] 48 tests.; repro 0 WRONG; fuzz Difference(A,B) tree wrong in 0; Union({square,A,B}) tree wrong in 1  [the 1 left is a flat-result near-miss, not nesting; see ISSUE.md]
+alternative_csharp_fallback.diff   : PASSED  ] 48 tests.; repro 0 WRONG; fuzz Difference(A,B) tree wrong in 3; Union({square,A,B}) tree wrong in 4  [same as releases <= 1.5.2]
+first_attempt_all_on_only.diff     : PASSED  ] 48 tests.; repro 0 WRONG; fixes 4 of the 5 lead cases (not the rounding one, hole-contact-7-000044)

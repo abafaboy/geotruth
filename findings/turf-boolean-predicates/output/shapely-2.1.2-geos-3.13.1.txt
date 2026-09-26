@@ -1,0 +1,6 @@
+# shapely 2.1.2 GEOS 3.13.1 (reference only: relate, touches(A,B), touches(B,A), is_valid A, B)
+turf-touches-identical-triangles 2FFF1FFF2 False False True True
+turf-touches-overlapping-squares 212111212 False False True True
+turf-touches-apex-on-edge FF2F01212 True True True True
+turf-touches-multipolygon-second-part FF2F11212 True True True True
+turf-touches-in-hole-shared-edge FF2F11212 True True True True

@@ -1,0 +1,11 @@
+shapely 2.2.0rc1 GEOS 3.14.1
+case 1                     relate = FF2101102  exact FF210F102  WRONG
+case 1, operands swapped   relate = F11F002F2  exact F11F002F2  ok
+case 2 (rectangle)         relate = FF2101102  exact FF210F102  WRONG
+case 3 (one LineString)    relate = FF21011F2  exact FF210F1F2  WRONG
+case 4 (hole touch)        relate = 1F2101FF2  exact FF2101FF2  WRONG
+case 5 (touching parts)    relate = FF21011F2  exact FF2101FF2  WRONG
+case 6 (GC as B)           relate = 212111212  exact 2FF11F212  WRONG
+case 4: contains = True (exact False), touches = False (exact True)
+case 5: covers = False (exact True)
+case 6: within(A, B) = False (exact True), contains(B, A) = True (exact True)

@@ -1,0 +1,20 @@
+### geos-main (ae9cdd98b)
+$ geosop -a 'POINT (2 1)' -b 'GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)' relate
+Segmentation fault
+[exit status 139]
+$ geosop -a 'POINT (2 1)' -b 'GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)' intersects
+Segmentation fault
+[exit status 139]
+$ geosop -a 'GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)' -b 'POINT EMPTY' relate
+Segmentation fault
+[exit status 139]
+### geos-release (d022851)
+$ geosop -a 'POINT (2 1)' -b 'GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)' relate
+Segmentation fault
+[exit status 139]
+$ geosop -a 'POINT (2 1)' -b 'GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)' intersects
+Segmentation fault
+[exit status 139]
+$ geosop -a 'GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)' -b 'POINT EMPTY' relate
+Segmentation fault
+[exit status 139]

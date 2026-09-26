@@ -1,0 +1,5 @@
+# rough cost of the prototype: GC of 400 overlapping 33-vertex circles (random, seed 5) vs a quadrilateral,
+# 5 x (GC,B) + 5 x (B,GC), each: GEOSRelate both orders + 8 predicates (rbatch.c); wall clock, one run
+GEOS main ae9cdd9:                 0.178 s
+GEOS main + prototype_fix.diff:    0.444 s
+answers: identical (212101212 both orders, = exact)

@@ -1,0 +1,18 @@
+== wt_main f9c5eb6
+Clipper2 2.0.1
+Path2ContainsPath1(B, A)      = 0   (B lies inside A, touching it at its 3 vertices)
+Path2ContainsPath1(Bsmall, A) = 1   (control: one vertex of Bsmall strictly inside A)
+Path2ContainsPath1(I, H)      = 0   (I lies inside H, touching it at its 3 vertices)
+Path2ContainsPath1(A, B)      = 0   (A is not inside B)
+== wt_Clipper2_2.0.1 21ebba0
+Clipper2 2.0.1
+Path2ContainsPath1(B, A)      = 0   (B lies inside A, touching it at its 3 vertices)
+Path2ContainsPath1(Bsmall, A) = 1   (control: one vertex of Bsmall strictly inside A)
+Path2ContainsPath1(I, H)      = 0   (I lies inside H, touching it at its 3 vertices)
+Path2ContainsPath1(A, B)      = 0   (A is not inside B)
+== wt_patched2 f9c5eb6 + patch/prototype_fix.diff
+Clipper2 2.0.1
+Path2ContainsPath1(B, A)      = 1   (B lies inside A, touching it at its 3 vertices)
+Path2ContainsPath1(Bsmall, A) = 1   (control: one vertex of Bsmall strictly inside A)
+Path2ContainsPath1(I, H)      = 1   (I lies inside H, touching it at its 3 vertices)
+Path2ContainsPath1(A, B)      = 0   (A is not inside B)

@@ -1,0 +1,17 @@
+diff --git a/CPP/Clipper2Lib/include/clipper2/clipper.h b/CPP/Clipper2Lib/include/clipper2/clipper.h
+index fe1e299..cb55445 100644
+--- a/CPP/Clipper2Lib/include/clipper2/clipper.h
++++ b/CPP/Clipper2Lib/include/clipper2/clipper.h
+@@ -736,10 +736,9 @@ namespace Clipper2Lib {
+         break;
+       }
+     }
+-    if (pip != PointInPolygonResult::IsInside) return false;
+-    // result is likely true but check midpoint
++    // (C# port's fallback) since path1's location is still equivocal, check its midpoint
+     Point<T> mp1 = GetBounds(path1).MidPoint();
+-    return PointInPolygon(mp1, path2) == PointInPolygonResult::IsInside;
++    return PointInPolygon(mp1, path2) != PointInPolygonResult::IsOutside;
+   }
+ 
+   template <typename T>

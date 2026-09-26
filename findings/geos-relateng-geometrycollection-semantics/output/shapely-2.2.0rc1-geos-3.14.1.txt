@@ -1,0 +1,148 @@
+shapely 2.2.0rc1, GEOS 3.14.1
+
+[d1-far-point-contains]  isValid: True, True
+  relate(A,B) = 212FF1212   exact 212FF1FF2   <-- WRONG
+  relate(B,A) = 2F21F1212   exact 2FF1FF212   <-- WRONG
+  relate(union_all(A),B) = 212FF1212
+  contains(A,B) = False   exact True   <-- WRONG
+  covers(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[d1-own-polygon]  isValid: True, True
+  relate(A,B) = 2F0F1F212   exact 2F0F1FFF2   <-- WRONG
+  relate(B,A) = 2F2F110F2   exact 2FFF1F0F2   <-- WRONG
+  relate(union_all(A),B) = 2F0F1F212
+  contains(A,B) = False   exact True   <-- WRONG
+  covers(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[d1-own-polygon-within]  isValid: True, True
+  relate(A,B) = 2F2F110F2   exact 2FFF1F0F2   <-- WRONG
+  relate(B,A) = 2F0F1F212   exact 2F0F1FFF2   <-- WRONG
+  relate(union_all(A),B) = 2F2F110F2
+  within(A,B) = False   exact True   <-- WRONG
+  covered_by(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[d1-interior-point-eb]  isValid: True, True
+  relate(A,B) = 2121F1212   exact 2121F12F2   <-- WRONG
+  relate(B,A) = 2121F1212   exact 2121FF212   <-- WRONG
+  relate(union_all(A),B) = 2121F1212
+
+[d1-line-covers-boundary-eb]  isValid: True, True
+  relate(A,B) = F10FFF212   exact F10FFF2F2   <-- WRONG
+  relate(B,A) = FF21F10F2   exact FF21FF0F2   <-- WRONG
+  relate(union_all(A),B) = F10FFF212
+
+[d1-line-end-on-points]  isValid: True, True
+  relate(A,B) = FFF0FF102   exact FF10FF102   <-- WRONG
+  relate(B,A) = F01FF0FF2   exact F01FF01F2   <-- WRONG
+  relate(union_all(A),B) = FFF0FF102
+  covered_by(A,B) = True   exact False   <-- WRONG
+
+[d1-ring-within-point]  isValid: True, True
+  relate(A,B) = 0FFFFF102   exact 0F1FFF102   <-- WRONG
+  relate(B,A) = 0F1FF0FF2   exact 0F1FF01F2   <-- WRONG
+  relate(union_all(A),B) = 0FFFFF102
+  within(A,B) = True   exact False   <-- WRONG
+  covered_by(A,B) = True   exact False   <-- WRONG
+
+[d1-testfile-closed-line]  isValid: True, True
+  relate(A,B) = 0F2FF1FF2   exact 0F2FF11F2   <-- WRONG
+  relate(B,A) = 0FFFFF212   exact 0F1FFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2
+  crosses(A,B) = False   exact True   <-- WRONG
+
+[d1-testfile-line-ends]  isValid: True, True
+  relate(A,B) = FFF0FF102   exact FF10FF102   <-- WRONG
+  relate(B,A) = F01FF0FF2   exact F01FF01F2   <-- WRONG
+  relate(union_all(A),B) = FFF0FF102
+  covered_by(A,B) = True   exact False   <-- WRONG
+
+[d2-reflex-point]  isValid: True, True
+  relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = False   exact True   <-- WRONG
+  touches(A,B) = True   exact False   <-- WRONG
+
+[d2-reflex-point-swapped-elements]  isValid: True, True
+  relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = False   exact True   <-- WRONG
+  touches(A,B) = True   exact False   <-- WRONG
+
+[d2-reflex-line]  isValid: True, True
+  relate(A,B) = 1020011F2   exact 102F01FF2   <-- WRONG
+  relate(B,A) = 10F00F212   exact 1FF00F212   <-- WRONG
+  relate(union_all(A),B) = 102F01FF2   (= exact)
+  contains(A,B) = False   exact True   <-- WRONG
+  covers(A,B) = False   exact True   <-- WRONG
+  crosses(A,B) = True   exact False   <-- WRONG
+
+[d2-adjacent-control]  isValid: True, True
+  relate(A,B) = 0F2FF1FF2   exact 0F2FF1FF2
+  relate(B,A) = 0FFFFF212   exact 0FFFFF212
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  ok
+
+[d2-testfile-gc-reflex]  isValid: True, True
+  relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = False   exact True   <-- WRONG
+  touches(A,B) = True   exact False   <-- WRONG
+
+[d2-testfile-gc-reflex-line]  isValid: True, True
+  relate(A,B) = 102F01FF2   exact 102FF1FF2   <-- WRONG
+  relate(B,A) = 1FF00F212   exact 1FF0FF212   <-- WRONG
+  relate(union_all(A),B) = 102FF1FF2   (= exact)
+
+[d3-frame-equals]  isValid: True, True
+  relate(A,B) = 2FFF1FFF2   exact 2FF11F2F2   <-- WRONG
+  relate(B,A) = 212F11FF2   exact 212F1FFF2   <-- WRONG
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = True   exact False   <-- WRONG
+  covers(A,B) = True   exact False   <-- WRONG
+  equals(A,B) = True   exact False   <-- WRONG
+
+[d3-frame-two-l-shapes]  isValid: True, True
+  relate(A,B) = 2FFF1FFF2   exact 2FF11F2F2   <-- WRONG
+  relate(B,A) = 212F11FF2   exact 212F1FFF2   <-- WRONG
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = True   exact False   <-- WRONG
+  covers(A,B) = True   exact False   <-- WRONG
+  equals(A,B) = True   exact False   <-- WRONG
+
+[d3-frame-control-polygon]  isValid: True, True
+  relate(A,B) = 2FF11F2F2   exact 2FF11F2F2
+  relate(B,A) = 212F1FFF2   exact 212F1FFF2
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  ok
+
+[d3-frame-control-center]  isValid: True, True
+  relate(A,B) = FF2FF10F2   exact FF2FF10F2
+  relate(B,A) = FF0FFF212   exact FF0FFF212
+  relate(union_all(A),B) = FF2FF10F2   (= exact)
+  ok
+
+[d3-no-boundary-vertex]  isValid: True, True
+  relate(A,B) = FF2FFF102   exact FF2FF1102   <-- WRONG
+  relate(B,A) = FF1FF02F2   exact FF1FF0212   <-- WRONG
+  relate(union_all(A),B) = FF2FF1102   (= exact)
+
+[known-gc-overlap-as-b]  isValid: True, True
+  relate(A,B) = 212111212   exact 2FF11F212   <-- WRONG
+  relate(B,A) = 212F11FF2   exact 212F11FF2
+  relate(union_all(A),B) = 212111212
+  within(A,B) = False   exact True   <-- WRONG
+  covered_by(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[known-empty-element]  isValid: True, True
+  relate(A,B) = FF2FF10F2   exact FF1FF00F2   <-- WRONG
+  relate(B,A) = FF0FFF212   exact FF0FFF102   <-- WRONG
+  relate(union_all(A),B) = FF1FF00F2   (= exact)
+
+19 of 22 cases wrong

@@ -1,0 +1,43 @@
+Clipper2 commit: fa165fe8364b7d0e5d5db2182369b8c82348f4ea
+Clipper2 1.5.3
+
+Clipper2's own PointInPolygon: vertices of B against A: IsOn IsOn IsOn; (3,3), inside B, against A: IsInside, against B: IsInside
+
+Case 1: Difference(A, B)
+  Paths64 result: 2 path(s), total signed area 12.0
+    area +16.0  (6,2) (2,6) (0,0)
+    area -4.0  (1,3) (4,4) (3,1)
+  PolyTree64 result: 2 top-level node(s)
+  level 1 outer  area +16.0  (6,2) (2,6) (0,0)
+  level 1 outer  area -4.0  (1,3) (4,4) (3,1)   <-- orientation contradicts level
+  => WRONG nesting
+
+Case 1: Xor(A, B)
+  Paths64 result: 2 path(s), total signed area 12.0
+    area +16.0  (6,2) (2,6) (0,0)
+    area -4.0  (1,3) (4,4) (3,1)
+  PolyTree64 result: 2 top-level node(s)
+  level 1 outer  area +16.0  (6,2) (2,6) (0,0)
+  level 1 outer  area -4.0  (1,3) (4,4) (3,1)   <-- orientation contradicts level
+  => WRONG nesting
+
+Control: Difference(A, B2), B2 = (3,2) (4,4) (1,3)
+  Paths64 result: 2 path(s), total signed area 13.5
+    area +16.0  (6,2) (2,6) (0,0)
+    area -2.5  (1,3) (4,4) (3,2)
+  PolyTree64 result: 1 top-level node(s)
+  level 1 outer  area +16.0  (6,2) (2,6) (0,0)
+    level 2 hole   area -2.5  (1,3) (4,4) (3,2)
+  => nesting OK
+
+Case 2: Union(S with hole H, I)
+  Paths64 result: 3 path(s), total signed area 121.5
+    area +144.0  (12,12) (0,12) (0,0) (12,0)
+    area -30.0  (4,10) (10,4) (2,2)
+    area +7.5  (7,7) (3,6) (6,3)
+  PolyTree64 result: 1 top-level node(s)
+  level 1 outer  area +144.0  (12,12) (0,12) (0,0) (12,0)
+    level 2 hole   area -30.0  (4,10) (10,4) (2,2)
+    level 2 hole   area +7.5  (7,7) (3,6) (6,3)   <-- orientation contradicts level
+  => WRONG nesting
+

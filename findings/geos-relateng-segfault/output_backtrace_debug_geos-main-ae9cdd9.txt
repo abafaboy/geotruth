@@ -1,0 +1,56 @@
+# GEOS main ae9cdd98b, Debug build (-O0 -g3, assertions on), geosop relate
+# build: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-O0 -g3' && make geos_c geosop
+
+## crash 1: geosop -a 'POINT (2 1)' -b 'GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON EMPTY, POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))' relate
+## (the Release build dies with SIGSEGV at the same line; the Debug build trips CoordinateSequence's bounds assertion first)
+geosop: include/geos/geom/CoordinateSequence.h:259: const T& geos::geom::CoordinateSequence::getAt(std::size_t) const [with T = geos::geom::Coordinate; std::size_t = long unsigned int]: Assertion `i*stride() < m_vect.size()' faile
+Program received signal SIGABRT, Aborted.
+#0  __pthread_kill_implementation (no_tid=0, signo=6, threadid=<optimized out>) at ./nptl/pthread_kill.c:44
+#1  __pthread_kill_internal (signo=6, threadid=<optimized out>) at ./nptl/pthread_kill.c:78
+#2  __GI___pthread_kill (threadid=<optimized out>, signo=signo@entry=6) at ./nptl/pthread_kill.c:89
+#3  0x… in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#4  0x… in __GI_abort () at ./stdlib/abort.c:79
+#5  0x… in __assert_fail_base (fmt=0x… "%s%s%s:%u: %s%sAssertion `%s' failed.\n%n", assertion=assertion@entry=0x… "i*stride() < m_vect.size()", file=file@entry=0x… "include/geos/geom/CoordinateSequence.h", line=line@entry=
+#6  0x… in __assert_fail (assertion=0x… "i*stride() < m_vect.size()", file=0x… "include/geos/geom/CoordinateSequence.h", line=259, function=0x… "const T& geos::geom::CoordinateSequence::getAt(std::size_t) const [with T = g
+#7  0x… in geos::geom::CoordinateSequence::getAt<geos::geom::Coordinate> (this=0x…, i=0) at include/geos/geom/CoordinateSequence.h:259
+#8  0x… in geos::operation::relateng::AdjacentEdgeLocator::addSections (this=0x…, p=0x…, ring=0x…, sections=...) at src/operation/relateng/AdjacentEdgeLocator.cpp:68
+#9  0x… in geos::operation::relateng::AdjacentEdgeLocator::locate (this=0x…, p=0x…) at src/operation/relateng/AdjacentEdgeLocator.cpp:52
+#10 0x… in geos::operation::relateng::RelatePointLocator::locateOnPolygons (this=0x…, p=0x…, isNode=false, parentPolygonal=0x0) at src/operation/relateng/RelatePointLocator.cpp:291
+#11 0x… in geos::operation::relateng::RelatePointLocator::computeDimLocation (this=0x…, p=0x…, isNode=false, parentPolygonal=0x0) at src/operation/relateng/RelatePointLocator.cpp:199
+#12 0x… in geos::operation::relateng::RelatePointLocator::locateWithDim (this=0x…, p=0x…, isNode=false, parentPolygonal=0x0) at src/operation/relateng/RelatePointLocator.cpp:188
+#13 0x… in geos::operation::relateng::RelatePointLocator::locateWithDim (this=0x…, p=0x…) at src/operation/relateng/RelatePointLocator.cpp:169
+#14 0x… in geos::operation::relateng::RelateGeometry::locateWithDim (this=0x…, pt=0x…) at src/operation/relateng/RelateGeometry.cpp:232
+#15 0x… in geos::operation::relateng::RelateNG::computePoint (this=0x…, isA=true, pt=0x…, geomTarget=..., topoComputer=...) at src/operation/relateng/RelateNG.cpp:505
+#16 0x… in geos::operation::relateng::RelateNG::computePoints (this=0x…, geom=..., isA=true, geomTarget=..., topoComputer=...) at src/operation/relateng/RelateNG.cpp:492
+#17 0x… in geos::operation::relateng::RelateNG::computeAtPoints (this=0x…, geom=..., isA=true, geomTarget=..., topoComputer=...) at src/operation/relateng/RelateNG.cpp:447
+#18 0x… in geos::operation::relateng::RelateNG::evaluate (this=0x…, b=0x…, predicate=...) at src/operation/relateng/RelateNG.cpp:356
+#19 0x… in geos::operation::relateng::RelateNG::evaluate (this=0x…, b=0x…) at src/operation/relateng/RelateNG.cpp:302
+#20 0x… in geos::operation::relateng::RelateNG::relate (a=0x…, b=0x…) at src/operation/relateng/RelateNG.cpp:171
+#21 0x… in geos::geom::Geometry::relate (this=0x…, other=0x…) at src/geom/Geometry.cpp:535
+#8  0x… in geos::operation::relateng::AdjacentEdgeLocator::addSections (this=0x…, p=0x…, ring=0x…, sections=...) at src/operation/relateng/AdjacentEdgeLocator.cpp:68
+68	        const CoordinateXY& p0 = ring->getAt(i);
+$1 = 0
+$2 = 18446744073709551615
+$3 = 0
+
+## crash 2: geosop -a 'GEOMETRYCOLLECTION (POINT (0 2), LINESTRING EMPTY)' -b 'POINT EMPTY' relate
+Program received signal SIGSEGV, Segmentation fault.
+63	    return m_hasBoundary;
+#0  0x… in geos::operation::relateng::LinearBoundary::hasBoundary (this=0x0) at src/operation/relateng/LinearBoundary.cpp:63
+#1  0x… in geos::operation::relateng::RelatePointLocator::hasBoundary (this=0x…) at src/operation/relateng/RelatePointLocator.cpp:70
+#2  0x… in geos::operation::relateng::RelateGeometry::hasBoundary (this=0x…) at src/operation/relateng/RelateGeometry.cpp:279
+#3  0x… in geos::operation::relateng::TopologyComputer::initExteriorEmpty (this=0x…, geomNonEmpty=true) at src/operation/relateng/TopologyComputer.cpp:101
+#4  0x… in geos::operation::relateng::TopologyComputer::initExteriorDims (this=0x…) at src/operation/relateng/TopologyComputer.cpp:82
+#5  0x… in geos::operation::relateng::TopologyComputer::TopologyComputer (this=0x…, p_predicate=..., p_geomA=..., p_geomB=...) at include/geos/operation/relateng/TopologyComputer.h:143
+#6  0x… in geos::operation::relateng::RelateNG::evaluate (this=0x…, b=0x…, predicate=...) at src/operation/relateng/RelateNG.cpp:342
+#7  0x… in geos::operation::relateng::RelateNG::evaluate (this=0x…, b=0x…) at src/operation/relateng/RelateNG.cpp:302
+#8  0x… in geos::operation::relateng::RelateNG::relate (a=0x…, b=0x…) at src/operation/relateng/RelateNG.cpp:171
+#9  0x… in geos::geom::Geometry::relate (this=0x…, other=0x…) at src/geom/Geometry.cpp:535
+#1  0x… in geos::operation::relateng::RelatePointLocator::hasBoundary (this=0x…) at src/operation/relateng/RelatePointLocator.cpp:70
+70	    return lineBoundary->hasBoundary();
+$1 = std::unique_ptr<geos::operation::relateng::LinearBoundary> = {get() = 0x0}
+$2 = 0
+$3 = 1
+#3  0x… in geos::operation::relateng::TopologyComputer::initExteriorEmpty (this=0x…, geomNonEmpty=true) at src/operation/relateng/TopologyComputer.cpp:101
+101	            if (getGeometry(geomNonEmpty).hasBoundary()) {
+$4 = 1

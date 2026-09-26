@@ -1,0 +1,20 @@
+# GEOS main ae9cdd9 + patch/port-jts-1200.diff + patch/area-vertex-skip.diff
+## ctest -R '^xml-' (all XML tests)
+100% tests passed, 0 tests failed out of 171
+
+Total Test time (real) =   5.31 sec
+## RelateNG unit tests (tests/unit/operation/relateng/*.cpp + geos_unit.cpp, compiled against the patched libgeos)
+geos::operation::relateng::RelateNG: ................................................................
+geos::operation::relateng::RelateNGBoundaryNodeRule: .........
+geos::operation::relateng::RelateNGGC: .........................
+geos::operation::relateng::RelateNGRobustness: ...................
+geos::operation::relateng::RelatePointLocator: ........
+geos::operation::relateng::RelatePredicate: .....
+
+tests summary: ok:155
+
+# same + covered-ring/experiment-self-node-linear-b.diff
+100% tests passed, 0 tests failed out of 171
+
+Total Test time (real) =   3.14 sec
+RelateNG unit tests: ok:155 (same binary, experiment library)

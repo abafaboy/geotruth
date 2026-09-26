@@ -1,0 +1,39 @@
+name: A library's result looks wrong or unfair
+description: A score, an adapter, a manifest (precision, supported input) or a triage status seems wrong.
+title: "Result: "
+labels: ["scoring"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        geotruth should judge a library only on what the library promises. If you think a
+        result misrepresents a library, for example because the adapter calls it in an
+        unusual way, the manifest misstates its precision model, or the behaviour is
+        documented, please tell us. Library maintainers are especially welcome here.
+
+        If the result involves a crash, a hang or a memory error, please read the security
+        policy first and do not post a reproducer here.
+  - type: input
+    id: target
+    attributes:
+      label: Library target
+      description: The target id, as in `geotruth run --list` (for example geos-main, clipper2, turf).
+    validations:
+      required: true
+  - type: input
+    id: case
+    attributes:
+      label: Case id or failure cluster
+      description: For example `vertex-on-edge-1-000042-apex-in.n16.unit`, or a cluster `lib|family|signature`.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+      description: What geotruth reports, and what you believe is right.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Links to the library's documentation or source, or a standalone program.

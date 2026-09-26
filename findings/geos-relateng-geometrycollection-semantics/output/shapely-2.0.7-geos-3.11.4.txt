@@ -1,0 +1,182 @@
+shapely 2.0.7, GEOS 3.11.4
+
+[d1-far-point-contains]  isValid: True, True
+  relate(A,B) = 212FF1FF2   exact 212FF1FF2
+  relate(B,A) = 2FF1FF212   exact 2FF1FF212
+  relate(union_all(A),B) = 212FF1FF2   (= exact)
+  ok
+
+[d1-own-polygon]  isValid: True, True
+  relate(A,B) = 2F0F1FFF2   exact 2F0F1FFF2
+  relate(B,A) = 2FFF1F0F2   exact 2FFF1F0F2
+  relate(union_all(A),B) = 2F0F1FFF2   (= exact)
+  ok
+
+[d1-own-polygon-within]  isValid: True, True
+  relate(A,B) = 2FFF1F0F2   exact 2FFF1F0F2
+  relate(B,A) = 2F0F1FFF2   exact 2F0F1FFF2
+  relate(union_all(A),B) = 2FFF1F0F2   (= exact)
+  ok
+
+[d1-interior-point-eb]  isValid: True, True
+  relate(A,B) = 2121F12F2   exact 2121F12F2
+  relate(B,A) = 2121FF212   exact 2121FF212
+  relate(union_all(A),B) = 2121F12F2   (= exact)
+  ok
+
+[d1-line-covers-boundary-eb]  isValid: True, True
+  relate(A,B) = F10FFF2F2   exact F10FFF2F2
+  relate(B,A) = FF21FF0F2   exact FF21FF0F2
+  relate(union_all(A),B) = F10FFF2F2   (= exact)
+  ok
+
+[d1-line-end-on-points]  isValid: True, True
+  relate(A,B) = 1F10FF102   exact FF10FF102   <-- WRONG
+  relate(B,A) = 101FF01F2   exact F01FF01F2   <-- WRONG
+  relate(union_all(A),B) = 1F10FF102
+  touches(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[d1-ring-within-point]  isValid: True, True
+  relate(A,B) = 1F1FFF102   exact 0F1FFF102   <-- WRONG
+  relate(B,A) = 1F1FF01F2   exact 0F1FF01F2   <-- WRONG
+  relate(union_all(A),B) = 1F1FFF102
+  overlaps(A,B) = True   exact False   <-- WRONG
+  crosses(A,B) = False   exact True   <-- WRONG
+
+[d1-testfile-closed-line]  isValid: True, True
+  relate(A,B) = 1F2FF11F2   exact 0F2FF11F2   <-- WRONG
+  relate(B,A) = 1F1FFF212   exact 0F1FFF212   <-- WRONG
+  relate(union_all(A),B) = 1F2FF11F2
+
+[d1-testfile-line-ends]  isValid: True, True
+  relate(A,B) = 1F10FF102   exact FF10FF102   <-- WRONG
+  relate(B,A) = 101FF01F2   exact F01FF01F2   <-- WRONG
+  relate(union_all(A),B) = 1F10FF102
+  touches(A,B) = False   exact True   <-- WRONG
+  overlaps(A,B) = True   exact False   <-- WRONG
+
+[d2-reflex-point]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+
+[d2-reflex-point-swapped-elements]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+
+[d2-reflex-line]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 102F01FF2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact 1FF00F212   <-- WRONG
+  relate(union_all(A),B) = 102F01FF2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 1 0.5. This can occur if    exact False   <-- WRONG
+
+[d2-adjacent-control]  isValid: True, True
+  relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = False   exact True   <-- WRONG
+  touches(A,B) = True   exact False   <-- WRONG
+
+[d2-testfile-gc-reflex]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 0F2FF1FF2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 0FFFFF212   <-- WRONG
+  relate(union_all(A),B) = 0F2FF1FF2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+
+[d2-testfile-gc-reflex-line]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 102FF1FF2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 1FF0FF212   <-- WRONG
+  relate(union_all(A),B) = 102FF1FF2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+
+[d3-frame-equals]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 2FF11F2F2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact 212F1FFF2   <-- WRONG
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  equals(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+
+[d3-frame-two-l-shapes]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact 2FF11F2F2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact 212F1FFF2   <-- WRONG
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+  equals(A,B) = GEOSException: TopologyException: side location conflict at 0 2. This can occur if th   exact False   <-- WRONG
+
+[d3-frame-control-polygon]  isValid: True, True
+  relate(A,B) = 2FF11F2F2   exact 2FF11F2F2
+  relate(B,A) = 212F1FFF2   exact 212F1FFF2
+  relate(union_all(A),B) = 2FF11F2F2   (= exact)
+  ok
+
+[d3-frame-control-center]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact FF2FF10F2   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact FF0FFF212   <-- WRONG
+  relate(union_all(A),B) = FF2FF10F2   (= exact)
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  contains(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  covers(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 0 1. This can occur if th   exact False   <-- WRONG
+
+[d3-no-boundary-vertex]  isValid: True, True
+  relate(A,B) = FF2FF1102   exact FF2FF1102
+  relate(B,A) = FF1FF0212   exact FF1FF0212
+  relate(union_all(A),B) = FF2FF1102   (= exact)
+  ok
+
+[known-gc-overlap-as-b]  isValid: True, True
+  relate(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact 2FF11F212   <-- WRONG
+  relate(B,A) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact 212F11FF2   <-- WRONG
+  relate(union_all(A),B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th
+  intersects(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact True   <-- WRONG
+  within(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact True   <-- WRONG
+  covered_by(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact True   <-- WRONG
+  touches(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact False   <-- WRONG
+  overlaps(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact False   <-- WRONG
+  crosses(A,B) = GEOSException: TopologyException: side location conflict at 1 0. This can occur if th   exact False   <-- WRONG
+
+[known-empty-element]  isValid: True, True
+  relate(A,B) = FF2FF10F2   exact FF1FF00F2   <-- WRONG
+  relate(B,A) = FF0FFF212   exact FF0FFF102   <-- WRONG
+  relate(union_all(A),B) = FF1FF00F2   (= exact)
+
+15 of 22 cases wrong

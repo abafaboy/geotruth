@@ -1,0 +1,38 @@
+1. exact matrices (arrangement route, witness route) and exact validity
+  d1-far-point-contains              arrangement 212FF1FF2  witness 212FF1FF2  valid True,True  ok
+  d1-own-polygon                     arrangement 2F0F1FFF2  witness 2F0F1FFF2  valid True,True  ok
+  d1-own-polygon-within              arrangement 2FFF1F0F2  witness 2FFF1F0F2  valid True,True  ok
+  d1-interior-point-eb               arrangement 2121F12F2  witness 2121F12F2  valid True,True  ok
+  d1-line-covers-boundary-eb         arrangement F10FFF2F2  witness F10FFF2F2  valid True,True  ok
+  d1-line-end-on-points              arrangement FF10FF102  witness FF10FF102  valid True,True  ok
+  d1-ring-within-point               arrangement 0F1FFF102  witness 0F1FFF102  valid True,True  ok
+  d1-testfile-closed-line            arrangement 0F2FF11F2  witness 0F2FF11F2  valid True,True  ok
+  d1-testfile-line-ends              arrangement FF10FF102  witness FF10FF102  valid True,True  ok
+  d2-reflex-point                    arrangement 0F2FF1FF2  witness 0F2FF1FF2  valid True,True  ok
+  d2-reflex-point-swapped-elements   arrangement 0F2FF1FF2  witness 0F2FF1FF2  valid True,True  ok
+  d2-reflex-line                     arrangement 102F01FF2  witness 102F01FF2  valid True,True  ok
+  d2-adjacent-control                arrangement 0F2FF1FF2  witness 0F2FF1FF2  valid True,True  ok
+  d2-testfile-gc-reflex              arrangement 0F2FF1FF2  witness 0F2FF1FF2  valid True,True  ok
+  d2-testfile-gc-reflex-line         arrangement 102FF1FF2  witness 102FF1FF2  valid True,True  ok
+  d3-frame-equals                    arrangement 2FF11F2F2  witness 2FF11F2F2  valid True,True  ok
+  d3-frame-two-l-shapes              arrangement 2FF11F2F2  witness 2FF11F2F2  valid True,True  ok
+  d3-frame-control-polygon           arrangement 2FF11F2F2  witness 2FF11F2F2  valid True,True  ok
+  d3-frame-control-center            arrangement FF2FF10F2  witness FF2FF10F2  valid True,True  ok
+  d3-no-boundary-vertex              arrangement FF2FF1102  witness FF2FF1102  valid True,True  ok
+  known-gc-overlap-as-b              arrangement 2FF11F212  witness 2FF11F212  valid True,True  ok
+  known-empty-element                arrangement FF1FF00F2  witness FF1FF00F2  valid True,True  ok
+
+2. D2: the reflex vertex, located exactly
+  geotruth.locate((2,1), GC) = I
+  124 exact probe points at distance ~1e-6 around (2,1): 0 outside both polygons
+  in the arrowhead alone (2,1) is B ; in the rectangle alone B
+
+3. D3: the frame's union P = [0,3]^2 minus [1,2]^2 against the square, audited references
+  indep.py : {'equals': False, 'contains': False, 'covers': False, 'within': True, 'covered_by': True, 'overlaps': False, 'touches': False} area(P) = 8 area(square) = 9
+  oracle.py: {'equals': False, 'contains': False, 'covers': False, 'within': True, 'covered_by': True, 'overlaps': False, 'touches': False} area_diff(square - P) = 1
+  geotruth.locate((1.5,1.5), frame GC) = E ; each strip: ['E', 'E', 'E', 'E']
+
+4. D1: the far point and the covered polygon
+  relate(polygon element, B) = 212FF1FF2 ; POINT (10 10) in B: E
+  so relate(A, B) = that matrix with IE raised to at least 0 (the point): 212FF1FF2
+  (1/2, 0) on the ring: I ; in the GC: E -> the ring's interior meets the GC's exterior, so IE = 1 and within/coveredBy are false

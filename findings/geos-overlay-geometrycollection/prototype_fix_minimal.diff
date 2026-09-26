@@ -1,0 +1,155 @@
+diff --git a/include/geos/geom/HeuristicOverlay.h b/include/geos/geom/HeuristicOverlay.h
+index e4eb8b74a..b017d24cf 100644
+--- a/include/geos/geom/HeuristicOverlay.h
++++ b/include/geos/geom/HeuristicOverlay.h
+@@ -67,6 +67,9 @@ private:
+         , dimension(Dimension::DONTCARE)
+     {
+         readCollection(g);
++        //-- no non-empty element: use the declared dimension of the (empty) input
++        if (dimension == Dimension::DONTCARE)
++            dimension = static_cast<Dimension::DimensionType>(g->getDimension());
+         unionByDimension();
+     };
+ 
+diff --git a/src/geom/HeuristicOverlay.cpp b/src/geom/HeuristicOverlay.cpp
+index 57f6683de..9dfd460c6 100644
+--- a/src/geom/HeuristicOverlay.cpp
++++ b/src/geom/HeuristicOverlay.cpp
+@@ -487,7 +487,7 @@ StructuredCollection::doDifference(const StructuredCollection& a) const
+ 
+     std::unique_ptr<Geometry> pt_diff_poly_line = OverlayNGRobust::Overlay(
+         pt_diff_poly.get(),
+-        line_diff_poly_line.get(),
++        a.getLineUnion(),
+         OverlayNG::DIFFERENCE);
+ 
+     std::unique_ptr<Geometry> pt_diff_poly_line_pt = OverlayNGRobust::Overlay(
+@@ -505,25 +505,18 @@ StructuredCollection::doDifference(const StructuredCollection& a) const
+ std::unique_ptr<Geometry>
+ StructuredCollection::doSymDifference(const StructuredCollection& a) const
+ {
+-    std::unique_ptr<Geometry> poly_symdiff_poly = OverlayNGRobust::Overlay(
+-        poly_union.get(),
+-        a.getPolyUnion(),
+-        OverlayNG::SYMDIFFERENCE);
+-
+-    std::unique_ptr<Geometry> line_symdiff_line = OverlayNGRobust::Overlay(
+-        line_union.get(),
+-        a.getLineUnion(),
+-        OverlayNG::DIFFERENCE);
+-
+-    std::unique_ptr<Geometry> pt_symdiff_pt = OverlayNGRobust::Overlay(
+-        pt_union.get(),
+-        a.getPointUnion(),
+-        OverlayNG::DIFFERENCE);
++    /*
++    * SymDiff(A, B) = Union(Diff(A, B), Diff(B, A)).
++    * Both differences are needed for the lower dimensions:
++    * points and lines of B must be kept where they are not in A,
++    * and points and lines of A removed where they are in B.
++    */
++    std::unique_ptr<Geometry> a_diff_b = doDifference(a);
++    std::unique_ptr<Geometry> b_diff_a = a.doDifference(*this);
+ 
+     StructuredCollection c;
+-    c.readCollection(poly_symdiff_poly.get());
+-    c.readCollection(line_symdiff_line.get());
+-    c.readCollection(pt_symdiff_pt.get());
++    c.readCollection(a_diff_b.get());
++    c.readCollection(b_diff_a.get());
+     return computeResult(c, OverlayNG::SYMDIFFERENCE, getDimension(), a.getDimension());
+ }
+ 
+diff --git a/tests/unit/geom/HeuristicOverlayTest.cpp b/tests/unit/geom/HeuristicOverlayTest.cpp
+index 0f9a19717..86bad05f1 100644
+--- a/tests/unit/geom/HeuristicOverlayTest.cpp
++++ b/tests/unit/geom/HeuristicOverlayTest.cpp
+@@ -216,4 +216,87 @@ void object::test<12> ()
+         );
+ }
+ 
++// symdifference keeps the parts of B that are not in A (GC with one polygon)
++template<>
++template<>
++void object::test<13> ()
++{
++    checkOverlay(
++        "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))",
++        "POINT (3 3)",
++        OverlayNG::SYMDIFFERENCE,
++        "GEOMETRYCOLLECTION (POINT (3 3), POLYGON ((0 0, 4 0, 0 4, 0 0)))"
++        );
++}
++
++// difference removes points of A that lie on lines of B
++template<>
++template<>
++void object::test<14> ()
++{
++    checkOverlay(
++        "POINT (1 0)",
++        "GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))",
++        OverlayNG::DIFFERENCE,
++        "POINT EMPTY"
++        );
++}
++
++// symdifference removes points of A that lie on lines of B, keeps B's parts
++template<>
++template<>
++void object::test<15> ()
++{
++    checkOverlay(
++        "POINT (1 0)",
++        "GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))",
++        OverlayNG::SYMDIFFERENCE,
++        "GEOMETRYCOLLECTION (POINT (3 3), LINESTRING (0 0, 2 0))"
++        );
++}
++
++// symdifference of equal point sets is empty
++template<>
++template<>
++void object::test<16> ()
++{
++    checkOverlay(
++        "GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))",
++        "POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))",
++        OverlayNG::SYMDIFFERENCE,
++        "POLYGON EMPTY"
++        );
++}
++
++// empty operand without non-empty elements: typed empty result, no assertion
++template<>
++template<>
++void object::test<17> ()
++{
++    checkOverlay(
++        "GEOMETRYCOLLECTION (POLYGON EMPTY)",
++        "POINT (1 1)",
++        OverlayNG::INTERSECTION,
++        "POINT EMPTY"
++        );
++    checkOverlay(
++        "GEOMETRYCOLLECTION (POLYGON EMPTY)",
++        "POINT (1 1)",
++        OverlayNG::SYMDIFFERENCE,
++        "POINT (1 1)"
++        );
++    checkOverlay(
++        "POINT EMPTY",
++        "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))",
++        OverlayNG::DIFFERENCE,
++        "POINT EMPTY"
++        );
++    checkOverlay(
++        "GEOMETRYCOLLECTION (POINT (0 2), LINESTRING (0 0, 6 0))",
++        "MULTIPOLYGON EMPTY",
++        OverlayNG::INTERSECTION,
++        "LINESTRING EMPTY"
++        );
++}
++
+ } // namespace tut

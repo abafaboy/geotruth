@@ -1,0 +1,27 @@
+# GEOS main ae9cdd9 + prototype_fix_<g>.diff, each alone and all three (test_split.sh in the scratch dir)
+# Release build, BUILD_TESTING=ON, ctest -j2; then repro.c
+== patch 1: ctest
+100% tests passed, 0 tests failed out of 535
+== patch 1: repro: 9 of 22 cases wrong
+== patch 2: ctest
+100% tests passed, 0 tests failed out of 535
+== patch 2: repro: 14 of 22 cases wrong
+== patch 3: ctest
+100% tests passed, 0 tests failed out of 535
+== patch 3: repro: 18 of 22 cases wrong
+== patch all: ctest
+100% tests passed, 0 tests failed out of 535
+== patch all: repro: 3 of 22 cases wrong
+DONE
+
+# relateng unit test groups, main + all three patches
+AdjacentEdgeLocator: tests summary: ok:6
+LinearBoundary: tests summary: ok:4
+PolygonNodeConverter: tests summary: ok:5
+RelateGeometry: tests summary: ok:10
+RelateNG: tests summary: ok:64
+RelateNGBoundaryNodeRule: tests summary: ok:9
+RelateNGGC: tests summary: ok:25
+RelateNGRobustness: tests summary: ok:19
+RelatePointLocator: tests summary: ok:8
+RelatePredicate: tests summary: ok:5

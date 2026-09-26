@@ -1,0 +1,10 @@
+# tests/crosscheck/test_relate_dual.py GEOS_POINT_LOCATION case 3 (dense stacked GC, reflex vertex (4 6)):
+#   A = GEOMETRYCOLLECTION (POLYGON ((4 2, 4 4, 0 4, 0 2, 4 2)), POLYGON ((0 0, 4 4, 8 4, 2 0, 0 0)), POLYGON ((6 8, 6 4, 8 4, 8 8, 6 8)), POLYGON ((6 6, 8 4, 0 8, 6 6)), POLYGON ((6 6, 8 2, 8 0, 6 2, 2 8, 4 6, 6 6)), MULTIPOINT ((0 0), (4 4), (8 4), (2 0)))
+#   B = MULTILINESTRING ((4 6, 2 4), (2 4, 2 0, 0 6), (4 6, 4 8, 8 4, 4 8, 4 6))
+#   exact relate(A,B) = 1020F1102 (both geotruth routes); GEOS main: 1F2001102
+# GEOS main + each prototype patch alone (rbatch.c: relate(A,B) relate(B,A) predicate bits):
+patch 1: 1F2001102 101F00212 10000001
+patch 2: 1020F1102 1010F0212 10000001
+patch 3: 1F2001102 101F00212 10000001
+patch all: 1020F1102 1010F0212 10000001
+# -> fixed by patch 2 (D2) only

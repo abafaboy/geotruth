@@ -1,0 +1,284 @@
+<h1>Methodology</h1>
+<p class="lede">How geotruth computes exact answers, how it grades a library's answers, and
+the rules that keep the comparison fair. The full design is in $design.</p>
+<nav class="toc" aria-label="On this page">
+<a href="#measured">What is measured</a><a href="#exact">Exact arithmetic</a>
+<a href="#routes">Two routes</a><a href="#certificate">Overlay certificate</a>
+<a href="#controls">Controls</a><a href="#scoring">Scoring</a><a href="#fairness">Fairness</a>
+<a href="#triage">Triage</a><a href="#corpus">Corpus</a><a href="#figures">Figures</a>
+<a href="#reproduce">Reproduce</a><a href="#adapters">Add an adapter</a><a href="#limits">Limits</a>
+</nav>
+
+<section id="measured" aria-labelledby="measured-h">
+<h2 id="measured-h">What is measured</h2>
+<p>Every case of the corpus is a pair of geometries A and B. For each case a library is asked
+for as much of the following as it offers:</p>
+<ul>
+<li><strong>Relate</strong>: the DE-9IM intersection matrix of A and B;</li>
+<li><strong>named predicates</strong>: intersects, disjoint, touches, crosses, overlaps,
+contains, covers, within, covered by, equals;</li>
+<li><strong>validity</strong> of A and of B;</li>
+<li><strong>overlay</strong>: the intersection, union, difference and symmetric difference.</li>
+</ul>
+<p>The semantics are the OGC Simple Features model as implemented by JTS and GEOS
+<em>RelateNG</em> and <em>OverlayNG</em>, with the default Mod-2 boundary node rule and the
+default validity rules (GEOS IsValidOp). Before anything else, each adapter must echo the
+operands back bit for bit (the <em>parse-echo canary</em>: 2<sup>53</sup>+1 written as an
+integer, subnormals, −0.0, 0.30000000000000004, the largest double), so that no result is
+blamed on a library when the adapter read the input wrong.</p>
+</section>
+
+<section id="exact" aria-labelledby="exact-h">
+<h2 id="exact-h">Exact arithmetic</h2>
+<ul>
+<li><strong>Every double is a rational number.</strong> Each coordinate is an IEEE-754
+double m·2<sup>e</sup>, so every question about the input has one right answer. Inputs are
+read the way libraries read them: a JSON number becomes a double first.</li>
+<li><strong>Per-case scaling to integers.</strong> All coordinates of a case are multiplied
+by the same power of two, which turns them into integers exactly. Orientation tests, segment
+intersections and point location are then integer arithmetic; intersection points are kept as
+homogeneous integer triples, never rounded.</li>
+<li><strong>No tolerance anywhere in a decision.</strong> Quantities with square roots
+(distances in the overlay grading) are kept as exact surds or certified bounds.</li>
+<li><strong>The engine can abstain.</strong> A case over the engine's size or time budget is
+<code>engine_skipped</code>; an engine failure is <code>engine_error</code>. Neither is ever
+counted against a library. This site was built with engine $engine_version.</li>
+</ul>
+</section>
+
+<section id="routes" aria-labelledby="routes-h">
+<h2 id="routes-h">Two independent routes to the DE-9IM matrix</h2>
+<ul>
+<li><strong>The arrangement route</strong> (DESIGN §2.3) nodes both operands into one planar
+subdivision, locates every vertex, edge and face in A and in B, and takes, for each pair of
+locations, the largest dimension of a cell there. Assertions run on every matrix: EE = 2;
+relate(B, A) is the transpose of relate(A, B); a non-empty areal A has a non-empty II, IB or
+IE.</li>
+<li><strong>The witness route</strong> (DESIGN §2.4) locates witness points directly in the
+original A and B with a standalone point locator: every vertex, every intersection point, the
+midpoint between consecutive split points of every segment, and a point strictly inside every
+face. It shares only the integer primitives with the arrangement route.</li>
+<li>The two routes are cross-checked against each other, against the audited references in
+<code>tests/reference</code> and against GEOS on integer lattices by the test suite
+(<code>tests/crosscheck</code>). On this site, every example on a failure page is re-checked
+by the witness route when the site is built, and the page says whether they agree.</li>
+</ul>
+$expected_note
+</section>
+
+<section id="certificate" aria-labelledby="certificate-h">
+<h2 id="certificate-h">Overlay and its certificate</h2>
+<p>An overlay result is the closure of the cells the operation selects: A ∧ B for the
+intersection, A ∨ B for the union, A ∧ ¬B for the difference, A ⊕ B for the symmetric
+difference. There are two variants: the <em>non-strict</em> result (OverlayNG's default, which
+keeps the lines and points where boundaries touch) and the <em>regularized areal</em> result
+(polygons only, what polygon-only clippers promise). A library's output is graded against the
+non-strict result when it contains lines or points, and against the areal result otherwise.</p>
+<p>The <strong>certificate</strong> (DESIGN §2.6) is the independent check of an overlay: it
+builds a common subdivision of A, B and the result from scratch and checks that a witness of
+every cell is located in the result as the operation requires. It shares nothing with the
+overlay builder but the integer primitives. Every overlay example on a failure page is
+certified when the site is built.</p>
+</section>
+
+<section id="controls" aria-labelledby="controls-h">
+<h2 id="controls-h">Controls</h2>
+<ul>
+<li><strong>The engine control</strong> runs the exact engine behind the same adapter
+contract as every library. It must score 100%; anything else is a harness bug.</li>
+<li><strong>The mutant</strong> is the engine with deliberate faults. The scorer must catch
+them, and its row shows that it does.</li>
+<li><strong>CGAL</strong> with its exact kernel (Epeck) is an external control: an
+independent exact implementation whose overlays should equal the engine's regularized areal
+results as point sets.</li>
+</ul>
+</section>
+
+<section id="scoring" aria-labelledby="scoring-h">
+<h2 id="scoring-h">Scoring</h2>
+<p>The scorer writes one record per case, library and capability. Relate is compared with the
+exact matrix, character for character. The named predicates of a case are graded together, as
+one record, so a library that derives all ten predicates from one call is not counted ten
+times. Validity is graded on the boolean (the reason is shown, not graded). The verdicts:</p>
+<div class="table-wrap" role="region" aria-label="Verdicts" tabindex="0">
+<table class="plain"><thead><tr><th scope="col">Verdict</th><th scope="col">Meaning</th></tr></thead>
+<tbody>$verdict_rows</tbody></table></div>
+<p>A predicate that the manifest derives from the relate matrix is marked <em>derived</em>
+when the relate answer of the same case is wrong too, and an overlay the library computes
+from other overlays (for example a symmetric difference from two differences) is marked
+derived when one of those is wrong: a fault is counted once.</p>
+<h3>Overlay tiers</h3>
+<p>Overlay output cannot always be exact: the exact result can have vertices that are not
+doubles. It is therefore graded in tiers, against the exact result E, with L the library's
+output, M the largest absolute input ordinate, P a perimeter and n the number of vertices of
+both:</p>
+<div class="table-wrap" role="region" aria-label="Overlay tiers" tabindex="0">
+<table class="plain"><thead><tr><th scope="col">Tier</th><th scope="col">Name</th>
+<th scope="col">Condition</th><th scope="col">Counts as</th></tr></thead>
+<tbody>$tiers_rows</tbody></table></div>
+<ul>
+<li>The <strong>rounding floor</strong> is δ = ulp(M)/√2, the most that rounding every output
+vertex to the nearest double can move it. Within it, the output is as good as a double output
+can be.</li>
+<li>The <strong>library's budget</strong> δ<sub>lib</sub> comes from the library's own
+documentation, recorded in its adapter manifest: a multiple of M, of ulp(M), a grid step, or
+an absolute distance. A library that documents none is graded in tiers 1, 2 and 4-6 only.
+GEOS is graded against its loosest documented fallback. Values that could not be checked
+against a library's source or documentation are marked uncertain in the manifest.</li>
+<li>In tiers 2 and 3, exact components and holes thinner than δ may vanish or collapse, as
+may parts of the exact boundary within 2δ of another part of it; the library-to-exact
+distance and the area bound still apply in full.</li>
+<li>The <strong>topological</strong> tier is checked first: invalid output (its point set
+measured by the even-odd rule), or a missing or extra component or hole that is not thinner
+than δ.</li>
+</ul>
+<p>Only tiers 4-6 count as failures. Rates on this site are always per capability: failures
+out of the answers graded (correct, wrong, error or convention). Answers outside a library's
+contract, answers it does not report and cases where the engine abstains are listed, never
+counted.</p>
+</section>
+
+<section id="fairness" aria-labelledby="fairness-h">
+<h2 id="fairness-h">Fairness rules</h2>
+<ol>
+<li><strong>A library is judged only on what it promises.</strong> Its adapter manifest
+records which fields it supports, which are derived from other calls, which it does not
+offer, its precision model and budget, and its coordinate range. Input outside the contract
+(coordinates beyond Clipper2's range, lines given to a polygon-only clipper) is
+<em>unsupported</em>, never <em>wrong</em>.</li>
+<li><strong>Library defaults.</strong> Every option that departs from a library's defaults is
+listed in its manifest and on its page.</li>
+<li><strong>Output is written exactly.</strong> Adapters write output coordinates themselves,
+in shortest round-trip form, never through a library's text writer with a fixed number of
+decimals.</li>
+<li><strong>Adapters must pass the parse-echo canary</strong> (DESIGN §4.1): an adapter that
+cannot read the input doubles exactly says nothing about its library. Where a run includes
+the canary, its result is shown on the library's row and page.</li>
+<li><strong>A fault is counted once</strong> (derived fields), and convention-dependent
+answers are shown separately.</li>
+<li><strong>No single ranking.</strong> Libraries differ in what they offer and promise;
+the scoreboard lists them alphabetically, per capability, with no total.</li>
+<li><strong>No automated disagreement is presented as a confirmed bug</strong>: see
+<a href="#triage">triage</a>.</li>
+<li><strong>Maintainers are notified</strong> before their library's row is published
+(<code>geotruth site --preview</code> marks every page of a build as unpublished, for
+that purpose).</li>
+<li><strong>Everything is cited</strong>: the library version and commit, the adapter commit
+and manifest hash, the toolchain, the corpus, the exact answers and the engine version.</li>
+</ol>
+</section>
+
+<section id="triage" aria-labelledby="triage-h">
+<h2 id="triage-h">Triage</h2>
+<p>Failures are grouped into <strong>clusters</strong>: one library, one corpus family, one
+signature (which DE-9IM entries differ, which predicates are wrong, which overlay tier). Each
+cluster has a triage status from the registry $registry:</p>
+<ul>
+<li><span class="badge b-unreviewed">unreviewed</span>: found by the harness, not yet looked
+at by a person;</li>
+<li><span class="badge b-confirmed">confirmed</span>: a wrong answer within the library's
+documented contract;</li>
+<li><span class="badge b-reported">reported</span>: confirmed and reported upstream;</li>
+<li><span class="badge b-fixed">fixed</span>: fixed upstream;</li>
+<li><span class="badge b-by-design">by-design</span>: documented or intended behaviour, not
+reported as a bug.</li>
+</ul>
+<p>A cluster takes the status of the registry entries that name its library, list its family
+(or no family) and list a field of its capability (or no field). Such a match names a
+candidate explanation; the cluster page shows the entry's signature next to the cluster's so
+the reader can judge it. A cluster that matches no entry is unreviewed. The registry's leads (documented candidates
+without a findings directory, registered by their signature only) are listed on the findings
+page but never matched automatically. Before a finding is
+called a bug it is reproduced on the library's latest development code, minimised, checked by
+an independent skeptic and searched for in the upstream tracker.</p>
+</section>
+
+<section id="corpus" aria-labelledby="corpus-h">
+<h2 id="corpus-h">The corpus</h2>
+<p>The cases ($corpus) are deliberately adversarial: each one is built around a degeneracy,
+either exact (on an integer lattice, so points on edges and shared edges are exact) or at
+the level of a few ulps (a vertex a few ulps off an edge, a polygon rotated in floating point).
+In the line, point, collection and empty families about one case in ten is scaled by
+2<sup>±500</sup> to 2<sup>±900</sup>, which puts its coordinates between about 1e±150 and
+1e±270. The
+<strong>core</strong> tier, used for the scoreboard, is a stratified sample of 200 cases per
+family; the <strong>full</strong> tier holds every generated case; the <strong>curated</strong>
+tier holds the minimal case of every triaged finding. Cases are immutable and dedicated to
+the public domain (CC0), so any library can copy them into its own tests.</p>
+<p>Because the cases are chosen to be hard, <strong>a rate on this site is not a real-world
+failure rate</strong>. It says how a library handles inputs at the edge of what floating-point
+geometry can decide.</p>
+</section>
+
+<section id="figures" aria-labelledby="figures-h">
+<h2 id="figures-h">Reading the figures</h2>
+<p>Each example on a failure page has a figure of the whole case and, when the discrepancy is
+much smaller than the case, a figure zoomed to it; overlay examples add the exact result
+(filled, solid edges) against the library's output (dashed edges) in the same window. Operand
+A is drawn with solid edges and round vertex marks, B with dashed edges and square marks. The
+window, the clipping and every mark position are computed in exact arithmetic, so a window a
+few ulps wide at coordinates of 1e300 is drawn correctly. The numbered vertices are listed
+under the figure with their exact coordinates: a double as its shortest round-trip decimal
+and its exact binary (hexadecimal) value, any other rational as a fraction.</p>
+<p>The zoomed window is chosen by the first rule that applies, and its caption says which:</p>
+<ul>
+<li>overlay: where the library's output is farthest from the exact result, or the exact
+result farthest from the output (exact distances over vertices and edge midpoints); for
+invalid output, its first exact defect;</li>
+<li>relate: the cell of the exact arrangement that realises an entry the library misses
+(or, when the closest approach between A and B lies inside that cell's window and is much
+smaller, that closest approach), or the closest approach between A and B when the library
+reports an entry the exact matrix lacks;</li>
+<li>validity: the exact defect of an operand the library calls valid, or the closest approach
+between non-adjacent parts of an operand it calls invalid;</li>
+<li>otherwise: the closest approach between A and B. This last rule is a heuristic (the
+corpus puts one near-degenerate spot in each case), and the caption says so.</li>
+</ul>
+</section>
+
+<section id="reproduce" aria-labelledby="reproduce-h">
+<h2 id="reproduce-h">Reproducing a result</h2>
+<p>Every example lists the commands that print the exact answer and the library's own
+answer. From a checkout of the repository:</p>
+<pre><code>pip install -e '.[dev]'
+export GEOTRUTH_BUILD_DIR=~/.cache/geotruth     # where library builds live
+adapters/&lt;dir&gt;/build.sh                          # build a library's adapter
+geotruth run --lib &lt;target&gt; --tier core           # the library's answers
+geotruth score --lib &lt;target&gt; --tier core         # graded against the exact answers
+geotruth site --scores results --out site/_build  # this site</code></pre>
+<p>The file formats are JSON Schemas in $schemas.</p>
+</section>
+
+<section id="adapters" aria-labelledby="adapters-h">
+<h2 id="adapters-h">Adding an adapter</h2>
+<ol>
+<li>Create <code>adapters/&lt;name&gt;/</code> with a run command that takes a JSON-lines file
+of cases (<code>case.v2</code>) and prints one result line per case
+(<code>result.v2</code>). Isolate every operation: a crash, a hang or a memory failure must
+fail that operation only.</li>
+<li>Write output coordinates yourself, in shortest round-trip form, and report a field the
+library does not offer as <code>null</code>, and input outside its contract as
+<code>"unsupported"</code>.</li>
+<li>Write the manifest <code>adapter.toml</code> ($adapters_readme): supported, derived and
+unsupported fields; the precision model and the budget δ<sub>lib</sub>, with the
+documentation it comes from; the coordinate range; every option that departs from the
+library's defaults; the version command and the build recipe under
+<code>$$GEOTRUTH_BUILD_DIR</code>. Mark anything you could not check as uncertain.</li>
+<li>Build it, then <code>geotruth run</code>, <code>geotruth score</code> and <code>geotruth
+site</code>. The parse-echo canary must pass, and the engine control must still score 100%.
+The tests in <code>tests/harness</code> check the manifest.</li>
+</ol>
+</section>
+
+<section id="limits" aria-labelledby="limits-h">
+<h2 id="limits-h">Limits</h2>
+<ul>
+<li>The corpus is adversarial; its rates are not real-world failure rates.</li>
+<li>Buffer, offset and simplification, and geodesic, curved and 3-D geometry, are out of
+scope.</li>
+<li>The engine abstains on cases over its budget; those cases grade no library.</li>
+<li>Where the figures fall back on the closest-approach heuristic, the zoomed window is the
+likeliest place of the discrepancy, not a proven one; the exact answers themselves never
+depend on it.</li>
+</ul>
+</section>

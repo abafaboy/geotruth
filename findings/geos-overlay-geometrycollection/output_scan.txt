@@ -1,0 +1,64 @@
+Differential scan: GEOS public overlay functions vs the exact geotruth overlay on GC operands.
+
+Cases: python3 scan.py gen 3000 7 -> 1968 ordered pairs with at least one GeometryCollection
+operand, both operands GEOS-valid, small even-integer lattice coordinates (the geotruth
+adversarial and lattice generators of tools/crosscheck_relate.py). 418 are tagged 'simple'
+(every GC flattens to a valid homogeneous geometry: OverlayNG's own input requirement), 1550
+'mixed'. Each pair x 4 operations = 7872 results per build (scan_overlay_batch.c, public C API).
+Verdicts: tools/crosscheck_overlay.py geos_verdict (the independent overlay certificate on
+GEOS's output). 'rounded nodes' / 'rounding' = the exact result has non-double coordinates.
+
+Builds: 3.13.0 = d7957246 (before GH-1229); main = ae9cdd98 (3.15.0 d0228513 gives identical
+verdicts); fixA = main + prototype_fix_minimal.diff; fixB = main + prototype_fix.diff.
+
+1. Failures on exact (double-coordinate) results, by operation / tag / verdict:
+
+  3.13.0    main  3.15.0    fixA    fixB
+      61      57      57      20       9    difference | mixed | gc-overlay (adds parts)
+       1       1       1       1       1    difference | mixed | gc-overlay (wrong parts)
+       0      15      15       0       0    difference | mixed | geos-error: AssertionFailed
+     336       0       0       0       0    difference | mixed | geos-error: TopologyException
+       3       3       3       0       0    difference | simple | gc-overlay (adds parts)
+       0       3       3       0       0    difference | simple | geos-error: AssertionFailed
+       8       3       3       3       3    difference | simple | geos-error: IllegalArgumentException
+      18       6       6       6       6    intersection | mixed | gc-overlay (drops parts)
+       0      30      30       0       0    intersection | mixed | geos-error: AssertionFailed
+     272       0       0       0       0    intersection | mixed | geos-error: TopologyException
+       0       6       6       0       0    intersection | simple | geos-error: AssertionFailed
+       5       1       1       1       1    intersection | simple | geos-error: IllegalArgumentException
+      17      17      17       7       1    symdifference | mixed | gc-overlay (adds parts)
+     219     292     292       0       0    symdifference | mixed | gc-overlay (drops parts)
+       3       3       3       2       2    symdifference | mixed | gc-overlay (wrong parts)
+     374       0       0       0       0    symdifference | mixed | geos-error: TopologyException
+       6      31      31       0       0    symdifference | simple | gc-overlay (drops parts)
+       7       2       2       2       2    symdifference | simple | geos-error: IllegalArgumentException
+       2       2       2       2       2    union | mixed | gc-overlay (wrong parts)
+     374       0       0       0       0    union | mixed | geos-error: TopologyException
+       7       2       2       2       2    union | simple | geos-error: IllegalArgumentException
+
+2. All 7872 results per build, coarse classes:
+
+  3.13.0    main  3.15.0    fixA    fixB
+     252       3       3       6       6    empty-type
+    3217    4270    4270    4705    4727    exact or same point set
+      81      77      77      27      10    gc-overlay (adds parts)
+     243     329     329       6       6    gc-overlay (drops parts)
+       6       6       6       5       5    gc-overlay (wrong parts)
+     630    1576    1576    1319    1310    gc-overlay with rounded nodes
+       0      54      54       0       0    geos-error: AssertionFailed
+      27       8       8       8       8    geos-error: IllegalArgumentException
+    1356       0       0       0       0    geos-error: TopologyException
+    2060    1549    1549    1796    1800    rounding (explained)
+
+3. Per-result change against main (percase.py): a result 'better' goes from a wrong point set or an error to the exact point set, 'worse' the other way.
+fixA (prototype_fix_minimal.diff):
+better: 446  worse: 11
+  (all 11 'worse' are symdifference results whose lines are noded at rounded nodes: mechanism D4)
+fixB (prototype_fix.diff):
+better: 458  worse: 1
+('adversarial-7-1419|mixed', 'difference') | exact -> gc-overlay (adds parts) 
+   A = MULTILINESTRING ((0 2, 0 4, 2 6, 2 4, 0 2), (0 2, 6 4, 6 0, 0 2)) 
+   B = GEOMETRYCOLLECTION (MULTIPOLYGON (((0 2, 0 4, 2 6, 2 4, 0 2)), ((0 2, 6 4, 6 0, 0 2))), MULTILINESTRING ((4 4, 4 4, 6 6, 4 2), (4 2, 2 2, 2 0))) 
+   old: LINESTRING EMPTY 
+   new: LINESTRING (6 0, 2 1.3333333333333333, 0 2, 4.8 3.6, 6 4) 
+   exact: LINESTRING EMPTY

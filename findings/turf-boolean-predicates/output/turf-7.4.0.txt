@@ -1,0 +1,12 @@
+# node v22.22.2; @turf/turf 7.4.0 from npm; jsts 2.12.1
+WRONG identical triangles: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
+WRONG overlapping squares: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
+WRONG apex of B on edge of A: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = true (expected true)
+WRONG 2nd part of MultiPolygon shares an edge: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = false (expected true)
+WRONG B in hole of A, sharing an edge: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = false (expected true)
+5 of 5 cases wrong
+{"id":"turf-touches-identical-triangles","turf_booleanValid":[true,true],"turf_booleanIntersects":true,"turf_intersect_has_area":true,"jsts_relate":"2FFF1FFF2","jsts_touches":[false,false]}
+{"id":"turf-touches-overlapping-squares","turf_booleanValid":[true,true],"turf_booleanIntersects":true,"turf_intersect_has_area":true,"jsts_relate":"212111212","jsts_touches":[false,false]}
+{"id":"turf-touches-apex-on-edge","turf_booleanValid":[true,true],"turf_booleanIntersects":true,"turf_intersect_has_area":false,"jsts_relate":"FF2F01212","jsts_touches":[true,true]}
+{"id":"turf-touches-multipolygon-second-part","turf_booleanValid":[true,true],"turf_booleanIntersects":true,"turf_intersect_has_area":false,"jsts_relate":"FF2F11212","jsts_touches":[true,true]}
+{"id":"turf-touches-in-hole-shared-edge","turf_booleanValid":[true,true],"turf_booleanIntersects":true,"turf_intersect_has_area":false,"jsts_relate":"FF2F11212","jsts_touches":[true,true]}

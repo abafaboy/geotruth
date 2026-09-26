@@ -1,0 +1,25 @@
+# the repro embedded in FINAL.md (g++ 13.3.0, -std=c++17)
+== wt_main f9c5eb6
+level 1 outer area +16.0
+level 1 outer area -4.0
+level 1 outer area +144.0
+level 2 hole  area -30.0
+level 2 hole  area +7.5
+== wt_Clipper2_2.0.1 21ebba0
+level 1 outer area +16.0
+level 1 outer area -4.0
+level 1 outer area +144.0
+level 2 hole  area -30.0
+level 2 hole  area +7.5
+== wt_Clipper2_1.5.2 6901921
+level 1 outer area +16.0
+level 2 hole  area -4.0
+level 1 outer area +144.0
+level 2 hole  area -30.0
+level 3 outer area +7.5
+== wt_patched2 f9c5eb6 + patch/prototype_fix.diff
+level 1 outer area +16.0
+level 2 hole  area -4.0
+level 1 outer area +144.0
+level 2 hole  area -30.0
+level 3 outer area +7.5

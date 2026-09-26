@@ -1,0 +1,50 @@
+# repro.c, GEOS 3.13.0 d7957246c588aa9c690efe67924fd70e741a06ab (Release build, gcc 13.3), first release with RelateNG
+GEOS 3.13.0-CAPI-1.19.0
+
+case 1: B's boundary is {(5 5), (6 6)}, both far from A
+  A = POINT (10 10)   (valid=1)
+  B = MULTILINESTRING ((0 0, 1 0, 1 1, 0 0), (5 5, 6 6))   (valid=1)
+  relate(A, B)         = FF0FFF1F2   expected FF0FFF102   WRONG
+  preparedRelate(A, B) = FF0FFF1F2   expected FF0FFF102   WRONG
+  GEOSBoundary(B)                 = MULTIPOINT ((5 5), (6 6))
+  relate(POINT (5 5), B)          = F0FFFF102   (row 1 'F0F': (5 5) is on B's boundary)
+  relatePattern(A, B, "FF*FF**0*") = 0   expected 1   WRONG
+case 1, B's elements swapped (same point set, same boundary)
+  A = POINT (10 10)   (valid=1)
+  B = MULTILINESTRING ((5 5, 6 6), (0 0, 1 0, 1 1, 0 0))   (valid=1)
+  relate(A, B)         = FF0FFF102   expected FF0FFF102   ok
+  preparedRelate(A, B) = FF0FFF102   expected FF0FFF102   ok
+case 1, operands swapped (expected = transpose)
+  A = MULTILINESTRING ((0 0, 1 0, 1 1, 0 0), (5 5, 6 6))   (valid=1)
+  B = POINT (10 10)   (valid=1)
+  relate(A, B)         = FF1FFF0F2   expected FF1FF00F2   WRONG
+  preparedRelate(A, B) = FF1FFF0F2   expected FF1FF00F2   WRONG
+
+case 2: polygon target; (2 3) is shared by both elements (Mod-2 interior)
+  A = POLYGON ((1 2, 4 0, 1 0, 1 2))   (valid=1)
+  B = MULTILINESTRING ((2 3, 1 1), (2 3, 4 3))   (valid=1)
+  relate(A, B)         = 1F20011F2   expected 1F2001102   WRONG
+  preparedRelate(A, B) = 1F20011F2   expected 1F2001102   WRONG
+case 3: the input of JTS issue #1175
+  A = LINESTRING (10 10, 20 20)   (valid=1)
+  B = MULTILINESTRING ((0 0, 1 0), (1 0, 2 0), (-1 0, 0 0))   (valid=1)
+  relate(A, B)         = FF1FF01F2   expected FF1FF0102   WRONG
+  preparedRelate(A, B) = FF1FF01F2   expected FF1FF0102   WRONG
+
+case 4: GeometryCollection of overlapping squares, far from B
+  A = GEOMETRYCOLLECTION (POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1)), POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)))   (valid=1)
+  B = LINESTRING (10 10, 11 11)   (valid=1)
+  relate(A, B)         = FF2FFF102   expected FF2FF1102   WRONG
+  preparedRelate(A, B) = FF2FFF102   expected FF2FF1102   WRONG
+case 4, the two squares swapped
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1)))   (valid=1)
+  B = LINESTRING (10 10, 11 11)   (valid=1)
+  relate(A, B)         = FF2FF1102   expected FF2FF1102   ok
+  preparedRelate(A, B) = FF2FF1102   expected FF2FF1102   ok
+case 4, operands swapped (expected = transpose)
+  A = LINESTRING (10 10, 11 11)   (valid=1)
+  B = GEOMETRYCOLLECTION (POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1)), POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)))   (valid=1)
+  relate(A, B)         = FF1FF02F2   expected FF1FF0212   WRONG
+  preparedRelate(A, B) = FF1FF02F2   expected FF1FF0212   WRONG
+
+13 wrong result(s)

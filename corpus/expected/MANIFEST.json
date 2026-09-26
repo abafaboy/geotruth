@@ -1,0 +1,118 @@
+{
+ "manifest_version": 1,
+ "format": "https://github.com/abafaboy/geotruth/schemas/expected.v2.schema.json",
+ "expected_version": "2",
+ "licence": "CC0-1.0",
+ "files": {
+  "core.jsonl": {
+   "tier": "core",
+   "in_git": true,
+   "sha256": "70c78e04008b39714fccc53ead4682c55f7838bcdde801197ba580bef9b85b31",
+   "bytes": 34305704,
+   "records": 3400,
+   "status": {
+    "ok": 3400,
+    "engine_skipped": 0,
+    "engine_error": 0
+   },
+   "engine_version": "0.1.0",
+   "expected_version": "2",
+   "corpus_version": "2.0.0",
+   "cases": {
+    "cases/core/empty.jsonl": "ada34f4516685de7df87ec22e4be5aa76c9132c68c4dde3423ec3690b34a002e",
+    "cases/core/gc.jsonl": "18ef803694308f4f8cfaa6cb3e3092dc301fd36be17b70d292d951743810308d",
+    "cases/core/hole-contact.jsonl": "4bc092cab17aa0c2ef3e4a3651e00ea8f0c2f4fa5222e5ef4d606a30c3b97f10",
+    "cases/core/int-grid.jsonl": "ae1b799ed11295b9d46e42284a3df2125683aad1f3bf5527f67bda997d3a6fd3",
+    "cases/core/invalid-zero-length-line.jsonl": "6f7869748eea5ebebc049a3b97f01b8de558350d0cfdb5f0e847597711c12df3",
+    "cases/core/line-line.jsonl": "0e03f3ad3924956d9de29726b6721bff7dc781ff25a4e13c16f98d0b2e056de7",
+    "cases/core/line-mod2.jsonl": "4ac5f47fc09ce0b2cfded4d2365ebfbe657ef7ccab78620b881ae4c907aa96fa",
+    "cases/core/line-polygon.jsonl": "b26968f2eba0599c3221ccf30b79b2cb22d80248c2a94bcbdd9163a67192d05e",
+    "cases/core/multi-touch.jsonl": "98f5a379504f92ac8a2b4c7c91a9dac4189b6fd23f06f7fa2a961e4efd04e500",
+    "cases/core/near-collinear.jsonl": "ee14b7d4814f71841e3607c06172473d426118e84bb72e708d25ab4b9b90c38d",
+    "cases/core/point-geometry.jsonl": "ffaaafcdb38224c2dadf1e52dab424540c531f7654569d1ff1e26a480b32e9ff",
+    "cases/core/scaled.jsonl": "4718da328ec015b6a77f0d7990e6574eff3e83f1a1d943c303d9fd6553969720",
+    "cases/core/shared-edge.jsonl": "47fbb1046b42c1c4d75d6f35b9ae3308009beac3a7d2ad9c9bf33dcff6a4b1e0",
+    "cases/core/sliver-spike.jsonl": "05fd60a50262cd041f19aa357d9ecc4404f584627b126f0af86ec63a74a3f4f4",
+    "cases/core/tiling-contact.jsonl": "0fb4898855f6fe08e706ae1461885873d2dbaa5b573c124e58c17e9b3d54be76",
+    "cases/core/tiny-transform.jsonl": "6bcb36a5f4e1bd02319010a2e49f082706ec3c25de8b3ae01d27a3514250086d",
+    "cases/core/vertex-on-edge.jsonl": "513962956278b2c0b99e2b8b931f485984e523a42a527331419f0f4c39ce5131"
+   },
+   "computed_with": {
+    "engine_commit": "caee9072045ec61bce57ff302b6d3fa85043fd97",
+    "engine_worktree_clean": false,
+    "engine_source_sha256": "20a827571eaf039c311c3fa27e11320898d49a099accdc8124b70c0f8a5ef4b6",
+    "python": "3.11.15",
+    "gmpy2": "2.3.1",
+    "rational_backend": "gmpy2"
+   }
+  },
+  "curated.jsonl": {
+   "tier": "curated",
+   "in_git": true,
+   "sha256": "345b9ae9db1e92ea6fda2cfb3a1f486d21696c8f3213c1c5a3592cef6c299647",
+   "bytes": 264332,
+   "records": 34,
+   "status": {
+    "ok": 34,
+    "engine_skipped": 0,
+    "engine_error": 0
+   },
+   "engine_version": "0.1.0",
+   "expected_version": "2",
+   "corpus_version": "2.0.0",
+   "cases": {
+    "cases/curated.jsonl": "1fb2968638560b50e005a0b3d149fe3728cd4f65578df5566b33c2f168df5d86"
+   },
+   "computed_with": {
+    "engine_commit": "caee9072045ec61bce57ff302b6d3fa85043fd97",
+    "engine_worktree_clean": false,
+    "engine_source_sha256": "20a827571eaf039c311c3fa27e11320898d49a099accdc8124b70c0f8a5ef4b6",
+    "python": "3.11.15",
+    "gmpy2": "2.3.1",
+    "rational_backend": "gmpy2"
+   }
+  },
+  "full.jsonl": {
+   "tier": "full",
+   "in_git": false,
+   "sha256": "c65a79d11b1e8cec7cfb1697c9a2b2deb1c966c059963edc95ca45b7a1e2cb34",
+   "bytes": 155301474,
+   "records": 17000,
+   "status": {
+    "ok": 17000,
+    "engine_skipped": 0,
+    "engine_error": 0
+   },
+   "engine_version": "0.1.0",
+   "expected_version": "2",
+   "corpus_version": "2.0.0",
+   "cases": {
+    "cases/full/empty.jsonl": "cfa2de8409cacf7ffb27e2e502ef07db1ebb70fe380ce44aed87ab239d0faca4",
+    "cases/full/gc.jsonl": "492f09921b68666254dbf392cce82dcc823e218cc1fcd50863265cfedfcde208",
+    "cases/full/hole-contact.jsonl": "af250163f7819fb1e25b722352827ec238cdfa964944b06aad06e696ac01c5ac",
+    "cases/full/int-grid.jsonl": "e5e75022633e96574cfa238c3d3ec25af06c1d5d1efe22a5b9ca5d6cfc5881c3",
+    "cases/full/invalid-zero-length-line.jsonl": "f20cf0e97b827daf1da3ff0e64db596b3e812ae4cdc17af2e491fae4fa64ead2",
+    "cases/full/line-line.jsonl": "91c3d362905b031ee7527eb7b5855beba7342262be2bbe4ace25d3533d6bd5fc",
+    "cases/full/line-mod2.jsonl": "b5d67306b554a48057fa1567e358f9ae5b8e1b58a9efa03f37255c0c7e011582",
+    "cases/full/line-polygon.jsonl": "e8676431da5ed7c5448f97207cadb2a529c39c3d75fcb17e1d67828d46aea397",
+    "cases/full/multi-touch.jsonl": "9a7a6eb9818e53601cce45187dd701afb1bfeac1cd3b9f6e5d6664d6e16aa52c",
+    "cases/full/near-collinear.jsonl": "07e8725605cd120802d14ca208dcb7d9b02b07df35864eff9ba43bfda8d93b64",
+    "cases/full/point-geometry.jsonl": "f2b5ea1cb63bc8c7d44d18bab8b5011875e8ce337a262576036bc2371cca7183",
+    "cases/full/scaled.jsonl": "a8e0b8d185b538542253094934e5db7923746a1f232f8ad703653747f2830b33",
+    "cases/full/shared-edge.jsonl": "5b600e7cf7b6f14e7db6be4d3bb0fdd890c96d0f2eb4cf7ba77e5526734fc29d",
+    "cases/full/sliver-spike.jsonl": "5d73310f22693c8aed9ccecc62d069935bc09eca522e83c700b08b9c3d5fd88e",
+    "cases/full/tiling-contact.jsonl": "b7245f39a3ada8f3c58206cf6cfe97ec627787b61d2728b546f36b718b0cc40b",
+    "cases/full/tiny-transform.jsonl": "39d8ab21a9b5dd2592b60717f6f855e7f5fefbb5039eb8d5c239f85cff7e4411",
+    "cases/full/vertex-on-edge.jsonl": "a1291a480770c253648db6af7c7c2b2291f74c0a2ed9bf6ac253e3b322d8194f"
+   },
+   "computed_with": {
+    "engine_commit": "caee9072045ec61bce57ff302b6d3fa85043fd97",
+    "engine_worktree_clean": false,
+    "engine_source_sha256": "20a827571eaf039c311c3fa27e11320898d49a099accdc8124b70c0f8a5ef4b6",
+    "python": "3.11.15",
+    "gmpy2": "2.3.1",
+    "rational_backend": "gmpy2"
+   }
+  }
+ }
+}

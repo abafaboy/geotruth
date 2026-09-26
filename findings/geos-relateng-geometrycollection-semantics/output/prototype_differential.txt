@@ -1,0 +1,9 @@
+# differential run: GEOS main ae9cdd9 vs main + prototype_fix.diff; GEOSRelate(A,B) and (B,A) vs exact
+mix-1      4000 cases  {'main ok / proto ok': 3941, 'main wrong / proto ok': 42, 'main wrong / proto wrong': 17}  {"remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 15, 'remaining: inexact-node class': 2}
+ovl-2      4000 cases  {'main ok / proto ok': 3925, 'main wrong / proto wrong': 67, 'main wrong / proto ok': 8}  {"remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 66, 'remaining: inexact-node class': 1}
+mix2-3     4000 cases  {'main ok / proto ok': 3374, 'main wrong / proto ok': 625, 'main wrong / proto wrong': 1}  {"remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 1}
+adj-4      4000 cases  {'main ok / proto ok': 3698, 'main wrong / proto ok': 294, 'main wrong / proto wrong': 8}  {'remaining: inexact-node class': 3, "remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 5}
+frame-5    3000 cases  {'main wrong / proto ok': 10, 'main ok / proto ok': 2723, 'main wrong / proto wrong': 267}  {"remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 267}
+xc        10719 cases  {'main ok / proto ok': 10639, 'main wrong / proto wrong': 58, 'main wrong / proto ok': 22}  {"remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 40, 'remaining: inexact-node class': 18}
+TOTAL {'main ok / proto ok': 28300, 'main wrong / proto ok': 1001, 'main wrong / proto wrong': 418, "remaining: fixed by the sibling findings' fixes (+X/SEG/P1/P3)": 394, 'remaining: inexact-node class': 24}
+# overlap with the sibling findings' fixes: {'fixed by prototype only': 981, 'fixed by prototype; also fixed by the sibling fixes alone (X/SEG/P1/P3)': 20}

@@ -1,0 +1,57 @@
+=== master 3ea61f8
+JTS 1.21.0 SNAPSHOT: OverlayNGRobust UNION of A*2^k and P*2^k
+corpus case point-geometry-1-000016 at unit scale, times 2^k (k = -534 is the corpus case)
+  k in [-1074, -1073]: WRONG LineString
+  k in [-1072, -1072]: exception ClassCastException
+  k in [-1071, -1070]: EMPTY Polygon
+  k in [-1069, -1069]: exception ClassCastException
+  k in [-1068, -536]: EMPTY Polygon
+  k in [-535, -535]: WRONG Polygon
+  k in [-534, -528]: exception ClassCastException
+  k in [-527, 515]: correct
+  k in [516, 516]: WRONG GeometryCollection
+  k in [517, 1023]: exception ClassCastException
+
+=== 1.20.0
+JTS 1.20.0: OverlayNGRobust UNION of A*2^k and P*2^k
+corpus case point-geometry-1-000016 at unit scale, times 2^k (k = -534 is the corpus case)
+  k in [-1074, -1073]: WRONG LineString
+  k in [-1072, -1072]: exception ClassCastException
+  k in [-1071, -1071]: WRONG Polygon
+  k in [-1070, -1070]: WRONG Point
+  k in [-1069, -1069]: exception ClassCastException
+  k in [-1068, -983]: WRONG Point
+  k in [-982, -535]: exception TopologyException
+  k in [-534, -528]: exception ClassCastException
+  k in [-527, 515]: correct
+  k in [516, 516]: WRONG GeometryCollection
+  k in [517, 1023]: exception ClassCastException
+
+=== master 3ea61f8 + ../prototype_fix.diff (KdTree)
+JTS 1.21.0 SNAPSHOT: OverlayNGRobust UNION of A*2^k and P*2^k
+corpus case point-geometry-1-000016 at unit scale, times 2^k (k = -534 is the corpus case)
+  k in [-1074, -1073]: WRONG LineString
+  k in [-1072, -1072]: exception ClassCastException
+  k in [-1071, -1071]: WRONG Polygon
+  k in [-1070, -1070]: WRONG Point
+  k in [-1069, -1069]: exception ClassCastException
+  k in [-1068, -983]: WRONG Point
+  k in [-982, -535]: exception TopologyException
+  k in [-534, -528]: exception ClassCastException
+  k in [-527, 515]: correct
+  k in [516, 516]: WRONG GeometryCollection
+  k in [517, 1023]: exception ClassCastException
+
+=== master 3ea61f8 + prototype_fix.diff (OverlayMixedPoints)
+JTS 1.21.0 SNAPSHOT: OverlayNGRobust UNION of A*2^k and P*2^k
+corpus case point-geometry-1-000016 at unit scale, times 2^k (k = -534 is the corpus case)
+  k in [-1074, -1073]: WRONG LineString
+  k in [-1072, -1072]: WRONG GeometryCollection
+  k in [-1071, -1070]: EMPTY Polygon
+  k in [-1069, -1069]: WRONG GeometryCollection
+  k in [-1068, -536]: EMPTY Polygon
+  k in [-535, -535]: WRONG Polygon
+  k in [-534, -528]: WRONG GeometryCollection
+  k in [-527, 515]: correct
+  k in [516, 1023]: WRONG GeometryCollection
+

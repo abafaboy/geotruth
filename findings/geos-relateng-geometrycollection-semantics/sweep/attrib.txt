@@ -1,0 +1,10 @@
+# attribution of every case wrong on GEOS main ae9cdd9 (either argument order): 'fixed by known fixes' = exact with
+# the other findings' fixes alone (eX: line-end-skip patches + covered-ring self-noding + segfault real dimension);
+# otherwise the single D-fix switch (on top of eX) that makes it exact; 'unfixed' cases all have a non-dyadic node.
+mix-1 4000 {'main ok': 3941, 'fixed by D1': 44, 'fixed by known fixes (X/SEG/P1/P3)': 11, 'fixed by D2': 2, 'unfixed (inexact node)': 2}
+ovl-2 4000 {'main ok': 3925, 'fixed by known fixes (X/SEG/P1/P3)': 70, 'fixed by D3': 1, 'fixed by D1': 3, 'unfixed (inexact node)': 1}
+mix2-3 4000 {'main ok': 3374, 'fixed by D1': 625, 'fixed by known fixes (X/SEG/P1/P3)': 1}
+adj-4 4000 {'main ok': 3698, 'fixed by D2': 256, 'fixed by D3': 31, 'unfixed (inexact node)': 3, 'fixed by D1': 3, 'fixed by known fixes (X/SEG/P1/P3)': 9}
+frame-5 3000 {'fixed by known fixes (X/SEG/P1/P3)': 274, 'main ok': 2723, 'fixed by D3': 3}
+xc 10719 {'main ok': 10639, 'fixed by known fixes (X/SEG/P1/P3)': 41, 'fixed by D1': 19, 'fixed by D2': 2, 'unfixed (inexact node)': 18}
+TOTAL {'main ok': 28300, 'fixed by D1': 694, 'fixed by known fixes (X/SEG/P1/P3)': 406, 'fixed by D2': 260, 'unfixed (inexact node)': 24, 'fixed by D3': 35}

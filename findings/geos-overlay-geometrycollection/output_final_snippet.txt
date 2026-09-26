@@ -1,0 +1,27 @@
+FINAL.md inline repro (final_snippet.c), built against each GEOS:
+== GEOS main ae9cdd9
+1 symDifference(GC(triangle), POINT(3 3)) -> POLYGON ((0 0, 0 4, 4 0, 0 0))
+  symDifference(POINT(3 3), GC(triangle)) -> GEOMETRYCOLLECTION (POINT (3 3), POLYGON ((0 0, 0 4, 4 0, 0 0)))
+  symDifferencePrec(GC(triangle), POINT(3 3), 0) -> GEOMETRYCOLLECTION (POLYGON ((0 0, 0 4, 4 0, 0 0)), POINT (3 3))
+1 symDifference(POINT(1 0), GC(line, point)) -> POINT (1 0)
+2 difference(POINT(1 0), GC(line, point)) -> POINT (1 0)
+  error: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+3 intersection(GC(POLYGON EMPTY), POINT(1 1)) -> (exception, see above)
+  intersectionPrec(GC(POLYGON EMPTY), POINT(1 1), 0) -> POINT EMPTY
+== GEOS 3.15.0
+1 symDifference(GC(triangle), POINT(3 3)) -> POLYGON ((0 0, 0 4, 4 0, 0 0))
+  symDifference(POINT(3 3), GC(triangle)) -> GEOMETRYCOLLECTION (POINT (3 3), POLYGON ((0 0, 0 4, 4 0, 0 0)))
+  symDifferencePrec(GC(triangle), POINT(3 3), 0) -> GEOMETRYCOLLECTION (POLYGON ((0 0, 0 4, 4 0, 0 0)), POINT (3 3))
+1 symDifference(POINT(1 0), GC(line, point)) -> POINT (1 0)
+2 difference(POINT(1 0), GC(line, point)) -> POINT (1 0)
+  error: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+3 intersection(GC(POLYGON EMPTY), POINT(1 1)) -> (exception, see above)
+  intersectionPrec(GC(POLYGON EMPTY), POINT(1 1), 0) -> POINT EMPTY
+== GEOS main ae9cdd9 + prototype_fix.diff
+1 symDifference(GC(triangle), POINT(3 3)) -> GEOMETRYCOLLECTION (POINT (3 3), POLYGON ((0 0, 0 4, 4 0, 0 0)))
+  symDifference(POINT(3 3), GC(triangle)) -> GEOMETRYCOLLECTION (POINT (3 3), POLYGON ((0 0, 0 4, 4 0, 0 0)))
+  symDifferencePrec(GC(triangle), POINT(3 3), 0) -> GEOMETRYCOLLECTION (POLYGON ((0 0, 0 4, 4 0, 0 0)), POINT (3 3))
+1 symDifference(POINT(1 0), GC(line, point)) -> GEOMETRYCOLLECTION (POINT (3 3), LINESTRING (0 0, 2 0))
+2 difference(POINT(1 0), GC(line, point)) -> POINT EMPTY
+3 intersection(GC(POLYGON EMPTY), POINT(1 1)) -> POINT EMPTY
+  intersectionPrec(GC(POLYGON EMPTY), POINT(1 1), 0) -> POINT EMPTY

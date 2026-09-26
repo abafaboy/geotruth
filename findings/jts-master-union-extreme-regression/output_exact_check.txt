@@ -1,0 +1,76 @@
+##### cases.jsonl
+=== line-polygon-1-000090-along-edge-full.ba.int.extreme
+  A = POLYGON ((-3.6403423436814706e220 3.8270972661136905e220, -3.6403407277677217e220 3.8270908024586947e220, -3.6403391118539727e220 3.8270956501999416e220, -3.6403423436814706e220 3.8270972661136905e220))
+  B = MULTILINESTRING ((-3.6403407277677217e220 3.8270908024586947e220, -3.6403391118539727e220 3.8270956501999416e220), (-3.640325645906065e220 3.8271075002341006e220, -3.640324568630232e220 3.8271091161478495e220))
+  valid (exact): A True, B True
+  relate: FF2101102 (witness route FF2101102: agree)
+  intersection  LINESTRING (-3.6403407277677217e+220 3.8270908024586947e+220, -3.6403391118539727e+220 3.8270956501999416e+220)   [area 0; certificate ok]
+  union         GEOMETRYCOLLECTION (POLYGON ((-3.6403423436814706e+220 3.8270972661136905e+220, -3.6403407277677217e+220 3.8270908024586947e+220, -3.6403391118539727e+220 3.8270956501999416e+220, -3.6403423436814706e+220 3.8270972661136905e+220)), LINESTRING (-3.640325645906065e+220 3.8271075002341006e+220, -3.640324568630232e+220 3.8271091161478495e+220))   [area ~1e428 (outside the double range); certificate ok]
+  difference    POLYGON ((-3.6403423436814706e+220 3.8270972661136905e+220, -3.6403407277677217e+220 3.8270908024586947e+220, -3.6403391118539727e+220 3.8270956501999416e+220, -3.6403423436814706e+220 3.8270972661136905e+220))   [area ~1e428 (outside the double range); certificate ok]
+  symdifference GEOMETRYCOLLECTION (POLYGON ((-3.6403423436814706e+220 3.8270972661136905e+220, -3.6403407277677217e+220 3.8270908024586947e+220, -3.6403391118539727e+220 3.8270956501999416e+220, -3.6403423436814706e+220 3.8270972661136905e+220)), LINESTRING (-3.640325645906065e+220 3.8271075002341006e+220, -3.640324568630232e+220 3.8271091161478495e+220))   [area ~1e428 (outside the double range); certificate ok]
+
+=== min-self-overlay-1e170
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  valid (exact): A True, B True
+  relate: 2FFF1FFF2 (witness route 2FFF1FFF2: agree)
+  intersection  POLYGON ((0 0, 2e+170 1e+170, 1e+170 2e+170, 0 0))   [area ~1e340 (outside the double range); certificate ok]
+  union         POLYGON ((0 0, 2e+170 1e+170, 1e+170 2e+170, 0 0))   [area ~1e340 (outside the double range); certificate ok]
+  difference    POLYGON EMPTY   [area 0; certificate ok]
+  symdifference POLYGON EMPTY   [area 0; certificate ok]
+  oracle.py: valid True/True, area(A n B) ~1e340 (outside the double range), area(A - B) 0, area(B - A) 0, equals True
+  indep.py:  area(A n B) ~1e340 (outside the double range), area(A u B) ~1e340 (outside the double range), area(A - B) 0, equals True, selfcheck True; oracle and indep agree
+
+=== min-disjoint-line-1e170
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = LINESTRING (3e170 0, 4e170 0)
+  valid (exact): A True, B True
+  relate: FF2FF1102 (witness route FF2FF1102: agree)
+  intersection  LINESTRING EMPTY   [area 0; certificate ok]
+  union         GEOMETRYCOLLECTION (POLYGON ((0 0, 2e+170 1e+170, 1e+170 2e+170, 0 0)), LINESTRING (3e+170 0, 4e+170 0))   [area ~1e340 (outside the double range); certificate ok]
+  difference    POLYGON ((0 0, 2e+170 1e+170, 1e+170 2e+170, 0 0))   [area ~1e340 (outside the double range); certificate ok]
+  symdifference GEOMETRYCOLLECTION (POLYGON ((0 0, 2e+170 1e+170, 1e+170 2e+170, 0 0)), LINESTRING (3e+170 0, 4e+170 0))   [area ~1e340 (outside the double range); certificate ok]
+
+=== control-self-overlay-unit
+  A = POLYGON ((0 0, 2 1, 1 2, 0 0))
+  B = POLYGON ((0 0, 2 1, 1 2, 0 0))
+  valid (exact): A True, B True
+  relate: 2FFF1FFF2 (witness route 2FFF1FFF2: agree)
+  intersection  POLYGON ((0 0, 2 1, 1 2, 0 0))   [area ~1.5; certificate ok]
+  union         POLYGON ((0 0, 2 1, 1 2, 0 0))   [area ~1.5; certificate ok]
+  difference    POLYGON EMPTY   [area 0; certificate ok]
+  symdifference POLYGON EMPTY   [area 0; certificate ok]
+  oracle.py: valid True/True, area(A n B) ~1.5, area(A - B) 0, area(B - A) 0, equals True
+  indep.py:  area(A n B) ~1.5, area(A u B) ~1.5, area(A - B) 0, equals True, selfcheck True; oracle and indep agree
+
+##### mixed-points/cases.jsonl
+=== point-geometry-1-000016-in-hole.ba.int.extreme
+  A = MULTIPOLYGON (((-1.1513195710223487e-161 -6.121269212449139e-162, -7.736242366371891e-162 -7.163187376270269e-162, -6.173365120640196e-162 -6.750761436424405e-162, -9.364239497342407e-162 -1.8233567866869776e-162, -1.1513195710223487e-161 -6.121269212449139e-162), (-8.930106929083602e-162 -4.254499168936281e-162, -7.866482136849532e-162 -5.904202928319737e-162, -8.387441218760097e-162 -6.034442698797378e-162, -9.64642566671063e-162 -5.687136644190335e-162, -8.930106929083602e-162 -4.254499168936281e-162)), ((5.730549901016215e-162 9.125466584800064e-162, 5.752256529429156e-162 9.125466584800064e-162, 5.730549901016215e-162 9.147173213213004e-162, 5.730549901016215e-162 9.125466584800064e-162)))
+  B = POINT (-8.708699319271612e-162 -5.470070360060933e-162)
+  valid (exact): A True, B True
+  relate: FF2FF10F2 (witness route FF2FF10F2: agree)
+  intersection  POINT EMPTY   [area 0; certificate ok]
+  union         GEOMETRYCOLLECTION (POLYGON ((-1.1513195710223487e-161 -6.121269212449139e-162, -7.736242366371891e-162 -7.163187376270269e-162, -6.173365120640196e-162 -6.750761436424405e-162, -9.364239497342407e-162 -1.8233567866869776e-162, -1.1513195710223487e-161 -6.121269212449139e-162), (-9.64642566671063e-162 -5.687136644190335e-162, -8.930106929083602e-162 -4.254499168936281e-162, -7.866482136849532e-162 -5.904202928319737e-162, -8.387441218760097e-162 -6.034442698797378e-162, -9.64642566671063e-162 -5.687136644190335e-162)), POLYGON ((5.730549901016215e-162 9.125466584800064e-162, 5.752256529429156e-162 9.125466584800064e-162, 5.730549901016215e-162 9.147173213213004e-162, 5.730549901016215e-162 9.125466584800064e-162)), POINT (-8.708699319271612e-162 -5.470070360060933e-162))   [area ~1e-323 (outside the double range); certificate ok]
+  difference    MULTIPOLYGON (((-1.1513195710223487e-161 -6.121269212449139e-162, -7.736242366371891e-162 -7.163187376270269e-162, -6.173365120640196e-162 -6.750761436424405e-162, -9.364239497342407e-162 -1.8233567866869776e-162, -1.1513195710223487e-161 -6.121269212449139e-162), (-9.64642566671063e-162 -5.687136644190335e-162, -8.930106929083602e-162 -4.254499168936281e-162, -7.866482136849532e-162 -5.904202928319737e-162, -8.387441218760097e-162 -6.034442698797378e-162, -9.64642566671063e-162 -5.687136644190335e-162)), ((5.730549901016215e-162 9.125466584800064e-162, 5.752256529429156e-162 9.125466584800064e-162, 5.730549901016215e-162 9.147173213213004e-162, 5.730549901016215e-162 9.125466584800064e-162)))   [area ~1e-323 (outside the double range); certificate ok]
+  symdifference GEOMETRYCOLLECTION (POLYGON ((-1.1513195710223487e-161 -6.121269212449139e-162, -7.736242366371891e-162 -7.163187376270269e-162, -6.173365120640196e-162 -6.750761436424405e-162, -9.364239497342407e-162 -1.8233567866869776e-162, -1.1513195710223487e-161 -6.121269212449139e-162), (-9.64642566671063e-162 -5.687136644190335e-162, -8.930106929083602e-162 -4.254499168936281e-162, -7.866482136849532e-162 -5.904202928319737e-162, -8.387441218760097e-162 -6.034442698797378e-162, -9.64642566671063e-162 -5.687136644190335e-162)), POLYGON ((5.730549901016215e-162 9.125466584800064e-162, 5.752256529429156e-162 9.125466584800064e-162, 5.730549901016215e-162 9.147173213213004e-162, 5.730549901016215e-162 9.125466584800064e-162)), POINT (-8.708699319271612e-162 -5.470070360060933e-162))   [area ~1e-323 (outside the double range); certificate ok]
+  indep.py classify_point(B, A) = out
+
+=== min-mixed-points-collapse-grid1
+  A = MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0)))
+  B = POINT (7 7)
+  valid (exact): A True, B True
+  relate: FF2FF10F2 (witness route FF2FF10F2: agree)
+  intersection  POINT EMPTY   [area 0; certificate ok]
+  union         GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((3 0, 5 0, 5 0.4, 3 0)), POINT (7 7))   [area ~4.4; certificate ok]
+  difference    MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0)))   [area ~4.4; certificate ok]
+  symdifference GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((3 0, 5 0, 5 0.4, 3 0)), POINT (7 7))   [area ~4.4; certificate ok]
+  indep.py classify_point(B, A) = out
+  grid 1: the triangle [[3.0, 0.0], [5.0, 0.0], [5.0, 0.4], [3.0, 0.0]] snaps to [(3, 0), (5, 0), (5, 0), (3, 0)]: twice its signed area is 0, so it collapses to the segment (3 0)-(5 0); the square and the point are on the grid already
+  non-strict union of the snapped operands (what OverlayNG documents for this precision model): GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  non-strict symdifference of the snapped operands (what OverlayNG documents for this precision model): GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+
+##### scaling facts
+  float 2e170 == 2 * float 1e170: True; float 1e170 is the integer 100000000000000003441905430931245280917713770297417747470693647675065097962631447553892265814744827318497179085147422915077831721209019419643357959500300321574675254607872
+  corpus case polygon == 2^732 * the unit-scale polygon of ScanScales.java: True
+  sqrt(Double.MAX_VALUE) = 1.34078e+154: a tolerance above it has an infinite square in double arithmetic
+  OverlayNGRobust snap tolerance for the 1e170 triangle: 2e170 / 1e12 = 2e+158, squared in double: inf

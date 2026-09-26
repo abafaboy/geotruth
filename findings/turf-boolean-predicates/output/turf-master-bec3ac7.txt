@@ -1,0 +1,7 @@
+# node v22.22.2; Turf master bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7 (packages/*/index.ts bundled by build-master.sh)
+WRONG identical triangles: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
+WRONG overlapping squares: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
+WRONG apex of B on edge of A: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = true (expected true)
+WRONG 2nd part of MultiPolygon shares an edge: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = false (expected true)
+WRONG B in hole of A, sharing an edge: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = false (expected true)
+5 of 5 cases wrong

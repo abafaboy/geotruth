@@ -1,0 +1,35 @@
+# Registry snippet for findings/registry.toml (not merged there; same keys as registry entries).
+# It replaces the [[lead]] entry "clipper2-polytree-nesting" (status "unreviewed").
+
+[[finding]]
+id = "clipper2-polytree-nesting"
+library = "clipper2"
+lib = "clipper2@2.0.1-f9c5eb6"
+signature = "overlay (PolyTree64/PolyTreeD nesting): a result ring whose every vertex lies on the boundary of the ring containing it is put one level too high: an inscribed hole becomes a second top-level node (IsHole false, clockwise), an inscribed island becomes a second hole (IsHole true, counter-clockwise); the flat Paths64 result is right. Path2ContainsPath1 (clipper.h:739) returns false when no vertex is strictly inside, so RecursiveCheckOwners (clipper.engine.cpp:2958-2981) drops the correct owner; also when one vertex is rounded just outside. Regression from e8ebdef (#957 fix), since 1.5.3"
+fields = ["overlay.difference", "overlay.symdifference", "overlay.union"]
+families = ["vertex-on-edge", "hole-contact"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "main f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd (head on 2026-09-26): wrong",
+    "release Clipper2_2.0.1 21ebba05db8894f0c7217ad35ea518080f324946: wrong",
+    "1.5.4 ef88ee9 and 1.5.3 fa165fe: wrong",
+    "1.5.2 6901921, 1.4.0 736ddb0, 1.2.4 ff85874: correct",
+    "git bisect: first bad e8ebdef0931771443be86c092874e1bb0b51038a (#957 fix); parent 3dd975a correct",
+    "open PR #1101 (Ystripes) head 4115ae4: wrong",
+    "main + patch/prototype_fix.diff: correct; Clipper2 CPP/Tests 48/48 (and USINGZ build 48/48); 1804-case set: only the 5 lead cases change; random inscribed configurations 4434/4574 wrong -> 0/1 (the 1 is a flat-result near-miss)",
+]
+cases = "findings/clipper2-polytree-nesting/cases.jsonl"
+repro = "findings/clipper2-polytree-nesting/repro.cpp"
+evidence = "findings/clipper2-polytree-nesting/FINAL.md"
+links = [
+    "https://github.com/AngusJohnson/Clipper2/issues/957",
+    "https://github.com/AngusJohnson/Clipper2/issues/973",
+    "https://github.com/AngusJohnson/Clipper2/issues/942",
+    "https://github.com/AngusJohnson/Clipper2/pull/1101",
+    "https://github.com/AngusJohnson/Clipper2/commit/e8ebdef0931771443be86c092874e1bb0b51038a",
+    "https://angusj.com/clipper2/Docs/Units/Clipper.Engine/Classes/PolyTree64/_Body.htm",
+]
+upstream_issue = ""
+supersedes_lead = "clipper2-polytree-nesting"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report). New: no open or closed issue or PR has this input; #957/#973 are the fixes that introduced it, #942 an earlier, different nesting bug; open PR #1101 still reproduces. The rings and the even-odd area are exact; only PolyTree parent links are wrong, so the finding shows up as overlay results that are wrong when read as OGC polygons (adapter), not in v1 areas. Lead case hole-contact-7-000044 is the rounding variant (one island vertex snapped just outside its hole) of the same return-false. C# port keeps the old midpoint fallback (probably unaffected); Delphi has the same Exit (probably affected); neither was run. The PolyTree64 doc quote came through web search only (angusj.com blocked in the sandbox): check it before citing. The 3 other adapter nesting/orientation mismatches on the 1804-case set (int-grid-7-000041, tiny-rotation-1-000108/179) and the fuzz near-miss (A=(-51,59)(-41,24)(-26,-21), B=(-49,52)(-37,12)(-41,27): Difference 16.5, exact 27.5) are flat-result integer-grid effects, not this finding, untriaged."

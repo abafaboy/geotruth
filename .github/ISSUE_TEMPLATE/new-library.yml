@@ -1,0 +1,30 @@
+name: Add a library
+description: Propose an adapter for another geometry library, or another build of one already covered.
+title: "Adapter: "
+labels: ["adapter"]
+body:
+  - type: markdown
+    attributes:
+      value: See docs/ADAPTERS.md for the adapter contract, the manifest and the checklist.
+  - type: input
+    id: library
+    attributes:
+      label: Library
+      description: Name, language and upstream repository.
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: What it computes
+      description: >-
+        Which of relate (DE-9IM), the named predicates, validity and overlay it provides, and
+        the documentation of its precision model (tolerances, snapping, integer grids).
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to write the adapter myself.

@@ -48,7 +48,9 @@ export const OPS = [
 ];
 
 // Contract v2. Turf has no relate and no covers / coveredBy (null). Its boolean functions
-// throw "... not supported" for type pairs they do not implement: that is "unsupported", as
+// throw "... not supported" for type pairs they do not implement, and booleanOverlap throws
+// "features must be of the same type" for operands of different dimensions (it is documented
+// for same-dimension pairs only): both are "unsupported", as
 // are operands with empty elements or non-finite coordinates (GeoJSON has neither). Overlays
 // take Polygon / MultiPolygon operands only; symdifference is derived from two differences,
 // merged with turf.union (union(difference(A, B), difference(B, A)), what a Turf user writes;
@@ -65,7 +67,7 @@ function boolean(fn) {
     try {
       return fn(a, b);
     } catch (e) {
-      if (/not supported|unsupported|is not a supported/i.test(String(e && e.message))) throw new Unsupported(e.message);
+      if (/not supported|unsupported|is not a supported|features must be of the same type/i.test(String(e && e.message))) throw new Unsupported(e.message);
       throw e;
     }
   };

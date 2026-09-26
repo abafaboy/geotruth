@@ -1,0 +1,25 @@
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
+@@ -106,7 +106,9 @@
+   }
+ 
+   public int getDimension(boolean isA) {
+-    return getGeometry(isA).getDimension();
++    //-- the real dimension: a GeometryCollection's getDimension()
++    //-- also counts its EMPTY elements
++    return getGeometry(isA).getDimensionReal();
+   }
+   
+   public boolean isAreaArea() {
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/AdjacentEdgeLocator.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/AdjacentEdgeLocator.java
+@@ -93,6 +93,9 @@
+   private void addRings(Geometry geom, List<Coordinate[]> ringList2) {
+     if (geom instanceof Polygon) {
+       Polygon poly = (Polygon) geom;
++      //-- an empty polygon has no rings to add
++      if (poly.isEmpty())
++        return;
+       LinearRing shell = poly.getExteriorRing();
+       addRing(shell, true);
+       for (int i = 0; i < poly.getNumInteriorRing(); i++) {

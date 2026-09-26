@@ -1,0 +1,70 @@
+=== jts-core built from master 3ea61f8 + prototype_fix.diff
+JTS 1.21.0 SNAPSHOT, jts.overlay=null
+
+1. A triangle overlaid with itself (A union A = A intersection A = A)
+  1a. unit scale (control)
+  A = POLYGON ((0 0, 2 1, 1 2, 0 0))
+  B = POLYGON ((0 0, 2 1, 1 2, 0 0))
+  OverlayNGRobust.overlay(A, B, UNION)
+    actual:   POLYGON ((2.0 1.0, 0.0 0.0, 1.0 2.0, 2.0 1.0))
+    expected: POLYGON ((0.0 0.0, 2.0 1.0, 1.0 2.0, 0.0 0.0))   OK
+  1b. coordinates ~1e170
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  OverlayNGRobust.overlay(A, B, UNION)
+    actual:   POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))
+    expected: POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))   OK
+  1c. coordinates ~1e170
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  OverlayNGRobust.overlay(A, B, INTERSECTION)
+    actual:   POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))
+    expected: POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))   OK
+
+2. The triangle and a disjoint line (no segment intersections to compute)
+  2a. union
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = LINESTRING (3e170 0, 4e170 0)
+  OverlayNGRobust.overlay(A, B, UNION)
+    actual:   GEOMETRYCOLLECTION (POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0)), LINESTRING (3.0E170 0.0, 4.0E170 0.0))
+    expected: GEOMETRYCOLLECTION (POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0)), LINESTRING (3.0E170 0.0, 4.0E170 0.0))   OK
+  2b. difference
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = LINESTRING (3e170 0, 4e170 0)
+  OverlayNGRobust.overlay(A, B, DIFFERENCE)
+    actual:   POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))
+    expected: POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))   OK
+  2c. symdifference
+  A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+  B = LINESTRING (3e170 0, 4e170 0)
+  OverlayNGRobust.overlay(A, B, SYMDIFFERENCE)
+    actual:   GEOMETRYCOLLECTION (POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0)), LINESTRING (3.0E170 0.0, 4.0E170 0.0))
+    expected: GEOMETRYCOLLECTION (POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0)), LINESTRING (3.0E170 0.0, 4.0E170 0.0))   OK
+
+3. The corpus case line-polygon-1-000090-along-edge-full.ba.int.extreme (coordinates ~3.8e220)
+  3a. union
+  A = POLYGON ((-3.6403423436814706e220 3.8270972661136905e220, -3.6403407277677217e220 3.8270908024586947e220, -3.6403391118539727e220 3.8270956501999416e220, -3.6403423436814706e220 3.8270972661136905e220))
+  B = MULTILINESTRING ((-3.6403407277677217e220 3.8270908024586947e220, -3.6403391118539727e220 3.8270956501999416e220), (-3.640325645906065e220 3.8271075002341006e220, -3.640324568630232e220 3.8271091161478495e220))
+  OverlayNGRobust.overlay(A, B, UNION)
+    actual:   GEOMETRYCOLLECTION (POLYGON ((-3.6403407277677E220 3.8270908024587E220, -3.6403423436815E220 3.8270972661137E220, -3.6403391118540003E220 3.8270956501999004E220, -3.6403407277677E220 3.8270908024587E220)), LINESTRING (-3.6403256459061004E220 3.8271075002341E220, -3.6403245686302005E220 3.8271091161478004E220))
+    expected: GEOMETRYCOLLECTION (POLYGON ((-3.6403423436814706E220 3.8270972661136905E220, -3.6403407277677217E220 3.8270908024586947E220, -3.6403391118539727E220 3.8270956501999416E220, -3.6403423436814706E220 3.8270972661136905E220)), LINESTRING (-3.640325645906065E220 3.8271075002341006E220, -3.640324568630232E220 3.8271091161478495E220))   OK up to rounding (snap-rounding fallback)
+
+5. KdTree directly (the cause)
+  new KdTree(1e155); insert (0 0), (1e300 0): size = 2 (expected 2: the points are 1e300 apart)   OK
+  new KdTree(0.0); insert (0 0), (1e-170 0): size = 2 (expected 2: distinct points, tolerance 0)   OK
+
+all results correct
+4. Geometry.union with -Djts.overlay=ng (goes through OverlayNGRobust)
+  A.union(A), A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0))
+    actual:   POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))
+    expected: POLYGON ((0.0 0.0, 2.0E170 1.0E170, 1.0E170 2.0E170, 0.0 0.0))   OK
+
+JTS 1.21.0 SNAPSHOT: OverlayNGRobust UNION of A*2^k and B*2^k
+A = B = POLYGON ((0 0, 2 1, 1 2, 0 0)) (the largest ordinate is 2^(k+1))
+  k in [400, 510]: correct
+  k in [511, 959]: correct up to 1e-9 (rounded by a fallback)
+  k in [960, 962]: correct
+  k in [963, 1022]: correct up to 1e-9 (rounded by a fallback)
+corpus case line-polygon-1-000090 at unit scale, times 2^k (k = 732 is the corpus case)
+  k in [400, 532]: correct
+  k in [533, 1023]: correct up to 1e-9 (rounded by a fallback)

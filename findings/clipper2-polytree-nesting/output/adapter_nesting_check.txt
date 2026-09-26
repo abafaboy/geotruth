@@ -1,0 +1,55 @@
+# geotruth Clipper2 adapter (v2 contract, PolyTree64 -> typed polygons), 1804-case broader check (/tmp/claude-0/gb-build/e4a-baseline/all.jsonl: seed + 60 cases per generator family + int_cases.jsonl) and the 5 lead cases.
+# checker: analyse_nesting.py (below); a mismatch = a shell with negative or a hole with positive signed area, or OGC-read area != even-odd area.
+# 'patched' = prototype_fix.diff; the first-attempt fix (all-IsOn only) is shown as patched-v1.
+
+all.main.v2.jsonl: 12 outputs in 8 cases with a nesting/orientation mismatch
+   hole-contact-7-000005-cross-near.n6.int  symdifference: mismatched rings 1, OGC-read area 6.4094503124032115e+17, even-odd area 6.4159735320845696e+17
+   hole-contact-7-000044-cross-near.n6.unit  symdifference: mismatched rings 1, OGC-read area 0.50385318262313661, even-odd area 0.52427031177725958
+   int-grid-7-000041-lattice-tri-vertex.small-shear  difference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   int-grid-7-000041-lattice-tri-vertex.small-shear  symdifference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   tiny-rotation-1-000108  symdifference: mismatched rings 1, OGC-read area 1.1316235189814851e-15, even-odd area 1.1308214628854568e-15
+   tiny-rotation-1-000179  symdifference: mismatched rings 1, OGC-read area 2.2430413244398887e-16, even-odd area 2.2293993999857343e-16
+   vertex-on-edge-7-000026-inscribed.n4.lonlat  difference: mismatched rings 1, OGC-read area 1.9349499780219048e-10, even-odd area 7.5715433922596276e-11
+   vertex-on-edge-7-000026-inscribed.n4.lonlat  symdifference: mismatched rings 1, OGC-read area 1.9349499780219048e-10, even-odd area 7.5715433922596276e-11
+   vertex-on-edge-7-000047-inscribed.n8.projected  difference: mismatched rings 1, OGC-read area 0.11179730179719627, even-odd area 0.067078381078317761
+   vertex-on-edge-7-000047-inscribed.n8.projected  symdifference: mismatched rings 1, OGC-read area 0.11179730179719627, even-odd area 0.067078381078317761
+   vertex-on-edge-7-000056-inscribed.n4.int  difference: mismatched rings 1, OGC-read area 4166, even-odd area 2010
+   vertex-on-edge-7-000056-inscribed.n4.int  symdifference: mismatched rings 1, OGC-read area 4166, even-odd area 2010
+all.patched-v1.v2.jsonl: 5 outputs in 4 cases with a nesting/orientation mismatch
+   hole-contact-7-000044-cross-near.n6.unit  symdifference: mismatched rings 1, OGC-read area 0.50385318262313661, even-odd area 0.52427031177725958
+   int-grid-7-000041-lattice-tri-vertex.small-shear  difference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   int-grid-7-000041-lattice-tri-vertex.small-shear  symdifference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   tiny-rotation-1-000108  symdifference: mismatched rings 1, OGC-read area 1.1316235189814851e-15, even-odd area 1.1308214628854568e-15
+   tiny-rotation-1-000179  symdifference: mismatched rings 1, OGC-read area 2.2430413244398887e-16, even-odd area 2.2293993999857343e-16
+lead_cases.main.v2.jsonl: 8 outputs in 5 cases with a nesting/orientation mismatch
+   clipper2-polytree-nesting:hole-contact-7-000005-cross-near.n6.int  symdifference: mismatched rings 1, OGC-read area 6.4094503124032115e+17, even-odd area 6.4159735320845696e+17
+   clipper2-polytree-nesting:hole-contact-7-000044-cross-near.n6.unit  symdifference: mismatched rings 1, OGC-read area 0.50385318262313661, even-odd area 0.52427031177725958
+   clipper2-polytree-nesting:vertex-on-edge-7-000026-inscribed.n4.lonlat  difference: mismatched rings 1, OGC-read area 1.9349499780219048e-10, even-odd area 7.5715433922596276e-11
+   clipper2-polytree-nesting:vertex-on-edge-7-000026-inscribed.n4.lonlat  symdifference: mismatched rings 1, OGC-read area 1.9349499780219048e-10, even-odd area 7.5715433922596276e-11
+   clipper2-polytree-nesting:vertex-on-edge-7-000047-inscribed.n8.projected  difference: mismatched rings 1, OGC-read area 0.11179730179719627, even-odd area 0.067078381078317761
+   clipper2-polytree-nesting:vertex-on-edge-7-000047-inscribed.n8.projected  symdifference: mismatched rings 1, OGC-read area 0.11179730179719627, even-odd area 0.067078381078317761
+   clipper2-polytree-nesting:vertex-on-edge-7-000056-inscribed.n4.int  difference: mismatched rings 1, OGC-read area 4166, even-odd area 2010
+   clipper2-polytree-nesting:vertex-on-edge-7-000056-inscribed.n4.int  symdifference: mismatched rings 1, OGC-read area 4166, even-odd area 2010
+lead_cases.patched-v1.v2.jsonl: 1 outputs in 1 cases with a nesting/orientation mismatch
+   clipper2-polytree-nesting:hole-contact-7-000044-cross-near.n6.unit  symdifference: mismatched rings 1, OGC-read area 0.50385318262313661, even-odd area 0.52427031177725958
+all.patched.v2.jsonl: 4 outputs in 3 cases with a nesting/orientation mismatch
+   int-grid-7-000041-lattice-tri-vertex.small-shear  difference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   int-grid-7-000041-lattice-tri-vertex.small-shear  symdifference: mismatched rings 1, OGC-read area 2, even-odd area -2
+   tiny-rotation-1-000108  symdifference: mismatched rings 1, OGC-read area 1.1316235189814851e-15, even-odd area 1.1308214628854568e-15
+   tiny-rotation-1-000179  symdifference: mismatched rings 1, OGC-read area 2.2430413244398887e-16, even-odd area 2.2293993999857343e-16
+lead_cases.patched.v2.jsonl: 0 outputs in 0 cases with a nesting/orientation mismatch
+
+# fields that differ from unpatched main over the 1804 cases
+all.patched-v1.v2.jsonl vs all.main.v2.jsonl (1804 cases): 4 differing fields
+    ('hole-contact-7-000005-cross-near.n6.int', 'overlay')
+    ('vertex-on-edge-7-000026-inscribed.n4.lonlat', 'overlay')
+    ('vertex-on-edge-7-000047-inscribed.n8.projected', 'overlay')
+    ('vertex-on-edge-7-000056-inscribed.n4.int', 'overlay')
+all.patched.v2.jsonl vs all.main.v2.jsonl (1804 cases): 5 differing fields
+    ('hole-contact-7-000005-cross-near.n6.int', 'overlay')
+    ('hole-contact-7-000044-cross-near.n6.unit', 'overlay')
+    ('vertex-on-edge-7-000026-inscribed.n4.lonlat', 'overlay')
+    ('vertex-on-edge-7-000047-inscribed.n8.projected', 'overlay')
+    ('vertex-on-edge-7-000056-inscribed.n4.int', 'overlay')
+
+# the 3 cases left after the fix (int-grid-7-000041, tiny-rotation-1-000108/179) are not this finding: their flat Paths64 result has the same inverted/degenerate ring (integer-grid snapping of the flat result), see ISSUE.md.

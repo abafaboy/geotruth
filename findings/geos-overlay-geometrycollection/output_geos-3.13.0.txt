@@ -1,0 +1,174 @@
+GEOS 3.13.0-CAPI-1.19.0
+
+case 1a symdifference, A = GC with one polygon (a simple GC), B = point outside it
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = POINT (3 3)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3))
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+  GEOSIntersects_r(POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3)) = 0
+
+case 1a' control: operands swapped
+  A = POINT (3 3)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3))
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+
+case 1a" control: the polygon not wrapped in a GC
+  A = POLYGON ((0 0, 4 0, 0 4, 0 0))
+  B = POINT (3 3)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3))
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+
+case 1b symdifference, A = GC(POLYGON EMPTY) (a simple GC), B = point
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            POINT (1 1)
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POLYGON EMPTY, POINT (1 1))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   POINT (1 1)   ok
+
+case 1b' control: POLYGON EMPTY not wrapped in a GC
+  A = POLYGON EMPTY
+  B = POINT (1 1)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            POINT (1 1)
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POLYGON EMPTY, POINT (1 1))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   POINT (1 1)   ok
+
+case 1c symdifference, B = mixed GC (line + point), A = point on B's line
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  GEOSSymDifference_r(A, B)          POINT (1 0)   <-- WRONG (point set differs)
+  GEOSSymDifferencePrec_r(A, B, 0)   EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+  GEOSIntersects_r(POINT (1 0), LINESTRING (0 0, 2 0)) = 1
+
+case 1c' control: operands swapped
+  A = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  B = POINT (1 0)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  GEOSSymDifference_r(A, B)          GEOMETRYCOLLECTION (POINT (3 3), LINESTRING (0 0, 2 0))   ok
+  GEOSSymDifferencePrec_r(A, B, 0)   EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+case 1d symdifference of two equal point sets (A = square + a line inside it, B = square)
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))
+  B = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSSymDifference            POLYGON EMPTY
+  GEOSSymDifference_r(A, B)          LINESTRING (0 1, 2 1)   <-- WRONG (point set differs)
+  GEOSSymDifferencePrec_r(A, B, 0)   EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+  GEOSEquals_r(GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1)), POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))) = 1
+
+case 2a difference, A = point on the line of the mixed GC B
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSDifference               POINT EMPTY
+  GEOSDifference_r(A, B)             POINT (1 0)   <-- WRONG (point set differs)
+  GEOSDifferencePrec_r(A, B, 0)      POINT EMPTY   ok
+  GEOSIntersects_r(POINT (1 0), LINESTRING (0 0, 2 0)) = 1
+
+case 2a' control: B's line alone
+  A = POINT (1 0)
+  B = LINESTRING (0 0, 2 0)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSDifference               POINT EMPTY
+  GEOSDifference_r(A, B)             POINT EMPTY   ok
+  GEOSDifferencePrec_r(A, B, 0)      POINT EMPTY   ok
+
+case 3a intersection, A = GC(POLYGON EMPTY) (a simple GC), B = point
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT EMPTY
+  GEOSIntersection_r(A, B)           POINT EMPTY   ok
+  GEOSIntersectionPrec_r(A, B, 0)    POINT EMPTY   ok
+
+case 3a' control: POLYGON EMPTY not wrapped in a GC
+  A = POLYGON EMPTY
+  B = POINT (1 1)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT EMPTY
+  GEOSIntersection_r(A, B)           POINT EMPTY   ok
+  GEOSIntersectionPrec_r(A, B, 0)    POINT EMPTY   ok
+
+case 3b intersection, A = POINT EMPTY, B = GC with one polygon (a simple GC)
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT EMPTY
+  GEOSIntersection_r(A, B)           POINT EMPTY   ok
+  GEOSIntersectionPrec_r(A, B, 0)    POINT EMPTY   ok
+
+case 3c difference, A = POINT EMPTY, B = GC with one polygon
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSDifference               POINT EMPTY
+  GEOSDifference_r(A, B)             POINT EMPTY   ok
+  GEOSDifferencePrec_r(A, B, 0)      POINT EMPTY   ok
+
+case 3d intersection, A = mixed GC (point + line), B = MULTIPOLYGON EMPTY
+  A = GEOMETRYCOLLECTION (POINT (0 2), LINESTRING (0 0, 6 0))
+  B = MULTIPOLYGON EMPTY
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             LINESTRING EMPTY
+  GEOSIntersection_r(A, B)           GEOMETRYCOLLECTION EMPTY   (same point set, other empty type)
+  GEOSIntersectionPrec_r(A, B, 0)    LINESTRING EMPTY   ok
+
+case 4a intersection, A = point on a line of B; B's lines cross at (1.2 3.2), not a double
+  A = POINT (3 2)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT (3 2)
+  GEOSIntersection_r(A, B)           GEOMETRYCOLLECTION EMPTY   <-- WRONG (point set differs)
+  GEOSIntersectionPrec_r(A, B, 0)    POINT (3 2)   ok
+  GEOSIntersects_r(POINT (3 2), LINESTRING (0 4, 6 0)) = 1
+
+case 4a' control: B's lines as a MULTILINESTRING (OverlayNG proper)
+  A = POINT (3 2)
+  B = MULTILINESTRING ((0 2, 2 4), (0 4, 6 0))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT (3 2)
+  GEOSIntersection_r(A, B)           POINT (3 2)   ok
+  GEOSIntersectionPrec_r(A, B, 0)    POINT (3 2)   ok
+
+case 4b intersection, A = segment lying on a line of B
+  A = LINESTRING (3 2, 6 0)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             LINESTRING (3 2, 6 0)
+  GEOSIntersection_r(A, B)           POINT (6 0)   <-- WRONG (point set differs)
+  GEOSIntersectionPrec_r(A, B, 0)    EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+case 4b' control: B's lines as a MULTILINESTRING (OverlayNG proper)
+  A = LINESTRING (3 2, 6 0)
+  B = MULTILINESTRING ((0 2, 2 4), (0 4, 6 0))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             LINESTRING (3 2, 6 0)
+  GEOSIntersection_r(A, B)           LINESTRING (3 2, 6 0)   ok
+  GEOSIntersectionPrec_r(A, B, 0)    LINESTRING (3 2, 6 0)   ok
+
+case 5a intersection, B = GC(line, GEOMETRYCOLLECTION EMPTY)
+  A = LINESTRING (0 0, 1 1)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 1, 1 0), GEOMETRYCOLLECTION EMPTY)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT (0.5 0.5)
+  GEOSIntersection_r(A, B)           EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   <-- EXCEPTION
+  GEOSIntersectionPrec_r(A, B, 0)    EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+case 5a' control: POINT EMPTY instead of GEOMETRYCOLLECTION EMPTY
+  A = LINESTRING (0 0, 1 1)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 1, 1 0), POINT EMPTY)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  exact GEOSIntersection             POINT (0.5 0.5)
+  GEOSIntersection_r(A, B)           POINT (0.5 0.5)   ok
+  GEOSIntersectionPrec_r(A, B, 0)    EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)

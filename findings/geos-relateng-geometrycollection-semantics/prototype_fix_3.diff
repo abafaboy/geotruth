@@ -1,0 +1,180 @@
+diff --git a/include/geos/operation/relateng/NodeSections.h b/include/geos/operation/relateng/NodeSections.h
+index ceafa1240..47ab63b9e 100644
+--- a/include/geos/operation/relateng/NodeSections.h
++++ b/include/geos/operation/relateng/NodeSections.h
+@@ -80,6 +80,14 @@ public:
+ 
+     bool hasInteractionAB() const;
+ 
++    /**
++    * Tests whether all sections are area sections of one geometry,
++    * from at least two of its elements.
++    */
++    bool hasAreaSectionsOfSeveralElements() const;
++
++    bool isA() const;
++
+     const Geometry* getPolygonal(bool isA) const;
+ 
+     std::unique_ptr<RelateNode> createNode();
+diff --git a/include/geos/operation/relateng/RelateNode.h b/include/geos/operation/relateng/RelateNode.h
+index 7c4390324..110df928e 100644
+--- a/include/geos/operation/relateng/RelateNode.h
++++ b/include/geos/operation/relateng/RelateNode.h
+@@ -83,8 +83,6 @@ private:
+     */
+     const RelateEdge* addEdge(bool isA, const CoordinateXY* dirPt, int dim, bool isForward);
+ 
+-    void finishNode(bool isA, bool isAreaInterior);
+-
+     void propagateSideLocations(bool isA, std::size_t startIndex);
+ 
+     static std::size_t prevIndex(std::vector<std::unique_ptr<RelateEdge>>& list, std::size_t index);
+@@ -98,6 +96,8 @@ private:
+ 
+ public:
+ 
++    void finishNode(bool isA, bool isAreaInterior);
++
+     RelateNode(const CoordinateXY* pt)
+         : nodePt(pt)
+         {};
+diff --git a/include/geos/operation/relateng/TopologyComputer.h b/include/geos/operation/relateng/TopologyComputer.h
+index e016d8e6e..c69e45671 100644
+--- a/include/geos/operation/relateng/TopologyComputer.h
++++ b/include/geos/operation/relateng/TopologyComputer.h
+@@ -103,6 +103,8 @@ private:
+ 
+     void addNodeSections(NodeSection* ns0, NodeSection* ns1);
+ 
++    void evaluateCollectionNode(NodeSections* nodeSections);
++
+     void addLineEndOnLine(bool isLineA, Location locLineEnd, Location locLine, const CoordinateXY* pt);
+ 
+     void addLineEndOnArea(bool isLineA, Location locLineEnd, Location locArea, const CoordinateXY* pt);
+diff --git a/src/operation/relateng/NodeSections.cpp b/src/operation/relateng/NodeSections.cpp
+index e02433d32..c2b03fe8b 100644
+--- a/src/operation/relateng/NodeSections.cpp
++++ b/src/operation/relateng/NodeSections.cpp
+@@ -43,6 +43,32 @@ NodeSections::addNodeSection(NodeSection* e)
+ }
+ 
+ 
++/* public */
++bool
++NodeSections::hasAreaSectionsOfSeveralElements() const
++{
++    if (sections.size() < 2)
++        return false;
++    const NodeSection* first = sections[0].get();
++    bool isSeveral = false;
++    for (const std::unique_ptr<NodeSection>& ns : sections) {
++        if (ns->isA() != first->isA() || ! ns->isArea())
++            return false;
++        if (ns->id() != first->id())
++            isSeveral = true;
++    }
++    return isSeveral;
++}
++
++
++/* public */
++bool
++NodeSections::isA() const
++{
++    return sections[0]->isA();
++}
++
++
+ /* public */
+ bool
+ NodeSections::hasInteractionAB() const
+diff --git a/src/operation/relateng/RelateNG.cpp b/src/operation/relateng/RelateNG.cpp
+index 8342fe868..273637af2 100644
+--- a/src/operation/relateng/RelateNG.cpp
++++ b/src/operation/relateng/RelateNG.cpp
+@@ -622,6 +622,19 @@ RelateNG::computeAreaVertex(RelateGeometry& geom, bool isA, const LinearRing* ri
+     const CoordinateXY* pt = ring->getCoordinate();
+ 
+     Location locArea = geom.locateAreaVertex(pt);
++    if (locArea == Location::INTERIOR) {
++        //-- a vertex inside another polygon of a GC says nothing about the union boundary,
++        //-- so use a ring vertex on the union boundary, if there is one
++        const CoordinateSequence* seq = ring->getCoordinatesRO();
++        for (std::size_t i = 1; i + 1 < seq->size(); i++) {
++            const CoordinateXY* pi = &seq->getAt<CoordinateXY>(i);
++            if (geom.locateAreaVertex(pi) == Location::BOUNDARY) {
++                pt = pi;
++                locArea = Location::BOUNDARY;
++                break;
++            }
++        }
++    }
+     int locDimTarget = geomTarget.locateWithDim(pt);
+     Location locTarget = DimensionLocation::location(locDimTarget);
+     int dimTarget = DimensionLocation::dimension(locDimTarget, topoComputer.getDimension(! isA));
+diff --git a/src/operation/relateng/TopologyComputer.cpp b/src/operation/relateng/TopologyComputer.cpp
+index e911bc6f8..1421cd7b9 100644
+--- a/src/operation/relateng/TopologyComputer.cpp
++++ b/src/operation/relateng/TopologyComputer.cpp
+@@ -24,6 +24,9 @@
+ #include <geos/operation/relateng/RelateGeometry.h>
+ #include <geos/operation/relateng/RelateNode.h>
+ #include <geos/operation/relateng/NodeSection.h>
++#include <geos/operation/relateng/NodeSections.h>
++#include <geos/operation/relateng/DimensionLocation.h>
++#include <geos/operation/relateng/RelateEdge.h>
+ #include <geos/util/IllegalStateException.h>
+ #include <sstream>
+ 
+@@ -539,6 +555,11 @@ TopologyComputer::evaluateNodes()
+             if (isResultKnown())
+                 return;
+         }
++        else if (nodeSections->hasAreaSectionsOfSeveralElements()) {
++            evaluateCollectionNode(nodeSections);
++            if (isResultKnown())
++                return;
++        }
+     }
+ }
+ 
+@@ -557,6 +578,38 @@ TopologyComputer::evaluateNode(NodeSections* nodeSections)
+ }
+ 
+ 
++/* private */
++void
++TopologyComputer::evaluateCollectionNode(NodeSections* nodeSections)
++{
++    /**
++     * A node where polygons of one GeometryCollection meet, but the other
++     * geometry has no edge. The union boundary there may belong to no input
++     * ring (e.g. a hole formed by several overlapping polygons), so it is seen
++     * nowhere else. The node's location in the other geometry is constant
++     * around the node.
++     */
++    const CoordinateXY* p = nodeSections->getCoordinate();
++    bool isA = nodeSections->isA();
++    RelateGeometry& geom = getGeometry(isA);
++    RelateGeometry& geomOther = getGeometry(! isA);
++    int locDimOther = geomOther.locateWithDim(p);
++    Location locOther = DimensionLocation::location(locDimOther);
++    if (locOther == Location::BOUNDARY)
++        return;
++    if (locOther == Location::INTERIOR && DimensionLocation::dimension(locDimOther) != Dimension::A)
++        return;
++    std::unique_ptr<RelateNode> node = nodeSections->createNode();
++    bool isAreaInterior = geom.isNodeInArea(p, nodeSections->getPolygonal(isA));
++    node->finishNode(isA, isAreaInterior);
++    for (const std::unique_ptr<RelateEdge>& e : node->getEdges()) {
++        updateDim(isA, e->location(isA, Position::LEFT), locOther, Dimension::A);
++        updateDim(isA, e->location(isA, Position::RIGHT), locOther, Dimension::A);
++        updateDim(isA, e->location(isA, Position::ON), locOther, Dimension::L);
++    }
++}
++
++
+ /* private */
+ void
+ TopologyComputer::evaluateNodeEdges(const RelateNode* node)

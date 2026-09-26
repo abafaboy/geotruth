@@ -1,0 +1,28 @@
+diff --git a/CPP/Clipper2Lib/include/clipper2/clipper.h b/CPP/Clipper2Lib/include/clipper2/clipper.h
+index fe1e299..1ef8831 100644
+--- a/CPP/Clipper2Lib/include/clipper2/clipper.h
++++ b/CPP/Clipper2Lib/include/clipper2/clipper.h
+@@ -736,6 +736,23 @@ namespace Clipper2Lib {
+         break;
+       }
+     }
++    if (pip == PointInPolygonResult::IsOn)
++    {
++      // every vertex of path1 touches path2, so decide with the midpoints
++      // of path1's edges (both paths doubled so that the midpoints are
++      // exact); the first midpoint that is not on path2 settles it
++      Path<T> path2x2;
++      path2x2.reserve(path2.size());
++      for (const Point<T>& pt : path2) path2x2.emplace_back(pt.x * 2, pt.y * 2);
++      for (size_t i = 0, j = path1.size() - 1; i < path1.size(); j = i++)
++      {
++        Point<T> mid(path1[i].x + path1[j].x, path1[i].y + path1[j].y);
++        PointInPolygonResult r = PointInPolygon(mid, path2x2);
++        if (r != PointInPolygonResult::IsOn)
++          return r == PointInPolygonResult::IsInside;
++      }
++      return false;
++    }
+     if (pip != PointInPolygonResult::IsInside) return false;
+     // result is likely true but check midpoint
+     Point<T> mp1 = GetBounds(path1).MidPoint();

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security issue (in geotruth, or a crash geotruth found in another library)
+    url: https://github.com/abafaboy/geotruth/security/policy
+    about: Please do not open a public issue. The security policy says how to report privately.

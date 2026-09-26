@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: >-
+  If you use geotruth, its corpus or its expected answers in your work, please cite it as
+  below, and state the versions you used: the geotruth commit or release, the corpus
+  version and the engine version (they are recorded in corpus/MANIFEST.json,
+  corpus/expected/MANIFEST.json and every result file).
+title: "geotruth: exact ground truth for computational geometry"
+type: software
+authors:
+  - given-names: Abdulfayyod
+    family-names: Mukhamedov
+repository-code: "https://github.com/abafaboy/geotruth"
+url: "https://github.com/abafaboy/geotruth"
+abstract: >-
+  geotruth is an exact-answer conformance suite for computational-geometry libraries.
+  Every IEEE-754 double is a rational number, so the DE-9IM relation, the overlay and the
+  validity of two geometries have exactly one correct answer, which geotruth computes in
+  exact integer and rational arithmetic on the input doubles, with two independent routes
+  for relate and an independent certificate for overlay. A corpus of near-degenerate cases
+  is run through adapters for GEOS, JTS, Boost.Geometry, Clipper2, CGAL, georust geo and
+  several JavaScript libraries, and each answer is graded against the exact one within the
+  library's own documented precision model. The code is MIT-licensed; the corpus and the
+  expected answers are dedicated to the public domain (CC0 1.0).
+keywords:
+  - computational geometry
+  - exact arithmetic
+  - robustness
+  - conformance testing
+  - DE-9IM
+  - polygon overlay
+  - OGC Simple Features
+license: MIT

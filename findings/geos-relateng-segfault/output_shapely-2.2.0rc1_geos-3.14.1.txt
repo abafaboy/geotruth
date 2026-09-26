@@ -1,0 +1,31 @@
+shapely 2.2.0rc1, GEOS 3.14.1
+
+case 1  point on the shared edge of two squares, GC has a POLYGON EMPTY
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  is_valid(A) = True, is_valid(B) = True
+  expected relate(A, B) = 0FFFFF212
+  relate(A, B)     CRASH (signal 11)   <-- CRASH
+  intersects(A, B) CRASH (signal 11)   <-- CRASH
+  within(A, B)     CRASH (signal 11)   <-- CRASH
+  touches(A, B)    CRASH (signal 11)   <-- CRASH
+
+case 2  GC(point, LINESTRING EMPTY) vs POINT EMPTY
+  A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
+  B = POINT EMPTY
+  is_valid(A) = True, is_valid(B) = True
+  expected relate(A, B) = FF0FFFFF2
+  relate(A, B)     CRASH (signal 11)   <-- CRASH
+  intersects(A, B) False
+  within(A, B)     False
+  touches(A, B)    False
+
+case 3  GC(line, POLYGON EMPTY) vs a disjoint point (wrong matrix, no crash)
+  A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
+  B = POINT (5 5)
+  is_valid(A) = True, is_valid(B) = True
+  expected relate(A, B) = FF1FF00F2
+  relate(A, B)     FF2FF10F2   <-- WRONG
+  intersects(A, B) False
+  within(A, B)     False
+  touches(A, B)    False

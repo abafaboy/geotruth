@@ -1,0 +1,66 @@
+shapely 2.1.2, GEOS 3.13.1 (for 'stripped' and GEOS isValid)
+adversarial-201-421
+  A = GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POINT EMPTY, LINESTRING EMPTY), GEOMETRYCOLLECTION (POINT (2 2), MULTIPOINT ((4 4), (6 4), (4 6), (6 4), (4 4))))
+  B = LINESTRING EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF0FFFFF2  witness FF0FFFFF2  GEOS-on-stripped FF0FFFFF2  AGREE
+adversarial-201-649
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY, GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (LINESTRING (4 4, 6 4), POLYGON ((6 4, 6 2, 2 0, 0 4, 4 4, 6 4)), POLYGON ((6 4, 6 2, 4 2, 4 4, 6 4))), MULTIPOINT ((6 6), (4 4), (2 6))), MULTILINESTRING ((2 2, 2 2, 2 0, 6 4, 6 2), (6 6, 6 6, 6 2), (4 6, 0 4), (6 4, 6 4)))
+  B = MULTILINESTRING ((6 4, 6 2, 2 0, 0 4, 4 4, 6 4), (6 4, 6 2, 4 2, 4 4, 6 4))
+  valid (exact) A=False B=True; GEOS isValid A=False B=True
+  exact 1F21F0FF2  witness 1F21F0FF2  GEOS-on-stripped 1F21F0FF2  AGREE
+adversarial-202-465
+  A = GEOMETRYCOLLECTION (POLYGON ((2 4, 6 6, 4 4, 2 4)), GEOMETRYCOLLECTION (POLYGON ((4 2, 0 2, 0 6, 4 6, 4 2)), LINESTRING (4 6, 4 4, 4 6), POLYGON EMPTY))
+  B = POLYGON ((6 6, 4 4, 2 4, 6 6))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 212F11FF2  witness 212F11FF2  GEOS-on-stripped 212F11FF2  AGREE
+adversarial-1-1860
+  A = GEOMETRYCOLLECTION (POLYGON ((0 6, 6 6, 2 4, 2 0, 0 4, 0 6)), POLYGON EMPTY, POLYGON ((2 6, 2 2, 4 2, 4 6, 2 6)))
+  B = GEOMETRYCOLLECTION (POLYGON ((2 6, -4 6, 0 4, 0 0, 2 4, 2 6)), POLYGON EMPTY, POLYGON ((0 6, 0 2, -2 2, -2 6, 0 6)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 212111212  witness 212111212  GEOS-on-stripped 212111212  AGREE
+adversarial-2-199
+  A = POLYGON ((4 2, 4 4, 2 4, 2 2, 4 2))
+  B = GEOMETRYCOLLECTION (POLYGON ((2 2, 2 4, 4 4, 4 3, 4 2, 2 2)), GEOMETRYCOLLECTION (MULTIPOLYGON (((0 2, 0 6, 4 6, 0 2)), ((4 6, 2 2, 6 0, 4 6))), POLYGON EMPTY))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 2FF11F212  witness 2FF11F212  GEOS-on-stripped 212111212  DISAGREE
+adversarial-2-575
+  A = GEOMETRYCOLLECTION (MULTIPOLYGON (((4 2, 4 0, 2 0, 2 2, 4 2)), ((4 2, 6 2, 0 6, 4 2))), GEOMETRYCOLLECTION (POLYGON ((4 2, 4 0, 0 4, 0 6, 2 6, 4 2)), MULTIPOINT ((4 6), (2 0), (6 2), (4 6))), POLYGON EMPTY)
+  B = LINESTRING (6 0, 4 0, 2 6, 0 0, 6 0)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 1F21F11F2  witness 1F21F11F2  GEOS-on-stripped 1F21F11F2  AGREE
+adversarial-2-770
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY, GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (MULTILINESTRING ((2 4, 4 6, 2 6, 4 4), (4 4, 6 6), (0 0, 4 6, 2 0, 4 2, 0 0)), POLYGON ((0 2, 4 6, 6 2, 6 0, 0 2)), MULTIPOLYGON (((0 2, 0 6, 2 6, 2 2, 0 2)), ((4 0, 4 2, 2 2, 4 0)))), MULTIPOINT ((6 4), (0 0), (4 6))), GEOMETRYCOLLECTION (MULTILINESTRING ((2 4, 2 4, 6 2, 6 6), (4 0, 6 0, 4 0), (6 4, 6 4)), MULTIPOINT ((0 2), (4 2))))
+  B = MULTIPOINT ((2 0), (4 0))
+  valid (exact) A=False B=True; GEOS isValid A=False B=True
+  exact 0F20F1FF2  witness 0F20F1FF2  GEOS-on-stripped 0F20F1FF2  AGREE
+adversarial-3-689
+  A = LINESTRING EMPTY
+  B = GEOMETRYCOLLECTION (MULTIPOINT ((6 0), (4 2), (2 2)), GEOMETRYCOLLECTION (POINT EMPTY, LINESTRING EMPTY))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FFFFFF0F2  witness FFFFFF0F2  GEOS-on-stripped FFFFFF0F2  AGREE
+adversarial-3-1315
+  A = LINESTRING EMPTY
+  B = GEOMETRYCOLLECTION (MULTIPOINT ((2 0), (4 2), (0 2), (2 6)), LINESTRING EMPTY)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FFFFFF0F2  witness FFFFFF0F2  GEOS-on-stripped FFFFFF0F2  AGREE
+adversarial-4-390
+  A = GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (LINESTRING (1 3, 2 0, 6 4, 2 2, 0 4), POLYGON EMPTY, POLYGON ((6 4, 6 0, 0 0, 0 4, 6 4))), MULTIPOLYGON (((6 4, 6 6, 2 6, 0 2, 6 4)), ((2 0, 4 0, 4 2, 2 2, 2 0))))
+  B = GEOMETRYCOLLECTION (LINESTRING (0 4, 2 2, 6 4, 2 0, 1 3), POLYGON EMPTY, POLYGON ((0 4, 6 4, 6 0, 0 0, 0 4)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 212F11FF2  witness 212F11FF2  GEOS-on-stripped 212F11FF2  AGREE
+adversarial-4-431
+  A = GEOMETRYCOLLECTION (MULTIPOINT ((6 2), (6 4), (4 0), (6 2)), GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POLYGON ((0 0, 6 6, 4 2, 4 0, 2 0, 0 0)), POLYGON EMPTY, GEOMETRYCOLLECTION (MULTIPOLYGON (((2 2, 2 4, 4 4, 4 2, 2 2)), ((0 2, 6 0, 4 0, 0 2))), MULTIPOINT ((4 0), (2 2)))), MULTIPOINT ((0 4), (0 2), (4 6), (0 4))))
+  B = MULTIPOLYGON (((0 6, 2 4, 0 0, 0 6)), ((4 6, 2 6, 2 0, 4 0, 4 6)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 212111212  witness 212111212  GEOS-on-stripped 212111212  AGREE
+adversarial-4-496
+  A = GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POINT EMPTY, LINESTRING EMPTY), POINT (0 6))
+  B = POLYGON EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF0FFFFF2  witness FF0FFFFF2  GEOS-on-stripped FF0FFFFF2  AGREE
+adversarial-4-1853
+  A = GEOMETRYCOLLECTION (MULTIPOLYGON (((6 0, 4 0, 2 2, 2 4, 4 2, 6 0)), ((0 2, 0 0, 2 0, 2 2, 0 2))), GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POLYGON EMPTY, GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (LINESTRING (6 0, 6 0, 0 4), MULTIPOLYGON (((0 2, 4 6, 6 2, 2 0, 0 2)), ((0 6, 0 4, 2 4, 2 6, 0 6))), GEOMETRYCOLLECTION (LINESTRING (2 6, 2 0), MULTIPOINT ((6 6), (2 0), (0 6), (6 6)))), MULTIPOINT ((2 2), (2 2), (0 2), (2 0)))), MULTIPOINT ((4 4), (2 4), (2 0), (6 6))), POINT (0 4))
+  B = GEOMETRYCOLLECTION (LINESTRING (4 6, 2 2, 4 6), MULTIPOLYGON (((6 4, 6 2, 2 2, 2 4, 6 4)), ((4 6, 6 4, 6 6, 4 6))))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 212101212  witness 212101212  GEOS-on-stripped 212101212  AGREE

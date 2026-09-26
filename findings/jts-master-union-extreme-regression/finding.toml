@@ -1,0 +1,61 @@
+# Registry snippet for findings/registry.toml (not merged there; same keys as registry entries).
+# This triage found two separate defects. The first is the lead's master regression and owns
+# this directory. The second (mixed-points/) would need its own findings/ directory before it
+# can be registered under its own id. Until then, its entry below points into mixed-points/.
+
+[[finding]]
+id = "jts-master-union-extreme-regression"
+library = "jts-main"
+lib = "jts@1.21.0-SNAPSHOT-3ea61f8"
+signature = "overlay (OverlayNGRobust), JTS master only: KdTree.insertExact compares p.distanceSq(node) <= toleranceSq (since #1114, 4668803), and toleranceSq = tolerance^2 is +Infinity for a tolerance above 1.34e154. When a large-coordinate overlay falls back to snapping (tolerance = magnitude/1e12, times 10 per try; the fallback is forced because Geometry.getArea() is NaN and the area check fails), snapSelf merges every vertex, and union/intersection/difference/symdifference return POLYGON EMPTY with no exception. Example: OverlayNGRobust.overlay(A, A, UNION) for A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0)) is POLYGON EMPTY (exact: A). Also: distinct points closer than about 1.5e-162 are merged at tolerance 0 (squared-distance underflow)."
+fields = ["overlay.union", "overlay.intersection", "overlay.difference", "overlay.symdifference"]
+families = ["line-polygon", "point-geometry"]
+status = "confirmed"
+status_date = "2026-09-26"
+priority = "low"
+verified_on = [
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd (head on 2026-09-26): wrong (POLYGON EMPTY for max |ordinate| >= about 1.3e162 on these inputs)",
+    "JTS 1.20.0 (6e95fe82feb986a7aa657f4ffa406d8c290af509): correct",
+    "bisected to 4668803bdf3c460c1ab35f8c0ba00752e0b3edd4 (#1114) for the corpus case at 3.8e220; for the case scaled to 1.5e162 to 52c5d988 (#1187), which only removes the ring rotation that let 1.20.0 pass the area check",
+    "JTS master 3ea61f8 + prototype_fix.diff: correct (exact or snap-rounded); core JUnit results unchanged; 3 new tests pass",
+    "default Geometry.union (SnapIfNeededOverlayOp): correct on both builds for these inputs; Geometry.union with -Djts.overlay=ng: wrong on master",
+]
+cases = "findings/jts-master-union-extreme-regression/cases.jsonl"
+repro = "findings/jts-master-union-extreme-regression/Repro.java"
+evidence = "findings/jts-master-union-extreme-regression/FINAL.md"
+links = [
+    "https://github.com/locationtech/jts/pull/1114",
+    "https://github.com/locationtech/jts/commit/4668803bdf3c460c1ab35f8c0ba00752e0b3edd4",
+    "https://github.com/locationtech/jts/pull/1187",
+    "https://github.com/locationtech/jts/pull/1112",
+    "https://github.com/locationtech/jts/issues/951",
+]
+upstream_issue = ""
+notes = "Confirmed at triage; not reported (FINAL.md is the draft for locationtech/jts). Low priority because it needs |ordinates| above about 1.3e162 (or a KdTree tolerance above 1.34e154, or distances below 1.5e-162); at normal magnitudes every build is correct. It is still a silent wrong answer, a regression from 1.20.0 in unreleased code, and has a one-line fix, so it is not folded into geos-tiny-coordinates-underflow. That finding is related (JTS/GEOS coordinate-range limits: Geometry.getArea overflow forces the fallback here), but its mechanism is different. #1112 (MathUtil.hypot, a deliberate speed trade-off) also makes Coordinate.distance, Length and equalsExact(g, tol) overflow above 1.34e154 on master; that is noted as context only and does not cause this bug. NetTopologySuite develop's KdTree still compares Distance <= tolerance, so it is unaffected unless #1114 is ported. No duplicate found (ISSUE.md lists the searches)."
+
+[[finding]]
+id = "jts-overlay-mixed-points-collapse-classcast"
+library = "jts-main"
+lib = "jts@1.21.0-SNAPSHOT-3ea61f8"
+signature = "overlay (OverlayNG / OverlayMixedPoints): union and symdifference of a polygonal geometry and a point throw ClassCastException 'LineString cannot be cast to Polygon' when a polygon of the input collapses to a line under the precision model. prepareNonPoint's non-strict OverlayNG.union returns a GeometryCollection (polygons plus collapse lines) of dimension 2, and extractPolygons casts every element (OverlayMixedPoints.java:237). Example: OverlayNG.overlay(MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0))), POINT (7 7), UNION, new PrecisionModel(1)) throws; expected GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7)). With floating precision the corpus case reaches it through the orientation underflow at |ordinates| ~1e-161."
+fields = ["overlay.union", "overlay.symdifference"]
+families = ["point-geometry"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd: ClassCastException (fixed precision at normal range; OverlayNGRobust at |ordinates| ~1e-161 and ~1e155+)",
+    "JTS 1.20.0: ClassCastException (same)",
+    "JTS 1.18.0 (Maven Central jar): IllegalArgumentException 'Argument must be Polygonal or LinearRing' (IndexedPointInAreaLocator), same trigger",
+    "JTS master 3ea61f8 + mixed-points/prototype_fix.diff: GEOMETRYCOLLECTION (POLYGON, LINESTRING (3 0, 5 0), POINT (7 7)); core JUnit results unchanged; new test passes",
+    "GEOS 3.11.4, 3.13.1, 3.14.1 (Shapely wheels, grid_size=1): the expected non-strict answer (via an undefined-behaviour static_cast); GEOS 3.15.0 and main ae9cdd9: GEOMETRYCOLLECTION (POLYGON, POINT) (operand noded in strict mode, no crash)",
+]
+cases = "findings/jts-master-union-extreme-regression/mixed-points/cases.jsonl"
+repro = "findings/jts-master-union-extreme-regression/mixed-points/Repro.java"
+evidence = "findings/jts-master-union-extreme-regression/mixed-points/FINAL.md"
+links = [
+    "https://github.com/locationtech/jts/blob/3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java#L234-L243",
+    "https://github.com/libgeos/geos/issues/931",
+    "https://github.com/locationtech/jts/issues/1133",
+]
+upstream_issue = ""
+notes = "Confirmed at triage; not reported (mixed-points/FINAL.md is the draft for locationtech/jts). The corpus case point-geometry-1-000016-in-hole.ba.int.extreme (ordinates ~1e-161) triggers it only because the known orientation underflow (geos-tiny-coordinates-underflow) collapses its small triangle. At normal magnitudes the corpus case is correct, but the defect is reachable with valid input through the documented fixed-PrecisionModel API, so it is not range-limited. OverlayMixedPoints also ignores strict mode (strict DIFFERENCE(A, P) keeps the collapse line); this is noted in the draft as a minor related inconsistency. The same cast is in NetTopologySuite (not run). geos#931 and jts#1133 were checked and are different problems. The id is a proposal: the evidence lives in findings/jts-master-union-extreme-regression/mixed-points/ until it gets its own directory."

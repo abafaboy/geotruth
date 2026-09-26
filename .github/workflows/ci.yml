@@ -1,0 +1,190 @@
+# Checks for every push and pull request (DESIGN.md §7): lint, the unit tests on every
+# supported Python, the engine on the fractions backend without gmpy2, a small cross-check
+# against GEOS through Shapely, and the package build. No library is built here: the
+# adapter tests that need a build skip themselves (the nightly workflow builds libraries).
+#
+# The lint and test commands live in the Makefile, so `make ci` reproduces this locally.
+
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+  # The pinned linter: `ruff check` must be clean with exactly this version.
+  RUFF_VERSION: "0.16.9"
+  # Shapely whose bundled GEOS the tests and the `shapely` adapter manifest name.
+  SHAPELY_VERSION: "2.1.2"
+
+jobs:
+  lint:
+    name: lint (ruff)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: python -m pip install "ruff==${RUFF_VERSION}"
+      - name: ruff check
+        run: python -m ruff check --output-format=github .
+      - name: actionlint (workflow files; shellcheck is on the runner image)
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        run: |
+          tarball="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${tarball}"
+          echo "${ACTIONLINT_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color
+
+  unit:
+    name: unit (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    env:
+      # more property-test examples than the local default (tests/conftest.py)
+      HYPOTHESIS_PROFILE: ci
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install geotruth with gmpy2 and the development tools
+        run: python -m pip install -e ".[dev]" "shapely==${SHAPELY_VERSION}"
+      - name: Versions
+        run: python -m geotruth version
+      - name: pytest -m unit
+        run: make unit PYTHON=python PYTEST_ARGS="-ra --durations=10"
+
+  fractions:
+    name: engine without gmpy2 (fractions backend)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install geotruth without gmpy2
+        # --no-deps keeps gmpy2 out; the other test tools are installed by name.
+        run: |
+          python -m pip install --no-deps -e .
+          python -m pip install "pytest>=7.4" "hypothesis>=6.90" "jsonschema>=4.18"
+      - name: Check that gmpy2 is absent and the backend is fractions
+        run: |
+          python - <<'EOF'
+          import importlib.util
+          import geotruth.numbers as n
+          assert importlib.util.find_spec("gmpy2") is None, "gmpy2 is installed"
+          assert not n.HAVE_GMPY2 and n.get_backend() == "fractions", n.get_backend()
+          print("rational backend:", n.get_backend())
+          EOF
+      - name: CLI smoke test
+        run: |
+          python -m geotruth version
+          python -m geotruth relate "POINT (0.1 0.3)" "LINESTRING (0 0, 0.3 0.9)" | tee relate.txt
+          grep -q "relate: FF0FFF102" relate.txt
+          python -m geotruth overlay "LINESTRING (0 0, 1 1)" "LINESTRING (0 1, 2 0)" intersection | tee overlay.txt
+          grep -q '"2/3", "2/3"' overlay.txt
+      - name: pytest -m unit tests/unit (fractions)
+        run: make fractions-ci PYTHON=python PYTEST_ARGS="-ra --durations=10"
+
+  crosscheck:
+    name: crosscheck (GEOS through Shapely)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install geotruth with Shapely
+        run: python -m pip install -e ".[dev]" "shapely==${SHAPELY_VERSION}"
+      - name: Versions
+        run: |
+          python -m geotruth version
+          python -c "import shapely; print('shapely', shapely.__version__, 'GEOS', shapely.geos_version_string)"
+      - name: pytest -m crosscheck (CI subset)
+        run: make crosscheck-ci PYTHON=python PYTEST_ARGS="-ra --durations=15"
+
+  package:
+    name: package (sdist, wheel, clean install)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - name: The wheel holds the engine package only
+        run: |
+          python - <<'EOF'
+          import glob, zipfile
+          (whl,) = glob.glob("dist/*.whl")
+          names = zipfile.ZipFile(whl).namelist()
+          stray = [n for n in names if not (n.startswith("geotruth/") or ".dist-info/" in n)]
+          assert not stray, f"unexpected files in {whl}: {stray}"
+          print(f"{whl}: {len(names)} files, all under geotruth/ or the dist-info")
+          EOF
+      - name: Install the wheel in a fresh environment and run the CLI outside the checkout
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel-env"
+          "$RUNNER_TEMP/wheel-env/bin/pip" install dist/*.whl
+          cd "$RUNNER_TEMP"
+          gt="$RUNNER_TEMP/wheel-env/bin/geotruth"
+          "$gt" --version
+          "$gt" version
+          "$gt" relate "POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))" "LINESTRING (1 1, 3 1)" | tee relate.txt
+          grep -q "relate: 1020F1102" relate.txt
+          "$gt" overlay "POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))" "POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))" all --certify | tee overlay.txt
+          test "$(grep -c 'certificate: ok' overlay.txt)" -eq 4
+          "$gt" valid "POLYGON ((0 0, 2 2, 2 0, 0 2, 0 0))" | tee valid.txt
+          grep -q "INVALID" valid.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          retention-days: 14

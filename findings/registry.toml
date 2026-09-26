@@ -1,7 +1,7 @@
 # geotruth triage registry (DESIGN.md §0.4 and §5.4).
 #
-# One [[finding]] per failure cluster. No automated disagreement is presented as a
-# confirmed bug: every cluster carries a triage status, one of
+# One [[finding]] per failure cluster that has a directory under findings/. No automated
+# disagreement is presented as a confirmed bug: every cluster carries a triage status, one of
 #
 #   unreviewed  found by the harness, not yet triaged by a person
 #   confirmed   triaged: a wrong answer within the library's documented contract
@@ -14,27 +14,64 @@
 #   library         the adapter target id (adapters/*/adapter.toml [[target]].id)
 #   lib             the `lib` string of the build the finding was made on
 #   signature       what goes wrong, stated so that later disagreements can be matched to it
-#   fields          result fields affected
+#   fields          result fields affected (score.v2 names: relate, predicates.<name>,
+#                   valid_a / valid_b, overlay.<op>)
 #   families        corpus families where the cluster shows up
 #   status          see above; status_date is when it last changed
-#   verified_on     library versions or commits the minimal case was reproduced on
+#   priority        optional; set only when triage gave a priority other than normal
+#   verified_on     library versions or commits the minimal case was checked on, and the result
 #   cases           minimal cases (FORMAT-v1 case lines); repro: standalone program
-#   evidence        the triage write-up
-#   links           upstream documentation, issues and discussions
-#   upstream_issue  URL of the report, once reported ("" otherwise)
+#   evidence        the triage write-up or the final report
+#   links           upstream documentation, issues and discussions (notes say which related
+#                   issues were checked and found to be different problems)
+#   upstream_issue  URL of the report, once reported ("" otherwise); for a finding that turned
+#                   out to be an existing upstream issue, that issue
+#   fixed_in        for status "fixed": the release and the change that fixed it
+#   supersedes_lead the corpus/curated/leads.toml lead this finding grew out of, if any
 #   notes           anything a reader must know before citing the finding
 #
-# Candidate clusters that are only described in adapter READMEs (for example the
-# Boost.Geometry develop regression on rotated-neighbours-1-000230, or the thin-triangle
-# collapse in geo/i_overlay) have no findings/ directory yet, so they are not registered here.
+# "Not yet reported" means exactly that: the upstream reports are drafted in each directory
+# (ISSUE.md, FINAL.md, JTS_FINAL.md) and nothing has been posted.
+#
+# Documented candidate clusters without a findings/ directory are the leads of
+# corpus/curated/leads.toml, which holds their cases and details. Each has a [[lead]] entry at
+# the end of this file (status "unreviewed"), so that the registry lists every known cluster.
 registry_version = 1
+
+[[finding]]
+id = "boost-geometry-develop-regression"
+library = "boost-develop"
+lib = "boost-geometry@develop-196d04c"
+signature = "relate and overlay, regression since 1.87 (bisected to 0edb673 'fix: add condition to handle_as_touch', PR #1346): two valid triangles with a vertex of each 1 to 2 ulps apart: relation 2FF10F212 and within = true (exact 212101212), intersection = all of A, union = B alone (exact intersection area about 0.078)"
+fields = ["relate", "predicates.within", "predicates.covered_by", "predicates.overlaps", "overlay.intersection", "overlay.union"]
+families = ["rotated-neighbours"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "develop 196d04c (head on 2026-09-26): wrong",
+    "1.87.0, 1.88.0, 1.89.0, 1.90.0, 1.91.0 and 1.92.0: wrong",
+    "develop 0edb673 and its release-branch cherry-pick 9c4d7529b: wrong; their parents cd4deda8e and 754695969: correct",
+    "1.83.0, 1.84.0, 1.85.0 and 1.86.0: correct",
+    "open PR #1491 (head 0f07f60): wrong",
+]
+cases = "findings/boost-geometry-develop-regression/cases.jsonl"
+repro = "findings/boost-geometry-develop-regression/repro.cpp"
+evidence = "findings/boost-geometry-develop-regression/FINAL.md"
+links = [
+    "https://github.com/boostorg/geometry/issues/1288",
+    "https://github.com/boostorg/geometry/pull/1346",
+    "https://github.com/boostorg/geometry/issues/1487",
+]
+upstream_issue = ""
+supersedes_lead = "boost-develop-rotated-neighbours-230"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report). #1288 is the issue the bisected commit fixed; #1487 (open) goes through the same code but is a different regression; FINAL.md lists the other issues checked. Disabling the added condition fixes this input but breaks the upstream #1288/#1293 tests, so no fix is proposed. The directory also holds a second, separate draft, FINAL_2_side_by_triangle_sign.md (case minimal-side-sign in cases.jsonl): a long-standing (1.83 to develop) wrong sign from the default side_by_triangle strategy that gives within = true for two triangles whose exact overlap is a 1.85e-17 sliver. This entry's status does not cover it."
 
 [[finding]]
 id = "clipper2-thin-triangle-dropped"
 library = "clipper2"
 lib = "clipper2@2.0.1-f9c5eb6"
 signature = "overlay area: a result triangle with an edge shorter than 2 grid units is deleted whatever its area (IsVerySmallTriangle / PtsReallyClose in clipper.engine.cpp)"
-fields = ["area_inter", "area_union"]
+fields = ["overlay.intersection", "overlay.union"]
 families = ["int-thin-triangle", "int-thin-crossing", "int-near-parallel-large", "int-near-miss"]
 status = "by-design"
 status_date = "2026-09-26"
@@ -53,3 +90,272 @@ links = [
 ]
 upstream_issue = ""
 notes = "Documented on Clipper2's Robustness page, so not reported as a bug; ISSUE.md holds an optional enhancement-request draft. The Robustness quote was obtained through web search only (angusj.com was unreachable from the sandbox): check it in a browser before citing it upstream. The adapter manifest's delta (2 grid units) covers this behaviour."
+
+[[finding]]
+id = "geo-i-overlay-thin-polygon-collapse"
+library = "rust-geo"
+lib = "geo@0.33.1"
+signature = "overlay (BooleanOps): the input is snapped to i_overlay's i32 grid (step 2^(round(log2 H) - 29), H the largest half-extent of the joint bounding box) before an exact integer overlay, so a valid polygon narrower than about one step collapses or is distorted: intersection(A, A) and union(A, A) of the 1 x 2e9 triangle POLYGON ((0 0, 1 0, 0 2000000000, 0 0)) are empty"
+fields = ["overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference"]
+families = ["int-thin-triangle"]
+status = "by-design"
+status_date = "2026-09-26"
+verified_on = [
+    "geo main c12769fdf7453df1dd590e6e3bca28913d3c0564 (i_overlay 4.5.2): reproduces",
+    "geo 0.33.1 (crates.io; i_overlay 4.5.2, i_float 1.16.0): reproduces",
+    "i_overlay 9.0.0 directly: the default i32 engine reproduces, the i64 engine is exact",
+]
+cases = "findings/geo-i-overlay-thin-polygon-collapse/cases.jsonl"
+repro = "findings/geo-i-overlay-thin-polygon-collapse/repro/src/main.rs"
+evidence = "findings/geo-i-overlay-thin-polygon-collapse/ISSUE.md"
+links = [
+    "https://github.com/georust/geo/issues/1493",
+    "https://github.com/georust/geo/discussions/1215",
+    "https://github.com/georust/geo/discussions/1540",
+    "https://github.com/georust/geo/pull/1234",
+    "https://github.com/iShape-Rust/iOverlay/issues/26",
+]
+upstream_issue = ""
+supersedes_lead = "geo-i-overlay-thin-triangle-collapse"
+notes = "By design: the grid is i_overlay's precision model, which i_overlay documents and the geo maintainers know about (commit 4915dfc, discussion #1215), but geo's BooleanOps API documentation does not mention it. ISSUE.md holds a draft documentation/enhancement request for georust/geo (not posted), not a bug report. georust/geo#1493 (closed) shows the same mechanism in a mild form. The rust-geo adapter manifest's delta (grid) covers this behaviour. The repro crate is built and run by run.sh."
+
+[[finding]]
+id = "geos-multipolygon-touching-parts-predicates"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG): a ring vertex in the interior of another ring's edge of the same polygonal operand (MultiPolygon parts touching vertex-to-edge, or a hole touching its shell at a hole vertex), with a boundary edge of the other operand along that ring edge, gives a wrong matrix: a MultiPolygon neither contains nor covers its own first part (2F2F11212, exact 2F2F11FF2) and overlaps is true"
+fields = ["relate", "predicates.contains", "predicates.covers", "predicates.within", "predicates.covered_by", "predicates.overlaps", "predicates.touches"]
+families = ["multi-touch", "hole-contact"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58: wrong",
+    "GEOS 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) and 3.13.1 (Shapely 2.1.2 wheel): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, before RelateNG): correct",
+    "JTS master 3ea61f8 and 1.20.0 with RelateNG: wrong; JTS's default RelateOp: correct",
+]
+cases = "findings/geos-multipolygon-touching-parts-predicates/cases.jsonl"
+repro = "findings/geos-multipolygon-touching-parts-predicates/repro.c"
+evidence = "findings/geos-multipolygon-touching-parts-predicates/FINAL.md"
+links = [
+    "https://github.com/libgeos/geos/issues/1147",
+    "https://github.com/libgeos/geos/issues/1027",
+    "https://github.com/libgeos/geos/issues/1253",
+]
+upstream_issue = ""
+supersedes_lead = "relateng-multipolygon-touching-parts"
+notes = "Confirmed at triage; not yet reported. FINAL.md is the report drafted for libgeos/geos and JTS_FINAL.md the one for locationtech/jts (same code, same matrices). Cause: RelateGeometry::isSelfNodingRequired() is false for polygonal operands, so the touch point gets no node section for the ring whose edge passes through it. No duplicate was found; the linked GEOS issues were checked and are different problems. Both operands are valid: OGC allows MultiPolygon parts, and a hole and its shell, to touch at points."
+
+[[finding]]
+id = "geos-near-collinear-predicates"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG), polygon/polygon: when the computed point of a proper segment crossing rounds exactly onto a vertex of one operand, RelateNG treats the crossing as a touch at that vertex and loses it: touches = true instead of overlaps (FF2F01212, exact 212101212), or contains/covers (within/covered_by) = true instead of overlaps (212F01FF2)"
+fields = ["relate", "predicates.touches", "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within", "predicates.covered_by"]
+families = ["near-collinear"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58: wrong",
+    "GEOS 3.15.0 and 3.14.1 (built from source), 3.13.1 (Shapely 2.1.2 wheel): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, before RelateNG): correct",
+    "JTS master 3ea61f8 and 1.20.0, RelateNG.relate: wrong; Geometry.relate (RelateOp): correct",
+]
+cases = "findings/geos-near-collinear-predicates/cases.jsonl"
+repro = "findings/geos-near-collinear-predicates/repro.c"
+evidence = "findings/geos-near-collinear-predicates/FINAL.md"
+links = [
+    "https://github.com/locationtech/jts/blob/3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd/modules/core/src/main/java/org/locationtech/jts/operation/relateng/package-info.java#L64-L70",
+    "https://github.com/libgeos/geos/issues/1018",
+    "https://trac.osgeo.org/postgis/ticket/5362",
+    "https://gis.stackexchange.com/questions/484691",
+]
+upstream_issue = ""
+notes = "Confirmed at triage; not yet reported. FINAL.md is the report drafted for libgeos/geos, JTS_FINAL.md the one for locationtech/jts. RelateNG's package documentation says numerical round-off may give incorrect answers (first link); FINAL.md explains why this case is still treated as within the contract: the inputs are valid and used as given, LineIntersector's exact orientation tests report the proper crossing that RelateNG then discards, RelateOp gets it right, and the answer contradicts GEOS's own point predicates and depends on the ring's start vertex. The other links are related reports, not duplicates (RelateNGRobustnessTest asserts 2F2101212 for PostGIS 5362 and GIS.SE 484691, a matrix two valid polygons cannot have); no existing report of this behaviour was found."
+
+[[finding]]
+id = "geos-relateng-line-end-skip"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate (RelateNG): the known-exterior skip in computeLineEnds and computeAreaVertex fires after the first element point found in the other operand's exterior even when that point is a Mod-2 interior line end (the start of a closed line, a shared end) or a GC area vertex inside another polygon of the collection; later envelope-disjoint elements are skipped and their boundary is never recorded, so EB or BE is F instead of 0 (line ends) or 1 (GC polygons) and the matrix depends on element order (POINT (10 10) vs MULTILINESTRING ((0 0, 1 0, 1 1, 0 0), (5 5, 6 6)): FF0FFF1F2, exact FF0FFF102); relatePattern is affected, the named predicates are not"
+fields = ["relate"]
+families = ["multiline-line-ends", "gc-area-vertex"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel) and 3.13.0 (d7957246, built from source): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): correct",
+    "JTS 1.20.0: line ends and area vertices wrong; JTS master 3ea61f8: line ends fixed (locationtech/jts#1200), area vertices still wrong",
+    "GEOS main with patch/port-jts-1200.diff and patch/area-vertex-skip.diff: correct",
+]
+cases = "findings/geos-relateng-line-end-skip/cases.jsonl"
+repro = "findings/geos-relateng-line-end-skip/repro.c"
+evidence = "findings/geos-relateng-line-end-skip/ISSUE.md"
+links = [
+    "https://github.com/locationtech/jts/issues/1175",
+    "https://github.com/locationtech/jts/pull/1200",
+    "https://github.com/locationtech/jts/commit/e8de44d9fa36049ec165cc308cabaa66bf72957a",
+    "https://github.com/NetTopologySuite/NetTopologySuite/pull/886",
+]
+upstream_issue = ""
+notes = "Confirmed at triage (ISSUE.md); not yet reported. The line-end part is known upstream in JTS (locationtech/jts#1175, fixed by #1200 and ported to NetTopologySuite) but was never ported to GEOS, and no GEOS issue or PR exists; the area-vertex part is new and unfixed in GEOS and JTS master. FINAL.md (GEOS: port #1200 plus the area-vertex fix, with tested patches in patch/) and JTS_FINAL.md (area-vertex part only) are drafted. Only the DE-9IM matrix is affected. The same triage found a second, separate cluster in covered-ring/: a GEOS 3.13.1 regression from GH-1201 (a port of locationtech/jts#1099) after which a linear or GeometryCollection operand B is no longer self-noded when A is polygonal, which makes contains, touches, covers and within wrong for valid polygon/line and polygon/GC pairs (covered-ring/FINAL.md). It needs its own findings/ directory before it can have its own entry here; until then this note is its only registration. finding.toml in this directory is the triage's registry proposal for both clusters."
+
+[[finding]]
+id = "geos-relateng-segfault"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG) crash with SIGSEGV on a valid GeometryCollection that has an EMPTY element: in AdjacentEdgeLocator::addSections (a POLYGON EMPTY, and a point on the boundaries of two of the collection's polygons: intersects, within, touches, contains, covers, relate and the prepared predicates) or in LinearBoundary::hasBoundary from TopologyComputer::initExteriorEmpty (a LINESTRING EMPTY beside points, against an empty operand: relate); the same declared-versus-real dimension mix-up also gives a wrong matrix without a crash"
+fields = ["relate", "predicates.intersects", "predicates.within", "predicates.touches", "predicates.contains", "predicates.covers"]
+families = ["gc-empty-element"]
+status = "confirmed"
+status_date = "2026-09-26"
+priority = "high"
+verified_on = [
+    "GEOS main ae9cdd98b and 3.15.0 (d0228513a): both crashes reproduce; the no-crash case is wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) and 3.13.1 (Shapely 2.1.2 wheel): both crashes, the no-crash case wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): no crash; the LINESTRING EMPTY case raises IllegalArgumentException; the no-crash case is already wrong",
+    "JTS master 3ea61f8 and 1.20.0 (RelateNG): the AdjacentEdgeLocator case is correct; the LINESTRING EMPTY case throws NullPointerException; the no-crash case is wrong",
+]
+cases = "findings/geos-relateng-segfault/cases.jsonl"
+repro = "findings/geos-relateng-segfault/repro.c"
+evidence = "findings/geos-relateng-segfault/ISSUE.md"
+links = [
+    "https://github.com/libgeos/geos/issues/1011",
+    "https://github.com/libgeos/geos/issues/1406",
+    "https://github.com/libgeos/geos/issues/1002",
+    "https://github.com/shapely/shapely/issues/2425",
+]
+upstream_issue = ""
+notes = "Status and priority are the verdict of the triage write-up (ISSUE.md: a new, valid bug with two crash sites, high priority, not reported upstream yet); FINAL.md is the report drafted for libgeos/geos. Registered on 2026-09-26 while the directory was still being written, so re-check before citing. The linked issues are related (the same empty-element dimension confusion before RelateNG, or crashes on empty collection members in other operations), not duplicates. The crashes were found by the adversarial generator of the relate cross-checks (tests/crosscheck/test_relate_dual.py pins two); gc-empty-element is the family of the minimal cases, not a generator family. Nothing has been posted."
+
+[[finding]]
+id = "geos-tiny-coordinates-underflow"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "overlay and relate for |coordinates| beyond about 1e+-103: the cubic terms of CGAlgorithmsDD::intersection overflow (NaN) or underflow and LineIntersector falls back to a segment endpoint (A = [0, 2S]^2, B = [S, 3S]^2 at S = 1e105: intersection LINESTRING (1e+105 1e+105, 2e+105 2e+105), relate 212F01FF2; exact: the square [S, 2S]^2, 212101212); plus the orientation filter's range limits: a 3.14.0 regression for |coordinates| from about 1e154 (#1184) and the underflow below about 1e-154 that #1184 describes"
+fields = ["relate", "predicates.overlaps", "predicates.contains", "predicates.covers", "valid_a", "valid_b", "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference"]
+families = ["tiny-scale"]
+status = "confirmed"
+status_date = "2026-09-26"
+priority = "low"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0: segment intersection, large-side orientation and tiny-side orientation all wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel): all three wrong",
+    "GEOS 3.13.1 (Shapely 2.1.2 wheel): segment intersection and tiny-side orientation wrong, large-side orientation correct",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel): segment intersection (relate at 1e105 throws TopologyException) and tiny-side orientation wrong",
+    "JTS master 3ea61f8 and 1.20.0: segment intersection and tiny-side orientation wrong, large-side orientation correct",
+]
+cases = "findings/geos-tiny-coordinates-underflow/cases.jsonl"
+repro = "findings/geos-tiny-coordinates-underflow/repro.c"
+evidence = "findings/geos-tiny-coordinates-underflow/FINAL.md"
+links = [
+    "https://github.com/libgeos/geos/pull/1184",
+    "https://github.com/libgeos/geos/issues/970",
+    "https://github.com/locationtech/jts/issues/745",
+]
+upstream_issue = ""
+notes = "Confirmed, low priority: coordinates this large or small are unusual in GIS data, and GEOS documents no supported range of coordinate magnitudes, so FINAL.md asks for either a fix (exact power-of-two rescaling, prototyped in prototype_fix.diff) or a documented range. Not yet reported; JTS_FINAL.md is the JTS counterpart (same CGAlgorithmsDD.intersection). The tiny-side orientation limit is one #1184 already acknowledges, so the report presents it as context, not as a new defect. #970 and jts#745 were checked and are different mechanisms."
+
+[[finding]]
+id = "geos-union-drops-polygon"
+library = "shapely"
+lib = "geos@3.13.1+shapely@2.1.2"
+signature = "overlay (OverlayNG): HalfEdge::compareAngularDirection reports two edges as parallel when their rounded direction vectors are equal although the exact orientation differs, so the edge order at the node depends on insertion order and the result is grossly wrong: union returns one operand and intersection all of the other (two triangles overlapping in a 5e-21 needle: union area 0.5, exact 1)"
+fields = ["overlay.union", "overlay.intersection", "overlay.difference"]
+families = ["tiling-contact"]
+status = "fixed"
+status_date = "2026-09-26"
+fixed_in = "GEOS 3.15.0: PR #1499 (commit 737737dbb), which closed #1405"
+verified_on = [
+    "GEOS 3.13.1 (Shapely 2.1.2 wheel), 3.14.1 (c389f532d) and da4de475f (the parent of the fix): wrong",
+    "GEOS 737737dbb (the fix), 3.15.0 (d0228513a) and main ae9cdd98b: correct",
+    "branches 3.14 (7db6f62d5) and 3.13 (fbe9180f7): not fixed; 3.14.1 with only the HalfEdge.cpp hunk of 737737dbb: correct",
+    "JTS 1.20.0: wrong on min-2tri-case2; JTS master 3ea61f8 (locationtech/jts#1224, #1226): correct",
+]
+cases = "findings/geos-union-drops-polygon/cases.jsonl"
+repro = "findings/geos-union-drops-polygon/repro.c"
+evidence = "findings/geos-union-drops-polygon/ISSUE.md"
+links = [
+    "https://github.com/libgeos/geos/issues/1405",
+    "https://github.com/libgeos/geos/pull/1499",
+    "https://github.com/libgeos/geos/issues/1344",
+    "https://github.com/shapely/shapely/issues/2368",
+    "https://github.com/shapely/shapely/issues/2426",
+    "https://github.com/locationtech/jts/pull/1224",
+    "https://github.com/locationtech/jts/pull/1226",
+]
+upstream_issue = "https://github.com/libgeos/geos/issues/1405"
+supersedes_lead = "geos-3.13-tiling-union-drops-tile"
+notes = "The same bug as libgeos/geos#1405, fixed by #1499 in GEOS 3.15.0; do not file a new issue. libgeos/geos#1344, whose input comes from shapely/shapely#2368, is an open duplicate: FINAL.md is the comment drafted for it (same root cause as #1405, fixed in 3.15.0). ISSUE.md, the triage write-up, also drafts a request to backport #1499 to the 3.14 (and 3.13) branch. Nothing has been posted. Shapely 2.1.2 wheels bundle GEOS 3.13.1, so Shapely users still hit the bug (shapely/shapely#2426)."
+
+
+# ------------------------------------------------------------------------------ leads
+#
+# Documented candidate clusters without a findings/ directory. corpus/curated/leads.toml is
+# their source (cases, where each is documented, what it was verified on); these entries only
+# register them. None of them has been triaged by a person.
+
+[[lead]]
+id = "geos-overlay-empty-vs-gc-assertion"
+library = ["geos-main", "geos-release"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "GEOSIntersection_r(EMPTY, GC(Point, Polygon)) (both orders) and GEOSDifference_r(EMPTY, GC(...)) throw AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension"
+
+[[lead]]
+id = "relateng-empty-operand-type-dimension"
+library = ["geos-main", "geos-release", "shapely", "jts-main"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "A empty, B = GeometryCollection(POLYGON EMPTY, LineString): relate gives FFFFFF212 (exact FFFFFF102): the empty-A shortcut uses B's type dimension (2, from the empty polygon element) instead of the dimension of B's point set (1)"
+
+[[lead]]
+id = "geo-relate-gc-line-inside-polygon"
+library = ["rust-geo"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "A = GeometryCollection(Polygon P, LineString inside P), B = P: relate gives 2FF01FFF2 (exact 2FFF1FFF2): the line's endpoints count as boundary of A although P covers them"
+
+[[lead]]
+id = "clipper2-polytree-nesting"
+library = ["clipper2"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "PolyTree64 nesting disagrees with the flat Paths64 result on touching rings: an inscribed hole comes back as a second top-level (clockwise) polygon, an island on its hole's boundary as a second hole"
+
+[[lead]]
+id = "boost-overlay-ring-structure"
+library = ["boost-1.83", "boost-develop", "boost-release"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "overlay output rings nested or oriented other than the multi_polygon says: read as OGC polygons (shell minus holes) the area is off by more than 1e-6 of the operands"
+
+[[lead]]
+id = "martinez-xor-hang"
+library = ["martinez"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "xor loops forever (100 % CPU, constant memory) on two unit squares that nearly share an edge"
+
+[[lead]]
+id = "relateng-gc-polygon-with-exterior-point"
+library = ["geos-main", "geos-release", "shapely"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "B = GeometryCollection(Polygon P, Point outside P), A = P: relate(A, B) = 2F2F110F2 (exact 2FFF1F0F2), as if B's polygon were absent; within/covered_by false, overlaps true. A Point inside P, a LineString outside P, or a second Polygon do not trigger it"
+
+[[lead]]
+id = "turf-touches-overlaps-vertex-rules"
+library = ["turf"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "booleanTouches(A, A) is true for a polygon and itself, and false for two triangles that touch only where a vertex of B lies on an edge of A (the README: booleanTouches only looks at A's shell vertices; booleanOverlap is true as soon as edges intersect)"
+
+[[lead]]
+id = "polygon-clipping-unable-to-complete-ring"
+library = ["polygon-clipping"]
+status = "unreviewed"
+source = "corpus/curated/leads.toml"
+signature = "intersection/union/difference throw 'Unable to complete output ring starting at [...]' on valid polygons that nearly share an edge (ulp-level offsets)"

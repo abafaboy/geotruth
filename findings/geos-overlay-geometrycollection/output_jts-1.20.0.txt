@@ -1,0 +1,49 @@
+JTS 1.20.0 (6e95fe82)
+
+case 1a symdifference
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = POINT (3 3)
+  Geometry.symdifference: IllegalArgumentException: Operation does not support GeometryCollection arguments
+  OverlayNGRobust.overlay: GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))
+
+case 1b symdifference
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  Geometry.symdifference: POINT (1 1)
+  OverlayNGRobust.overlay: POINT (1 1)
+
+case 1c symdifference
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  Geometry.symdifference: IllegalArgumentException: Operation does not support GeometryCollection arguments
+  OverlayNGRobust.overlay: IllegalArgumentException: Overlay input is mixed-dimension
+
+case 2a difference
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  Geometry.difference: IllegalArgumentException: Operation does not support GeometryCollection arguments
+  OverlayNGRobust.overlay: POINT EMPTY
+
+case 3a intersection
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  Geometry.intersection: POINT EMPTY
+  OverlayNGRobust.overlay: POINT EMPTY
+
+case 3b intersection
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  Geometry.intersection: POINT EMPTY
+  OverlayNGRobust.overlay: POINT EMPTY
+
+case 3c difference
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  Geometry.difference: POINT EMPTY
+  OverlayNGRobust.overlay: POINT EMPTY
+
+case 3d intersection
+  A = GEOMETRYCOLLECTION (POINT (0 2), LINESTRING (0 0, 6 0))
+  B = MULTIPOLYGON EMPTY
+  Geometry.intersection: LINESTRING EMPTY
+  OverlayNGRobust.overlay: LINESTRING EMPTY

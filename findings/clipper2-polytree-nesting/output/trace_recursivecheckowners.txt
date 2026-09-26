@@ -1,0 +1,44 @@
+# repro.cpp built against main f9c5eb6 with a fprintf added at the top of the owner loop in
+# ClipperBase::RecursiveCheckOwners (clipper.engine.cpp:2958-2971); diagnostic only (diff below).
+# Order: Case 1 Difference, Case 1 Xor, Control, Case 2. outrec 0 = outer ring, 1 = hole (or inner ring), 2 = island.
+
+RecursiveCheckOwners: outrec 0, initial owner -1
+RecursiveCheckOwners: outrec 1, initial owner 0
+  candidate owner 0: splits 0, bounds contain 1, Path2ContainsPath1 0
+RecursiveCheckOwners: outrec 0, initial owner -1
+RecursiveCheckOwners: outrec 1, initial owner 0
+  candidate owner 0: splits 0, bounds contain 1, Path2ContainsPath1 0
+RecursiveCheckOwners: outrec 0, initial owner -1
+RecursiveCheckOwners: outrec 1, initial owner 0
+  candidate owner 0: splits 0, bounds contain 1, Path2ContainsPath1 1
+RecursiveCheckOwners: outrec 0, initial owner -1
+RecursiveCheckOwners: outrec 1, initial owner 0
+  candidate owner 0: splits 0, bounds contain 1, Path2ContainsPath1 1
+RecursiveCheckOwners: outrec 2, initial owner 1
+  candidate owner 1: splits 0, bounds contain 1, Path2ContainsPath1 0
+  candidate owner 0: splits 0, bounds contain 1, Path2ContainsPath1 1
+
+# diagnostic diff
+--- a/CPP/Clipper2Lib/src/clipper.engine.cpp	2026-09-26 08:20:31.566346817 +0000
++++ b/Clipper2Lib/src/clipper.engine.cpp	2026-09-26 08:35:56.927435510 +0000
+@@ -8,6 +8,7 @@
+ *******************************************************************************/
+ 
+ #include "clipper2/clipper.engine.h"
++#include <cstdio>
+ #include "clipper2/clipper.h"
+ #include <stdexcept>
+ 
+@@ -2961,8 +2962,12 @@
+     // post-condition: if a valid path, outrec will have a polypath
+ 
+     if (outrec->polypath || outrec->bounds.IsEmpty()) return;
++    fprintf(stderr, "RecursiveCheckOwners: outrec %zu, initial owner %d\n", outrec->idx, outrec->owner ? (int)outrec->owner->idx : -1);
+     while (outrec->owner)
+     {
++      fprintf(stderr, "  candidate owner %zu: splits %d, bounds contain %d, Path2ContainsPath1 %d\n", outrec->owner->idx, outrec->owner->splits != nullptr,
++        outrec->owner->pts && CheckBounds(outrec->owner) && outrec->owner->bounds.Contains(outrec->bounds),
++        outrec->owner->pts ? (int)Path2ContainsPath1(outrec->pts, outrec->owner->pts) : -1);
+       if (outrec->owner->splits && CheckSplitOwner(outrec, outrec->owner->splits)) break;
+       if (outrec->owner->pts && CheckBounds(outrec->owner) &&
+         outrec->owner->bounds.Contains(outrec->bounds) &&

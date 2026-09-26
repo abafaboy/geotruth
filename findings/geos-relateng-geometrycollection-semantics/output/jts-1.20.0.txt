@@ -1,0 +1,146 @@
+JTS 1.20.0
+
+[d1-far-point-contains]  isValid: true, true
+  RelateNG.relate(A,B) = 212FF1212   exact 212FF1FF2   <-- WRONG
+  RelateNG.relate(B,A) = 2F21F1212   exact 2FF1FF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 212FF1212
+  contains(A,B) = false   exact true   <-- WRONG
+  covers(A,B) = false   exact true   <-- WRONG
+  overlaps(A,B) = true   exact false   <-- WRONG
+
+[d1-own-polygon]  isValid: true, true
+  RelateNG.relate(A,B) = 2F0F1F212   exact 2F0F1FFF2   <-- WRONG
+  RelateNG.relate(B,A) = 2F2F110F2   exact 2FFF1F0F2   <-- WRONG
+  RelateNG.relate(A.union(),B) = 2F0F1F212
+  contains(A,B) = false   exact true   <-- WRONG
+  covers(A,B) = false   exact true   <-- WRONG
+  overlaps(A,B) = true   exact false   <-- WRONG
+
+[d1-own-polygon-within]  isValid: true, true
+  RelateNG.relate(A,B) = 2F2F110F2   exact 2FFF1F0F2   <-- WRONG
+  RelateNG.relate(B,A) = 2F0F1F212   exact 2F0F1FFF2   <-- WRONG
+  RelateNG.relate(A.union(),B) = 2F2F110F2
+  within(A,B) = false   exact true   <-- WRONG
+  coveredBy(A,B) = false   exact true   <-- WRONG
+  overlaps(A,B) = true   exact false   <-- WRONG
+
+[d1-interior-point-eb]  isValid: true, true
+  RelateNG.relate(A,B) = 2121F1212   exact 2121F12F2   <-- WRONG
+  RelateNG.relate(B,A) = 2121F1212   exact 2121FF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 2121F1212
+
+[d1-line-covers-boundary-eb]  isValid: true, true
+  RelateNG.relate(A,B) = F10FFF212   exact F10FFF2F2   <-- WRONG
+  RelateNG.relate(B,A) = FF21F10F2   exact FF21FF0F2   <-- WRONG
+  RelateNG.relate(A.union(),B) = F10FFF212
+
+[d1-line-end-on-points]  isValid: true, true
+  RelateNG.relate(A,B) = FFF0FF102   exact FF10FF102   <-- WRONG
+  RelateNG.relate(B,A) = F01FF0FF2   exact F01FF01F2   <-- WRONG
+  RelateNG.relate(A.union(),B) = FFF0FF102
+  coveredBy(A,B) = true   exact false   <-- WRONG
+
+[d1-ring-within-point]  isValid: true, true
+  RelateNG.relate(A,B) = 0FFFFF102   exact 0F1FFF102   <-- WRONG
+  RelateNG.relate(B,A) = 0F1FF0FF2   exact 0F1FF01F2   <-- WRONG
+  RelateNG.relate(A.union(),B) = 0FFFFF102
+  within(A,B) = true   exact false   <-- WRONG
+  coveredBy(A,B) = true   exact false   <-- WRONG
+
+[d1-testfile-closed-line]  isValid: true, true
+  RelateNG.relate(A,B) = 0F2FF1FF2   exact 0F2FF11F2   <-- WRONG
+  RelateNG.relate(B,A) = 0FFFFF212   exact 0F1FFF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 0F2FF1FF2
+  crosses(A,B) = false   exact true   <-- WRONG
+
+[d1-testfile-line-ends]  isValid: true, true
+  RelateNG.relate(A,B) = FFF0FF102   exact FF10FF102   <-- WRONG
+  RelateNG.relate(B,A) = F01FF0FF2   exact F01FF01F2   <-- WRONG
+  RelateNG.relate(A.union(),B) = FFF0FF102
+  coveredBy(A,B) = true   exact false   <-- WRONG
+
+[d2-reflex-point]  isValid: true, true
+  RelateNG.relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  RelateNG.relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = false   exact true   <-- WRONG
+  touches(A,B) = true   exact false   <-- WRONG
+
+[d2-reflex-point-swapped-elements]  isValid: true, true
+  RelateNG.relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  RelateNG.relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = false   exact true   <-- WRONG
+  touches(A,B) = true   exact false   <-- WRONG
+
+[d2-reflex-line]  isValid: true, true
+  RelateNG.relate(A,B) = 1020011F2   exact 102F01FF2   <-- WRONG
+  RelateNG.relate(B,A) = 10F00F212   exact 1FF00F212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 102F01FF2   (= exact)
+  contains(A,B) = false   exact true   <-- WRONG
+  covers(A,B) = false   exact true   <-- WRONG
+  crosses(A,B) = true   exact false   <-- WRONG
+
+[d2-adjacent-control]  isValid: true, true
+  RelateNG.relate(A,B) = 0F2FF1FF2   exact 0F2FF1FF2
+  RelateNG.relate(B,A) = 0FFFFF212   exact 0FFFFF212
+  RelateNG.relate(A.union(),B) = 0F2FF1FF2   (= exact)
+  ok
+
+[d2-testfile-gc-reflex]  isValid: true, true
+  RelateNG.relate(A,B) = FF20F1FF2   exact 0F2FF1FF2   <-- WRONG
+  RelateNG.relate(B,A) = F0FFFF212   exact 0FFFFF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 0F2FF1FF2   (= exact)
+  contains(A,B) = false   exact true   <-- WRONG
+  touches(A,B) = true   exact false   <-- WRONG
+
+[d2-testfile-gc-reflex-line]  isValid: true, true
+  RelateNG.relate(A,B) = 102F01FF2   exact 102FF1FF2   <-- WRONG
+  RelateNG.relate(B,A) = 1FF00F212   exact 1FF0FF212   <-- WRONG
+  RelateNG.relate(A.union(),B) = 102FF1FF2   (= exact)
+
+[d3-frame-equals]  isValid: true, true
+  RelateNG.relate(A,B) = 2FFF1FFF2   exact 2FF11F2F2   <-- WRONG
+  RelateNG.relate(B,A) = 2FFF1FFF2   exact 212F1FFF2   <-- WRONG
+  RelateNG.relate(A.union(),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = true   exact false   <-- WRONG
+  covers(A,B) = true   exact false   <-- WRONG
+  equalsTopo(A,B) = true   exact false   <-- WRONG
+
+[d3-frame-two-l-shapes]  isValid: true, true
+  RelateNG.relate(A,B) = 2FFF1FFF2   exact 2FF11F2F2   <-- WRONG
+  RelateNG.relate(B,A) = 2FFF1FFF2   exact 212F1FFF2   <-- WRONG
+  RelateNG.relate(A.union(),B) = 2FF11F2F2   (= exact)
+  contains(A,B) = true   exact false   <-- WRONG
+  covers(A,B) = true   exact false   <-- WRONG
+  equalsTopo(A,B) = true   exact false   <-- WRONG
+
+[d3-frame-control-polygon]  isValid: true, true
+  RelateNG.relate(A,B) = 2FF11F2F2   exact 2FF11F2F2
+  RelateNG.relate(B,A) = 212F1FFF2   exact 212F1FFF2
+  RelateNG.relate(A.union(),B) = 2FF11F2F2   (= exact)
+  ok
+
+[d3-frame-control-center]  isValid: true, true
+  RelateNG.relate(A,B) = FF2FF10F2   exact FF2FF10F2
+  RelateNG.relate(B,A) = FF0FFF212   exact FF0FFF212
+  RelateNG.relate(A.union(),B) = FF2FF10F2   (= exact)
+  ok
+
+[d3-no-boundary-vertex]  isValid: true, true
+  RelateNG.relate(A,B) = FF2FFF102   exact FF2FF1102   <-- WRONG
+  RelateNG.relate(B,A) = FF1FF02F2   exact FF1FF0212   <-- WRONG
+  RelateNG.relate(A.union(),B) = FF2FF1102   (= exact)
+
+[known-gc-overlap-as-b]  isValid: true, true
+  RelateNG.relate(A,B) = 2FF11F212   exact 2FF11F212
+  RelateNG.relate(B,A) = 212F11FF2   exact 212F11FF2
+  RelateNG.relate(A.union(),B) = 2FF11F212   (= exact)
+  ok
+
+[known-empty-element]  isValid: true, true
+  RelateNG.relate(A,B) = FF2FF10F2   exact FF1FF00F2   <-- WRONG
+  RelateNG.relate(B,A) = FF0FFF212   exact FF0FFF102   <-- WRONG
+  RelateNG.relate(A.union(),B) = FF1FF00F2   (= exact)
+
+18 of 22 cases wrong

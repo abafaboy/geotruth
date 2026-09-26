@@ -1,0 +1,51 @@
+shapely 2.1.2, GEOS 3.13.1 (for 'stripped' and GEOS isValid)
+adjacent-edge-empty-polygon
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 0FFFFF212  witness 0FFFFF212  GEOS-on-stripped 0FFFFF212  AGREE
+adjacent-edge-empty-polygon-pinned
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON EMPTY, POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 0FFFFF212  witness 0FFFFF212  GEOS-on-stripped 0FFFFF212  AGREE
+adjacent-edge-empty-polygon-line
+  A = LINESTRING (1 1, 3 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 1FF0FF212  witness 1FF0FF212  GEOS-on-stripped 1FF0FF212  AGREE
+adjacent-edge-empty-polygon-area
+  A = POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 2FF11F212  witness 2FF11F212  GEOS-on-stripped 2FF11F212  AGREE
+adjacent-edge-empty-multipolygon-part
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), EMPTY), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact 0FFFFF212  witness 0FFFFF212  GEOS-on-stripped 0FFFFF212  AGREE
+linear-boundary-null
+  A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
+  B = POINT EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF0FFFFF2  witness FF0FFFFF2  GEOS-on-stripped FF0FFFFF2  AGREE
+linear-boundary-null-pinned
+  A = GEOMETRYCOLLECTION (POINT (0 2), LINESTRING EMPTY)
+  B = POINT EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF0FFFFF2  witness FF0FFFFF2  GEOS-on-stripped FF0FFFFF2  AGREE
+empty-element-dimension-exterior
+  A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
+  B = POINT (5 5)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF1FF00F2  witness FF1FF00F2  GEOS-on-stripped FF1FF00F2  AGREE
+empty-element-dimension-empty
+  A = GEOMETRYCOLLECTION (POINT (0 0), POLYGON EMPTY)
+  B = POINT EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FF0FFFFF2  witness FF0FFFFF2  GEOS-on-stripped FF0FFFFF2  AGREE
+lead-relateng-empty-operand-type-dimension
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON EMPTY, LINESTRING (0 0, 1 1))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact FFFFFF102  witness FFFFFF102  GEOS-on-stripped FFFFFF102  AGREE

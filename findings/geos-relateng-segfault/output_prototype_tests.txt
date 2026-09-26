@@ -1,0 +1,52 @@
+# Prototype fix (prototype_fix.diff on GEOS main ae9cdd98b; jts_prototype_fix.diff on JTS master 3ea61f8)
+# produced 2026-09-26T07:18Z
+
+## GEOS: patched build (Release, BUILD_TESTING=ON), ctest
+100% tests passed, 0 tests failed out of 535
+
+Total Test time (real) =   8.35 sec
+
+## GEOS: RelateNG unit test groups (patched)
+geos::operation::relateng::AdjacentEdgeLocator: tests summary: ok:6
+geos::operation::relateng::LinearBoundary: tests summary: ok:4
+geos::operation::relateng::PolygonNodeConverter: tests summary: ok:5
+geos::operation::relateng::RelateGeometry: tests summary: ok:10
+geos::operation::relateng::RelateNG: tests summary: ok:64
+geos::operation::relateng::RelateNGBoundaryNodeRule: tests summary: ok:9
+geos::operation::relateng::RelateNGGC: tests summary: ok:25
+geos::operation::relateng::RelateNGRobustness: tests summary: ok:19
+geos::operation::relateng::RelatePointLocator: tests summary: ok:8
+geos::operation::relateng::RelatePredicate: tests summary: ok:5
+
+## GEOS: differential run, 25000 generated relate cases (tools/crosscheck_relate.py generators:
+##   adversarial seeds 200-203 x1000 and 1-5 x2000, lattice seeds 1,100-103 x2000, dense seeds 1,500 x500)
+##   GEOSRelate(A,B) and GEOSRelate(B,A), each call fork-isolated; unpatched main vs patched
+crashes (SIGSEGV) unpatched: 13 cases; patched: 0
+GEOS exceptions (ERR): unpatched 612, patched 612, same cases: yes
+cases whose answer changed: 163 (all contain an EMPTY element)
+judged against the exact engine (geotruth relate strict=True, cross-checked with relate_witness):
+  1 fix WRONG main wrong/crash has EMPTY
+  162 fix exact main wrong/crash has EMPTY
+  the one case the patch leaves wrong is adversarial-2-199: patched GEOS gives 212111212, the same as
+  GEOS on the input with the EMPTY element removed (the separate gc-overlapping-polygons defect); exact 2FF11F212
+
+## JTS master 3ea61f8: relateng unit tests (JUnit), patched classes first on the classpath
+unpatched: OK (154 tests)
+patched:   OK (154 tests)
+
+## JTS master: XML relate suites (JTSTestRunnerCmd, -Djts.relate=ng): misc/TestRelateEmpty, misc/TestRelateGC,
+##   general/TestRelate{AA,PP,LL,PL,PA,LA}, robust/TestRobustRelate{,Float}
+unpatched: 159 cases with 1136 tests  --  1135 passed, 1 failed, 0 exceptions
+patched:   159 cases with 1136 tests  --  1135 passed, 1 failed, 0 exceptions
+(the 1 failure is pre-existing and identical in both runs)
+
+## JTS master: Repro.java with patched classes
+case 1 point on the shared edge of two squares, GC has a POLYGON EMPTY (GEOS: SIGSEGV)
+  RelateNG.relate(A,B)      = 0FFFFF212   ok
+  RelateNG.relate(B,A)      = 0F2FF1FF2
+case 2 GC(point, LINESTRING EMPTY) vs POINT EMPTY (GEOS: SIGSEGV)
+  RelateNG.relate(A,B)      = FF0FFFFF2   ok
+  RelateNG.relate(B,A)      = FFFFFF0F2
+case 3 GC(line, POLYGON EMPTY) vs a disjoint point (GEOS: wrong matrix)
+  RelateNG.relate(A,B)      = FF1FF00F2   ok
+  RelateNG.relate(B,A)      = FF0FFF102

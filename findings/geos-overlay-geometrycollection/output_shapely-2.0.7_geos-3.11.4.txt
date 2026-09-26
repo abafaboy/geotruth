@@ -1,0 +1,97 @@
+shapely 2.0.7, GEOS 3.11.4
+
+1a symdiff, GC(one polygon) vs point outside
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = POINT (3 3)
+  valid: A=True B=True
+  exact                     GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3))
+  symmetric_difference(A, B)GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+  ... grid_size=0           GEOMETRYCOLLECTION (POLYGON ((0 4, 4 0, 0 0, 0 4)), POINT (3 3))   ok
+
+1b symdiff, GC(POLYGON EMPTY) vs point
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  valid: A=True B=True
+  exact                     POINT (1 1)
+  symmetric_difference(A, B)POINT (1 1)   ok
+  ... grid_size=0           POINT (1 1)   ok
+
+1c symdiff, point on the line of a mixed GC
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  valid: A=True B=True
+  exact                     GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  symmetric_difference(A, B)GEOMETRYCOLLECTION (POINT (3 3), LINESTRING (0 0, 2 0))   ok
+  ... grid_size=0           GEOSException: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+1d symdiff of equal point sets (square + inner line vs square)
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))
+  B = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  valid: A=True B=True
+  exact                     POLYGON EMPTY
+  symmetric_difference(A, B)POLYGON EMPTY   ok
+  ... grid_size=0           GEOSException: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+2a difference, point on the line of a mixed GC
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  valid: A=True B=True
+  exact                     POINT EMPTY
+  difference(A, B)          POINT EMPTY   ok
+  ... grid_size=0           POINT EMPTY   ok
+
+3a intersection, GC(POLYGON EMPTY) vs point
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  valid: A=True B=True
+  exact                     POINT EMPTY
+  intersection(A, B)        POINT EMPTY   ok
+  ... grid_size=0           POINT EMPTY   ok
+
+3b intersection, POINT EMPTY vs GC(one polygon)
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  valid: A=True B=True
+  exact                     POINT EMPTY
+  intersection(A, B)        POINT EMPTY   ok
+  ... grid_size=0           POINT EMPTY   ok
+
+3c difference, POINT EMPTY minus GC(one polygon)
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  valid: A=True B=True
+  exact                     POINT EMPTY
+  difference(A, B)          POINT EMPTY   ok
+  ... grid_size=0           POINT EMPTY   ok
+
+3d intersection, mixed GC vs MULTIPOLYGON EMPTY
+  A = GEOMETRYCOLLECTION (POINT (0 2), LINESTRING (0 0, 6 0))
+  B = MULTIPOLYGON EMPTY
+  valid: A=True B=True
+  exact                     LINESTRING EMPTY
+  intersection(A, B)        LINESTRING Z EMPTY   ok
+  ... grid_size=0           LINESTRING Z EMPTY   ok
+
+4a (secondary) intersection, point on a line of the GC; the GC's lines cross at (1.2 3.2)
+  A = POINT (3 2)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  valid: A=True B=True
+  exact                     POINT (3 2)
+  intersection(A, B)        POINT (3 2)   ok
+  ... grid_size=0           POINT (3 2)   ok
+
+4b (secondary) intersection, segment on a line of the GC
+  A = LINESTRING (3 2, 6 0)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  valid: A=True B=True
+  exact                     LINESTRING (3 2, 6 0)
+  intersection(A, B)        LINESTRING (3 2, 6 0)   ok
+  ... grid_size=0           GEOSException: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
+
+5a (minor) intersection, GC(line, GEOMETRYCOLLECTION EMPTY)
+  A = LINESTRING (0 0, 1 1)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 1, 1 0), GEOMETRYCOLLECTION EMPTY)
+  valid: A=True B=True
+  exact                     POINT (0.5 0.5)
+  intersection(A, B)        POINT (0.5 0.5)   ok
+  ... grid_size=0           GEOSException: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)

@@ -1,0 +1,15 @@
+diff --git a/src/operation/relateng/TopologyComputer.cpp b/src/operation/relateng/TopologyComputer.cpp
+index e911bc6..e9c4f93 100644
+--- a/src/operation/relateng/TopologyComputer.cpp
++++ b/src/operation/relateng/TopologyComputer.cpp
+@@ -138,6 +138,10 @@ TopologyComputer::isSelfNodingRequired() const
+     if (geomA.isSelfNodingRequired()) 
+       return true;
+     
++    //-- EXPERIMENT (pre-#1201 behaviour): also self-node when B requires it
++    if (geomB.isSelfNodingRequired())
++      return true;
++
+     //-- if B is a mixed GC with A and L require full noding
+     if (geomB.hasAreaAndLine())
+       return true;

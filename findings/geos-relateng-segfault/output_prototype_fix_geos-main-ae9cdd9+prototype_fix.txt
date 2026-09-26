@@ -1,0 +1,85 @@
+GEOS 3.16.0dev-CAPI-1.22.0
+
+case 1  point on the shared edge of two squares, GC has a POLYGON EMPTY
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = 0FFFFF212, relate(B,A) = 0F2FF1FF2
+  GEOSRelate(A,B)                        0FFFFF212   ok
+  GEOSRelate(B,A)                        0F2FF1FF2   ok
+  GEOSIntersects(A,B)                    true
+  GEOSContains(B,A)                      true
+  GEOSWithin(A,B)                        true
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     true
+  GEOSPreparedCovers(prep B, A)          true
+
+case 1c control: same GC without the POLYGON EMPTY
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = 0FFFFF212, relate(B,A) = 0F2FF1FF2
+  GEOSRelate(A,B)                        0FFFFF212   ok
+  GEOSRelate(B,A)                        0F2FF1FF2   ok
+  GEOSIntersects(A,B)                    true
+  GEOSContains(B,A)                      true
+  GEOSWithin(A,B)                        true
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     true
+  GEOSPreparedCovers(prep B, A)          true
+
+case 2  GC(point, LINESTRING EMPTY) vs POINT EMPTY
+  A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
+  B = POINT EMPTY
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = FF0FFFFF2, relate(B,A) = FFFFFF0F2
+  GEOSRelate(A,B)                        FF0FFFFF2   ok
+  GEOSRelate(B,A)                        FFFFFF0F2   ok
+  GEOSIntersects(A,B)                    false
+  GEOSContains(B,A)                      false
+  GEOSWithin(A,B)                        false
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     false
+  GEOSPreparedCovers(prep B, A)          false
+
+case 2c control: the point alone
+  A = POINT (0 0)
+  B = POINT EMPTY
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = FF0FFFFF2, relate(B,A) = FFFFFF0F2
+  GEOSRelate(A,B)                        FF0FFFFF2   ok
+  GEOSRelate(B,A)                        FFFFFF0F2   ok
+  GEOSIntersects(A,B)                    false
+  GEOSContains(B,A)                      false
+  GEOSWithin(A,B)                        false
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     false
+  GEOSPreparedCovers(prep B, A)          false
+
+case 3  GC(line, POLYGON EMPTY) vs a disjoint point (no crash, wrong matrix)
+  A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
+  B = POINT (5 5)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = FF1FF00F2, relate(B,A) = FF0FFF102
+  GEOSRelate(A,B)                        FF1FF00F2   ok
+  GEOSRelate(B,A)                        FF0FFF102   ok
+  GEOSIntersects(A,B)                    false
+  GEOSContains(B,A)                      false
+  GEOSWithin(A,B)                        false
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     false
+  GEOSPreparedCovers(prep B, A)          false
+
+case 3c control: the line alone
+  A = LINESTRING (0 0, 1 0)
+  B = POINT (5 5)
+  GEOSisValid(A) = 1, GEOSisValid(B) = 1
+  expected relate(A,B) = FF1FF00F2, relate(B,A) = FF0FFF102
+  GEOSRelate(A,B)                        FF1FF00F2   ok
+  GEOSRelate(B,A)                        FF0FFF102   ok
+  GEOSIntersects(A,B)                    false
+  GEOSContains(B,A)                      false
+  GEOSWithin(A,B)                        false
+  GEOSTouches(A,B)                       false
+  GEOSRelatePattern(A,B,"T********")     false
+  GEOSPreparedCovers(prep B, A)          false

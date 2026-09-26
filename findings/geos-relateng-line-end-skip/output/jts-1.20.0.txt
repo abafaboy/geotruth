@@ -1,0 +1,9 @@
+# Repro.java, jts-1.20.0 (jts-core-1.20.0.jar)
+JTS 1.20.0
+case 1                         RelateNG.relate = FF0FFF1F2 WRONG  Geometry.relate (RelateOp) = FF0FFF102  exact FF0FFF102
+case 1, B's elements swapped   RelateNG.relate = FF0FFF102 ok     Geometry.relate (RelateOp) = FF0FFF102  exact FF0FFF102
+case 1, operands swapped       RelateNG.relate = FF1FFF0F2 WRONG  Geometry.relate (RelateOp) = FF1FF00F2  exact FF1FF00F2
+case 2                         RelateNG.relate = 1F20011F2 WRONG  Geometry.relate (RelateOp) = 1F2001102  exact 1F2001102
+case 3 (JTS #1175)             RelateNG.relate = FF1FF01F2 WRONG  Geometry.relate (RelateOp) = FF1FF0102  exact FF1FF0102
+case 4 (GC, computeAreaVertex) RelateNG.relate = FF2FFF102 WRONG  Geometry.relate (RelateOp) = (n/a: GC)  exact FF2FF1102
+case 4, squares swapped        RelateNG.relate = FF2FF1102 ok     Geometry.relate (RelateOp) = (n/a: GC)  exact FF2FF1102

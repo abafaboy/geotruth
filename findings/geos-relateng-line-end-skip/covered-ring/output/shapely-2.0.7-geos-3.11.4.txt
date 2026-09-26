@@ -1,0 +1,11 @@
+shapely 2.0.7 GEOS 3.11.4
+case 1                     relate = FF210F102  exact FF210F102  ok
+case 1, operands swapped   relate = F11F002F2  exact F11F002F2  ok
+case 2 (rectangle)         relate = FF210F102  exact FF210F102  ok
+case 3 (one LineString)    relate = FF210F1F2  exact FF210F1F2  ok
+case 4 (hole touch)        relate = FF2101FF2  exact FF2101FF2  ok
+case 5 (touching parts)    relate = FF2101FF2  exact FF2101FF2  ok
+case 6 (GC as B)           relate raised TopologyException: side location conflict at 1 0. This can occur if the input geometry is invalid.
+case 4: contains = False (exact False), touches = True (exact True)
+case 5: covers = True (exact True)
+case 6: within/contains raised TopologyException: side location conflict at 1 0. This can occur if the input geometry is invalid.

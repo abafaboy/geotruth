@@ -1,0 +1,19 @@
+# fuzz_inscribed.cpp, 20000 draws (seed 12345), 4788 usable configurations; a draw is 'wrong' when some PolyTree node's orientation contradicts its level
+wt_main (f9c5eb6): Clipper2 2.0.1: 4788 random inscribed configurations; Difference(A,B) tree wrong in 4434; Union({square,A,B}) tree wrong in 4574
+wt_Clipper2_2.0.1 (21ebba0): Clipper2 2.0.1: 4788 random inscribed configurations; Difference(A,B) tree wrong in 4434; Union({square,A,B}) tree wrong in 4574
+wt_Clipper2_1.5.4 (ef88ee9): Clipper2 1.5.4: 4788 random inscribed configurations; Difference(A,B) tree wrong in 4434; Union({square,A,B}) tree wrong in 4574
+wt_Clipper2_1.5.2 (6901921): Clipper2 1.5.2: 4788 random inscribed configurations; Difference(A,B) tree wrong in 3; Union({square,A,B}) tree wrong in 4
+wt_Clipper2_1.4.0 (736ddb0): Clipper2 1.4.0: 4788 random inscribed configurations; Difference(A,B) tree wrong in 3; Union({square,A,B}) tree wrong in 4
+wt_patched2 (f9c5eb6 + patch/prototype_fix.diff): Clipper2 2.0.1: 4788 random inscribed configurations; Difference(A,B) tree wrong in 0; Union({square,A,B}) tree wrong in 1
+
+# the configurations still wrong on 1.5.2 and with the prototype fix (SHOW=1; 'D' = Difference(A,B), else Union({square,A,B})):
+## wt_Clipper2_1.5.2
+A: -51,59 -41,24 -26,-21  B: -49,52 -37,12 -41,27
+D A: -39,-54 31,-56 41,-56  B: -4,-55 34,-56 1,-55
+A: -39,-54 31,-56 41,-56  B: -4,-55 34,-56 1,-55
+D A: -35,-30 -20,-30 52,-21  B: -28,-30 -12,-29 -6,-27
+A: -35,-30 -20,-30 52,-21  B: -28,-30 -12,-29 -6,-27
+D A: -29,-21 -5,-15 25,-6  B: -25,-20 5,-12 7,-11
+A: -29,-21 -5,-15 25,-6  B: -25,-20 5,-12 7,-11
+## wt_patched2
+A: -51,59 -41,24 -26,-21  B: -49,52 -37,12 -41,27

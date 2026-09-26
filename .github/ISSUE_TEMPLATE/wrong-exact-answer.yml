@@ -1,0 +1,46 @@
+name: The exact engine gives a wrong answer
+description: geotruth relate, overlay or valid (or an expected answer in corpus/expected) is wrong.
+title: "Engine: "
+labels: ["engine", "correctness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A wrong exact answer is the most serious bug geotruth can have: every score depends
+        on it. Thank you for taking the time to report it.
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: The geometries as WKT or typed JSON, or a corpus case id.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: >-
+        The command you ran and its full output. `--dual` (relate), `--certify` (overlay)
+        and `--explain` (relate) show how the answer was reached.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: The answer you expect, and why
+      description: >-
+        For example: a hand computation in rational arithmetic, another exact tool (CGAL
+        with an exact kernel), or the point of the definition in docs/DESIGN.md §1 that the
+        answer contradicts. Remember that the input doubles are exact rationals: 0.1 is not
+        1/10.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: geotruth version
+      description: The output of `geotruth version` (and the git commit, if from a checkout).
+    validations:
+      required: true

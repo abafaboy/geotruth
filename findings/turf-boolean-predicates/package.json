@@ -1,0 +1,12 @@
+{
+  "name": "turf-boolean-predicates-repro",
+  "private": true,
+  "type": "module",
+  "description": "Repro for booleanTouches on polygons (geotruth findings/turf-boolean-predicates)",
+  "dependencies": {
+    "@turf/turf": "7.4.0"
+  },
+  "optionalDependencies": {
+    "jsts": "2.12.1"
+  }
+}

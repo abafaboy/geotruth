@@ -1,22 +1,41 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+# setuptools >= 77 reads the SPDX `license` string and `license-files` (PEP 639).
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "geotruth"
 dynamic = ["version"]
-description = "Exact ground truth for computational geometry: DE-9IM, overlay and validity in exact arithmetic."
+description = "Exact-answer conformance suite for computational-geometry libraries: DE-9IM relate, overlay and validity decided in exact arithmetic on the input doubles."
 readme = "README.md"
-license = { text = "MIT" }
+# The package (the engine and the CLI) is MIT. The corpus in the repository is CC0 and is
+# not part of the distribution.
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Abdulfayyod Mukhamedov" }]
+maintainers = [{ name = "Abdulfayyod Mukhamedov" }]
 requires-python = ">=3.10"
-dependencies = ["gmpy2>=2.2"]
-keywords = ["geometry", "exact arithmetic", "DE-9IM", "overlay", "testing", "GEOS", "JTS"]
+dependencies = [
+    "gmpy2>=2.2",
+    "tomli>=2.0; python_version < '3.11'",  # adapter manifests (geotruth.harness.manifest)
+]
+keywords = [
+    "computational geometry",
+    "exact arithmetic",
+    "robustness",
+    "conformance testing",
+    "DE-9IM",
+    "overlay",
+    "OGC Simple Features",
+    "GEOS",
+    "JTS",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
@@ -24,6 +43,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
 ]
 
@@ -39,6 +60,10 @@ shapely = ["shapely>=2.0"]
 
 [project.urls]
 Homepage = "https://github.com/abafaboy/geotruth"
+Documentation = "https://github.com/abafaboy/geotruth/tree/main/docs"
+Source = "https://github.com/abafaboy/geotruth"
+Issues = "https://github.com/abafaboy/geotruth/issues"
+Changelog = "https://github.com/abafaboy/geotruth/blob/main/CHANGELOG.md"
 Design = "https://github.com/abafaboy/geotruth/blob/main/docs/DESIGN.md"
 
 [project.scripts]

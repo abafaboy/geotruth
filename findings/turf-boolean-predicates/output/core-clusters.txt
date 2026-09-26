@@ -1,0 +1,45 @@
+# geotruth core tier (3400 cases), results/core/turf/core.jsonl (turf@7.4.0) vs corpus/expected/core.jsonl.
+# Polygon/Polygon disagreements, grouped by mechanism (classify.mjs in the triage scratch dir).
+
+## touches: turf true, exact false (241)
+ 238 interiors meet (relate II!=F); A vertex on B shell=true, A vertex strictly in B=false; holes=false int-grid-1-000086-lattice-poly.big-id int-grid-1-000111-lattice-poly.small-shear
+   3 II=F relate=FF2FF1212 holes=false scaled-1-000362-vertex-on-edge.star-apex.n8.int.dec-0.6 sliver-spike-1-000471-sliver-out.origin
+
+## touches: turf false, exact true (59)
+  31 A vertex on B shell=false; B vertex on A rings=true; A vertex strictly in B=false; holes=false; touches(B,A)=true scaled-1-000422-vertex-on-edge.apex-out.n512.int.p2e-6 shared-edge-1-000259-sub-opp.n512.projected
+  15 A vertex on B shell=false; B vertex on A rings=false; A vertex strictly in B=false; holes=true; touches(B,A)=false hole-contact-1-000034-share-in.n4.unit hole-contact-1-000075-fill.n128.unit
+  10 A vertex on B shell=false; B vertex on A rings=true; A vertex strictly in B=false; holes=true; touches(B,A)=false hole-contact-1-000190-fill.n5.unit hole-contact-1-000266-fill.n1024.int
+   3 A vertex on B shell=false; B vertex on A rings=true; A vertex strictly in B=false; holes=true; touches(B,A)=true hole-contact-1-000148-hole-touch-shell-fill.n22.int hole-contact-1-000579-hole-touch-shell-fill.n32.projected
+
+## overlaps: turf false, exact true (165)
+ 155 geojsonEquality@1e-6=true; intersecting segment pairs=true; range=normal int-grid-1-000334-lattice-tri-any.dyadic-id int-grid-1-000816-polyomino-merged.dyadic-rot
+  10 geojsonEquality@1e-6=false; intersecting segment pairs=false; range=normal hole-contact-1-000011-fill-ulp-out.n512.lonlat hole-contact-1-000041-fill-scaled.n16.projected
+
+## overlaps: turf true, exact false (505)
+ 176 interiors disjoint, boundaries touch (relate FF2F11212) hole-contact-1-000034-share-in.n4.unit hole-contact-1-000106-share-in.n512.int
+ 150 interiors disjoint, boundaries touch (relate FF2F01212) hole-contact-1-000538-touch-in.n4.unit hole-contact-1-000604-touch-in.n64.lonlat
+  51 interiors meet but one contains the other (relate 212F11FF2) hole-contact-1-000071-share-solid.n6.lonlat hole-contact-1-000288-share-solid.n16.unit
+  43 interiors meet but one contains the other (relate 2FF10F212) hole-contact-1-000003-touch-solid.n5.int hole-contact-1-000030-touch-solid.n19.projected
+  37 interiors meet but one contains the other (relate 212F01FF2) hole-contact-1-000274-touch-solid.n3.int hole-contact-1-000324-touch-solid.n1024.int
+  22 interiors meet but one contains the other (relate 2FF11F212) hole-contact-1-000358-cover-hole-edge.n4.int hole-contact-1-000360-share-solid.n2.int
+  10 interiors disjoint, boundaries touch (relate FF2F1F212) hole-contact-1-000075-fill.n128.unit hole-contact-1-000164-hole-touch-shell-fill.n2.unit
+  10 interiors disjoint, boundaries touch (relate FF2F112F2) hole-contact-1-000148-hole-touch-shell-fill.n22.int hole-contact-1-000190-fill.n5.unit
+   3 interiors disjoint, boundaries touch (relate FF2FF1212) scaled-1-000362-vertex-on-edge.star-apex.n8.int.dec-0.6 sliver-spike-1-000471-sliver-out.origin
+   1 interiors meet but one contains the other (relate 2FFF1FFF2) int-grid-1-000969-lattice-poly.dyadic-id
+   1 interiors meet but one contains the other (relate 212FF1FF2) near-collinear-1-000388-offedge-in.origin
+   1 interiors meet but one contains the other (relate 2FF1FF212) near-collinear-1-000524-offedge-in.origin
+
+## booleanTouches on valid areal pairs whose coordinates are all integers below 2^24 (float arithmetic exact)
+{
+  integer_valid_areal_pairs: 207,
+  wrong_true: 60,
+  wrong_false: 10,
+  byType: {
+    'Polygon/Polygon turf=false': 7,
+    'MultiPolygon/Polygon turf=false': 2,
+    'Polygon/Polygon turf=true': 45,
+    'Polygon/MultiPolygon turf=true': 10,
+    'MultiPolygon/Polygon turf=true': 5,
+    'Polygon/MultiPolygon turf=false': 1
+  }
+}

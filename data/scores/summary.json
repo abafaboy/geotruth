@@ -1,0 +1,6915 @@
+{
+ "format": "geotruth-score-summary/1",
+ "note": "Counts from `geotruth score` against the committed exact answers. The corpus is deliberately adversarial (near-degenerate input), so these rates are not real-world failure rates, and there is no single ranking: compare per capability. Unreviewed failure clusters are not confirmed bugs (findings/registry.toml).",
+ "geotruth": {
+  "git_head": "caee9072045ec61bce57ff302b6d3fa85043fd97",
+  "git_worktree_clean": false,
+  "src_sha256": "9022e1750f8fcd5bd8acf208b1fecebc2f37d36911a08c6d04bcd18ce9bf770b"
+ },
+ "runs": {
+  "first_started": "2026-09-26T08:21:05Z",
+  "last_finished": "2026-09-26T08:40:24Z"
+ },
+ "tiers": {
+  "core": {
+   "cases": 3400,
+   "corpus_version": "2.0.0",
+   "expected": "corpus/expected/core.jsonl",
+   "expected_version": "2",
+   "expected_sha256": "70c78e04008b39714fccc53ead4682c55f7838bcdde801197ba580bef9b85b31",
+   "expected_status": {
+    "ok": 3400,
+    "engine_skipped": 0,
+    "engine_error": 0
+   },
+   "engine_version": "0.1.0"
+  },
+  "curated": {
+   "cases": 34,
+   "corpus_version": "2.0.0",
+   "expected": "corpus/expected/curated.jsonl",
+   "expected_version": "2",
+   "expected_sha256": "345b9ae9db1e92ea6fda2cfb3a1f486d21696c8f3213c1c5a3592cef6c299647",
+   "expected_status": {
+    "ok": 34,
+    "engine_skipped": 0,
+    "engine_error": 0
+   },
+   "engine_version": "0.1.0"
+  }
+ },
+ "libraries": {
+  "boost-1.83": {
+   "library": "Boost.Geometry",
+   "lib": "boost-geometry@1.83",
+   "version": "1.83 (Ubuntu 24.04 libboost-dev 1.83.0.1ubuntu2)",
+   "commit": null,
+   "upstream": "https://github.com/boostorg/geometry",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2728,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 2883,
+       "failures": 580,
+       "failure_rate": 0.201179,
+       "correct": 2303,
+       "wrong": 580,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 132
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 448
+        }
+       }
+      },
+      "predicates": {
+       "graded": 2883,
+       "failures": 388,
+       "failure_rate": 0.134582,
+       "correct": 2477,
+       "wrong": 388,
+       "error": 0,
+       "convention": 18,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 107
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 281
+        }
+       }
+      },
+      "validity": {
+       "graded": 3340,
+       "failures": 408,
+       "failure_rate": 0.122156,
+       "correct": 2932,
+       "wrong": 408,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 60,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 262,
+         "failures": 159
+        },
+        "normal": {
+         "graded": 3078,
+         "failures": 249
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2012,
+       "failures": 186,
+       "failure_rate": 0.092445,
+       "correct": 1826,
+       "wrong": 186,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 185
+        }
+       },
+       "topological": {
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 51
+       }
+      },
+      "overlay.union": {
+       "graded": 2012,
+       "failures": 409,
+       "failure_rate": 0.20328,
+       "correct": 1603,
+       "wrong": 409,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 408
+        }
+       },
+       "topological": {
+        "invalid_output": 25,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 8,
+        "missing_or_extra_parts": 87
+       }
+      },
+      "overlay.difference": {
+       "graded": 2012,
+       "failures": 319,
+       "failure_rate": 0.158549,
+       "correct": 1693,
+       "wrong": 319,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 318
+        }
+       },
+       "topological": {
+        "invalid_output": 22,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 7,
+        "missing_or_extra_parts": 85
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2012,
+       "failures": 438,
+       "failure_rate": 0.217694,
+       "correct": 1574,
+       "wrong": 438,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 437
+        }
+       },
+       "topological": {
+        "invalid_output": 104,
+        "invalid_output_exact_point_set": 6,
+        "invalid_output_within_rounding": 59,
+        "missing_or_extra_parts": 150
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 34,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       }
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 3,
+       "failure_rate": 0.136364,
+       "correct": 19,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 27,
+       "failures": 1,
+       "failure_rate": 0.037037,
+       "correct": 26,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 1
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 6,
+       "failure_rate": 0.272727,
+       "correct": 16,
+       "wrong": 6,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 6
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 11,
+       "failure_rate": 0.5,
+       "correct": 11,
+       "wrong": 11,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 11
+        }
+       },
+       "topological": {
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  "boost-develop": {
+   "library": "Boost.Geometry",
+   "lib": "boost-geometry@develop-196d04c",
+   "version": "develop",
+   "commit": "196d04c614c12a8d788212b63fa65d25c8b7ea86",
+   "upstream": "https://github.com/boostorg/geometry",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2527,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 2883,
+       "failures": 577,
+       "failure_rate": 0.200139,
+       "correct": 2306,
+       "wrong": 577,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 124
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 453
+        }
+       }
+      },
+      "predicates": {
+       "graded": 2883,
+       "failures": 369,
+       "failure_rate": 0.127992,
+       "correct": 2496,
+       "wrong": 369,
+       "error": 0,
+       "convention": 18,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 88
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 281
+        }
+       }
+      },
+      "validity": {
+       "graded": 3340,
+       "failures": 408,
+       "failure_rate": 0.122156,
+       "correct": 2932,
+       "wrong": 408,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 60,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 262,
+         "failures": 159
+        },
+        "normal": {
+         "graded": 3078,
+         "failures": 249
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2012,
+       "failures": 177,
+       "failure_rate": 0.087972,
+       "correct": 1835,
+       "wrong": 177,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 176
+        }
+       },
+       "topological": {
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 45
+       }
+      },
+      "overlay.union": {
+       "graded": 2012,
+       "failures": 362,
+       "failure_rate": 0.17992,
+       "correct": 1650,
+       "wrong": 362,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 361
+        }
+       },
+       "topological": {
+        "invalid_output": 17,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 6,
+        "missing_or_extra_parts": 51
+       }
+      },
+      "overlay.difference": {
+       "graded": 2012,
+       "failures": 282,
+       "failure_rate": 0.140159,
+       "correct": 1730,
+       "wrong": 282,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 281
+        }
+       },
+       "topological": {
+        "invalid_output": 15,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 64
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2012,
+       "failures": 352,
+       "failure_rate": 0.17495,
+       "correct": 1660,
+       "wrong": 352,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 351
+        }
+       },
+       "topological": {
+        "invalid_output": 62,
+        "invalid_output_exact_point_set": 6,
+        "invalid_output_within_rounding": 32,
+        "missing_or_extra_parts": 116
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 32,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       }
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       }
+      },
+      "validity": {
+       "graded": 27,
+       "failures": 1,
+       "failure_rate": 0.037037,
+       "correct": 26,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 1
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 6,
+       "failure_rate": 0.272727,
+       "correct": 16,
+       "wrong": 6,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 6
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  "boost-release": {
+   "library": "Boost.Geometry",
+   "lib": "boost-geometry@1.92",
+   "version": "1.92.0",
+   "commit": "90c27ef0bf9d1700f553b85f890f43461eced529",
+   "upstream": "https://github.com/boostorg/geometry",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2527,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 2883,
+       "failures": 577,
+       "failure_rate": 0.200139,
+       "correct": 2306,
+       "wrong": 577,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 124
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 453
+        }
+       }
+      },
+      "predicates": {
+       "graded": 2883,
+       "failures": 369,
+       "failure_rate": 0.127992,
+       "correct": 2496,
+       "wrong": 369,
+       "error": 0,
+       "convention": 18,
+       "unsupported": 317,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 88
+        },
+        "normal": {
+         "graded": 2689,
+         "failures": 281
+        }
+       }
+      },
+      "validity": {
+       "graded": 3340,
+       "failures": 408,
+       "failure_rate": 0.122156,
+       "correct": 2932,
+       "wrong": 408,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 60,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 262,
+         "failures": 159
+        },
+        "normal": {
+         "graded": 3078,
+         "failures": 249
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2012,
+       "failures": 177,
+       "failure_rate": 0.087972,
+       "correct": 1835,
+       "wrong": 177,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 176
+        }
+       },
+       "topological": {
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 45
+       }
+      },
+      "overlay.union": {
+       "graded": 2012,
+       "failures": 362,
+       "failure_rate": 0.17992,
+       "correct": 1650,
+       "wrong": 362,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 361
+        }
+       },
+       "topological": {
+        "invalid_output": 17,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 6,
+        "missing_or_extra_parts": 51
+       }
+      },
+      "overlay.difference": {
+       "graded": 2012,
+       "failures": 282,
+       "failure_rate": 0.140159,
+       "correct": 1730,
+       "wrong": 282,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 281
+        }
+       },
+       "topological": {
+        "invalid_output": 15,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 64
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2012,
+       "failures": 352,
+       "failure_rate": 0.17495,
+       "correct": 1660,
+       "wrong": 352,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 351
+        }
+       },
+       "topological": {
+        "invalid_output": 62,
+        "invalid_output_exact_point_set": 6,
+        "invalid_output_within_rounding": 32,
+        "missing_or_extra_parts": 116
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 32,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       }
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       }
+      },
+      "validity": {
+       "graded": 27,
+       "failures": 1,
+       "failure_rate": 0.037037,
+       "correct": 26,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 1
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 6,
+       "failure_rate": 0.272727,
+       "correct": 16,
+       "wrong": 6,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 6
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  "cgal": {
+   "library": "CGAL",
+   "lib": "cgal@5.6",
+   "version": "5.6 (Ubuntu 24.04 libcgal-dev 5.6-1build3)",
+   "commit": null,
+   "upstream": "https://github.com/CGAL/cgal",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2100,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 2012,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 2002,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 2002,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 10,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1999,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 1987,
+       "failures": 30,
+       "failure_rate": 0.015098,
+       "correct": 1957,
+       "wrong": 30,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1388,
+       "not_reported": 25,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1984,
+         "failures": 30
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2012,
+       "failures": 150,
+       "failure_rate": 0.074553,
+       "correct": 1862,
+       "wrong": 150,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 149
+        }
+       },
+       "topological": {
+        "invalid_output": 150,
+        "invalid_output_exact_point_set": 32,
+        "invalid_output_within_rounding": 150,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2012,
+       "failures": 339,
+       "failure_rate": 0.168489,
+       "correct": 1673,
+       "wrong": 339,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 339
+        }
+       },
+       "topological": {
+        "invalid_output": 339,
+        "invalid_output_exact_point_set": 274,
+        "invalid_output_within_rounding": 339,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 2012,
+       "failures": 234,
+       "failure_rate": 0.116302,
+       "correct": 1778,
+       "wrong": 234,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 234
+        }
+       },
+       "topological": {
+        "invalid_output": 234,
+        "invalid_output_exact_point_set": 111,
+        "invalid_output_within_rounding": 234,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2012,
+       "failures": 1347,
+       "failure_rate": 0.669483,
+       "correct": 665,
+       "wrong": 1347,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 3
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 1344
+        }
+       },
+       "topological": {
+        "invalid_output": 1347,
+        "invalid_output_exact_point_set": 381,
+        "invalid_output_within_rounding": 1347,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 25,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 22,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 3,
+       "failure_rate": 0.136364,
+       "correct": 19,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 16,
+       "failure_rate": 0.727273,
+       "correct": 6,
+       "wrong": 16,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 16
+        }
+       },
+       "topological": {
+        "invalid_output": 16,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 16,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "clipper2": {
+   "library": "Clipper2",
+   "lib": "clipper2@2.0.1-f9c5eb6",
+   "version": "2.0.1",
+   "commit": "f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd",
+   "upstream": "https://github.com/AngusJohnson/Clipper2",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 749,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 1961,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 1961,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 1961,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 1961,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1439,
+       "not_reported": 1961,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 1961,
+       "failures": 94,
+       "failure_rate": 0.047935,
+       "correct": 1867,
+       "wrong": 94,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 1961,
+         "failures": 94
+        }
+       },
+       "topological": {
+        "invalid_output": 28,
+        "invalid_output_exact_point_set": 6,
+        "invalid_output_within_rounding": 7,
+        "missing_or_extra_parts": 2
+       }
+      },
+      "overlay.union": {
+       "graded": 1961,
+       "failures": 116,
+       "failure_rate": 0.059153,
+       "correct": 1845,
+       "wrong": 116,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 1961,
+         "failures": 116
+        }
+       },
+       "topological": {
+        "invalid_output": 62,
+        "invalid_output_exact_point_set": 7,
+        "invalid_output_within_rounding": 16,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 1961,
+       "failures": 201,
+       "failure_rate": 0.102499,
+       "correct": 1760,
+       "wrong": 201,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 1961,
+         "failures": 201
+        }
+       },
+       "topological": {
+        "invalid_output": 115,
+        "invalid_output_exact_point_set": 43,
+        "invalid_output_within_rounding": 68,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 1961,
+       "failures": 338,
+       "failure_rate": 0.172361,
+       "correct": 1623,
+       "wrong": 338,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1239,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 1961,
+         "failures": 338
+        }
+       },
+       "topological": {
+        "invalid_output": 320,
+        "invalid_output_exact_point_set": 103,
+        "invalid_output_within_rounding": 189,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 13,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 22,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 22,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 4,
+       "failure_rate": 0.181818,
+       "correct": 18,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 7,
+       "failure_rate": 0.318182,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "engine-control": {
+   "library": "geotruth exact engine (control)",
+   "lib": "geotruth-control@0.1.0",
+   "version": "engine 0.1.0",
+   "commit": null,
+   "upstream": "https://github.com/abafaboy/geotruth",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 0,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3400,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 0,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "geos-main": {
+   "library": "GEOS",
+   "lib": "geos@3.16.0dev-ae9cdd9",
+   "version": "3.16.0dev",
+   "commit": "ae9cdd98be4e0bae552b918d4d14c94a9ce99c58",
+   "upstream": "https://github.com/libgeos/geos",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 670,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 166,
+       "failure_rate": 0.051875,
+       "correct": 3034,
+       "wrong": 166,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 104
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 62
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 105,
+       "failure_rate": 0.032813,
+       "correct": 3095,
+       "wrong": 105,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 80
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 25
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 50,
+       "failure_rate": 0.014706,
+       "correct": 3350,
+       "wrong": 45,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 50
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 3200,
+       "failures": 88,
+       "failure_rate": 0.0275,
+       "correct": 3112,
+       "wrong": 53,
+       "error": 35,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 44
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 44
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 2
+       }
+      },
+      "overlay.union": {
+       "graded": 3200,
+       "failures": 82,
+       "failure_rate": 0.025625,
+       "correct": 3118,
+       "wrong": 63,
+       "error": 19,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 77
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 13
+       }
+      },
+      "overlay.difference": {
+       "graded": 3200,
+       "failures": 73,
+       "failure_rate": 0.022812,
+       "correct": 3127,
+       "wrong": 48,
+       "error": 25,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 47
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 26
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 8
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 3200,
+       "failures": 106,
+       "failure_rate": 0.033125,
+       "correct": 3094,
+       "wrong": 92,
+       "error": 14,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 71
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 35
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 15
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 21,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 4,
+       "failure_rate": 0.142857,
+       "correct": 24,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 3,
+       "failure_rate": 0.107143,
+       "correct": 25,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 34,
+       "failures": 7,
+       "failure_rate": 0.205882,
+       "correct": 27,
+       "wrong": 0,
+       "error": 7,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 34,
+       "failures": 4,
+       "failure_rate": 0.117647,
+       "correct": 30,
+       "wrong": 0,
+       "error": 4,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 34,
+       "failures": 3,
+       "failure_rate": 0.088235,
+       "correct": 31,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "geos-release": {
+   "library": "GEOS",
+   "lib": "geos@3.15.0",
+   "version": "3.15.0",
+   "commit": "d0228513abb0c29c185443cf2bfb06c9281024b5",
+   "upstream": "https://github.com/libgeos/geos",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 670,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 166,
+       "failure_rate": 0.051875,
+       "correct": 3034,
+       "wrong": 166,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 104
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 62
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 105,
+       "failure_rate": 0.032813,
+       "correct": 3095,
+       "wrong": 105,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 80
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 25
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 50,
+       "failure_rate": 0.014706,
+       "correct": 3350,
+       "wrong": 45,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 50
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 3200,
+       "failures": 88,
+       "failure_rate": 0.0275,
+       "correct": 3112,
+       "wrong": 53,
+       "error": 35,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 44
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 44
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 2
+       }
+      },
+      "overlay.union": {
+       "graded": 3200,
+       "failures": 82,
+       "failure_rate": 0.025625,
+       "correct": 3118,
+       "wrong": 63,
+       "error": 19,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 77
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 13
+       }
+      },
+      "overlay.difference": {
+       "graded": 3200,
+       "failures": 73,
+       "failure_rate": 0.022812,
+       "correct": 3127,
+       "wrong": 48,
+       "error": 25,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 47
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 26
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 8
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 3200,
+       "failures": 106,
+       "failure_rate": 0.033125,
+       "correct": 3094,
+       "wrong": 92,
+       "error": 14,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 71
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 35
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 15
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 21,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 4,
+       "failure_rate": 0.142857,
+       "correct": 24,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 3,
+       "failure_rate": 0.107143,
+       "correct": 25,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 34,
+       "failures": 7,
+       "failure_rate": 0.205882,
+       "correct": 27,
+       "wrong": 0,
+       "error": 7,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 7
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 34,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 34,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 34,
+       "failures": 4,
+       "failure_rate": 0.117647,
+       "correct": 30,
+       "wrong": 0,
+       "error": 4,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 34,
+       "failures": 3,
+       "failure_rate": 0.088235,
+       "correct": 31,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "jsts": {
+   "library": "JSTS (the JavaScript port of JTS)",
+   "lib": "jsts@2.12.1",
+   "version": "2.12.1 (ports JTS 1.17: RelateOp and the classic OverlayOp; no RelateNG, no OverlayNG)",
+   "commit": null,
+   "upstream": "https://github.com/bjornharrtell/jsts",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 722,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 2934,
+       "failures": 97,
+       "failure_rate": 0.033061,
+       "correct": 2837,
+       "wrong": 78,
+       "error": 19,
+       "convention": 0,
+       "unsupported": 266,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 84
+        },
+        "normal": {
+         "graded": 2740,
+         "failures": 13
+        }
+       }
+      },
+      "predicates": {
+       "graded": 2934,
+       "failures": 82,
+       "failure_rate": 0.027948,
+       "correct": 2817,
+       "wrong": 63,
+       "error": 19,
+       "convention": 35,
+       "unsupported": 266,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 70
+        },
+        "normal": {
+         "graded": 2740,
+         "failures": 12
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 52,
+       "failure_rate": 0.015294,
+       "correct": 3348,
+       "wrong": 52,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 52
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 3200,
+       "failures": 178,
+       "failure_rate": 0.055625,
+       "correct": 3022,
+       "wrong": 103,
+       "error": 75,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 78
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 100
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 4
+       }
+      },
+      "overlay.union": {
+       "graded": 2990,
+       "failures": 116,
+       "failure_rate": 0.038796,
+       "correct": 2874,
+       "wrong": 77,
+       "error": 39,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 74
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 42
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 10
+       }
+      },
+      "overlay.difference": {
+       "graded": 2990,
+       "failures": 104,
+       "failure_rate": 0.034783,
+       "correct": 2886,
+       "wrong": 66,
+       "error": 38,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 58
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 46
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 5
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2990,
+       "failures": 93,
+       "failure_rate": 0.031104,
+       "correct": 2897,
+       "wrong": 54,
+       "error": 39,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 72
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 21
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 10
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 5,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       }
+      },
+      "predicates": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 6,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 34,
+       "failures": 4,
+       "failure_rate": 0.117647,
+       "correct": 30,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 29,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 29,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 5,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 29,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 29,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 29,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 5,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 29,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 29,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 29,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 5,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 29,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "jts-main": {
+   "library": "JTS Topology Suite",
+   "lib": "jts@1.21.0-SNAPSHOT-3ea61f8",
+   "version": "1.21.0-SNAPSHOT",
+   "commit": "3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd",
+   "upstream": "https://github.com/locationtech/jts",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 483,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 160,
+       "failure_rate": 0.05,
+       "correct": 3040,
+       "wrong": 160,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 98
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 62
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 102,
+       "failure_rate": 0.031875,
+       "correct": 3098,
+       "wrong": 102,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 77
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 25
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 44,
+       "failure_rate": 0.012941,
+       "correct": 3356,
+       "wrong": 42,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 44
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2984,
+       "failures": 37,
+       "failure_rate": 0.012399,
+       "correct": 2947,
+       "wrong": 37,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 216,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 25
+        },
+        "normal": {
+         "graded": 2790,
+         "failures": 12
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2968,
+       "failures": 54,
+       "failure_rate": 0.018194,
+       "correct": 2914,
+       "wrong": 50,
+       "error": 4,
+       "convention": 0,
+       "unsupported": 232,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 54
+        },
+        "normal": {
+         "graded": 2774,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 17
+       }
+      },
+      "overlay.difference": {
+       "graded": 2976,
+       "failures": 33,
+       "failure_rate": 0.011089,
+       "correct": 2943,
+       "wrong": 33,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 224,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 30
+        },
+        "normal": {
+         "graded": 2782,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 12
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2968,
+       "failures": 53,
+       "failure_rate": 0.017857,
+       "correct": 2915,
+       "wrong": 49,
+       "error": 4,
+       "convention": 0,
+       "unsupported": 232,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 53
+        },
+        "normal": {
+         "graded": 2774,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 17
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 7,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 4,
+       "failure_rate": 0.142857,
+       "correct": 24,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 3,
+       "failure_rate": 0.107143,
+       "correct": 25,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 23,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 23,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 23,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 23,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "jts-release": {
+   "library": "JTS Topology Suite",
+   "lib": "jts@1.20.0",
+   "version": "1.20.0",
+   "commit": "6e95fe82feb986a7aa657f4ffa406d8c290af509",
+   "upstream": "https://github.com/locationtech/jts",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 518,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 170,
+       "failure_rate": 0.053125,
+       "correct": 3030,
+       "wrong": 165,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 98
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 72
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 100,
+       "failure_rate": 0.03125,
+       "correct": 3052,
+       "wrong": 100,
+       "error": 0,
+       "convention": 48,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 76
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 24
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 44,
+       "failure_rate": 0.012941,
+       "correct": 3356,
+       "wrong": 42,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 44
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2984,
+       "failures": 48,
+       "failure_rate": 0.016086,
+       "correct": 2936,
+       "wrong": 48,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 216,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 34
+        },
+        "normal": {
+         "graded": 2790,
+         "failures": 14
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2968,
+       "failures": 60,
+       "failure_rate": 0.020216,
+       "correct": 2908,
+       "wrong": 55,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 232,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 60
+        },
+        "normal": {
+         "graded": 2774,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 5
+       }
+      },
+      "overlay.difference": {
+       "graded": 2976,
+       "failures": 37,
+       "failure_rate": 0.012433,
+       "correct": 2939,
+       "wrong": 34,
+       "error": 3,
+       "convention": 0,
+       "unsupported": 224,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 34
+        },
+        "normal": {
+         "graded": 2782,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 3
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2968,
+       "failures": 59,
+       "failure_rate": 0.019879,
+       "correct": 2909,
+       "wrong": 54,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 232,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 59
+        },
+        "normal": {
+         "graded": 2774,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 5
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 7,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 4,
+       "failure_rate": 0.142857,
+       "correct": 24,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 3,
+       "failure_rate": 0.107143,
+       "correct": 25,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 23,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 23,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 23,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 23,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "martinez": {
+   "library": "martinez-polygon-clipping",
+   "lib": "martinez@0.8.1",
+   "version": "0.8.1",
+   "commit": null,
+   "upstream": "https://github.com/w8r/martinez",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2306,
+     "timeouts": 21,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3400,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 2000,
+       "failures": 294,
+       "failure_rate": 0.147,
+       "correct": 1706,
+       "wrong": 284,
+       "error": 10,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 292
+        }
+       },
+       "topological": {
+        "invalid_output": 158,
+        "invalid_output_exact_point_set": 25,
+        "invalid_output_within_rounding": 87,
+        "missing_or_extra_parts": 21
+       }
+      },
+      "overlay.union": {
+       "graded": 2000,
+       "failures": 440,
+       "failure_rate": 0.22,
+       "correct": 1560,
+       "wrong": 432,
+       "error": 8,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 3
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 437
+        }
+       },
+       "topological": {
+        "invalid_output": 334,
+        "invalid_output_exact_point_set": 182,
+        "invalid_output_within_rounding": 232,
+        "missing_or_extra_parts": 12
+       }
+      },
+      "overlay.difference": {
+       "graded": 2000,
+       "failures": 390,
+       "failure_rate": 0.195,
+       "correct": 1610,
+       "wrong": 384,
+       "error": 6,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 388
+        }
+       },
+       "topological": {
+        "invalid_output": 236,
+        "invalid_output_exact_point_set": 87,
+        "invalid_output_within_rounding": 151,
+        "missing_or_extra_parts": 14
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2000,
+       "failures": 1182,
+       "failure_rate": 0.591,
+       "correct": 818,
+       "wrong": 1168,
+       "error": 14,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 3
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 1179
+        }
+       },
+       "topological": {
+        "invalid_output": 1164,
+        "invalid_output_exact_point_set": 313,
+        "invalid_output_within_rounding": 1121,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 40,
+     "timeouts": 6,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 4,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 9,
+       "failure_rate": 0.409091,
+       "correct": 13,
+       "wrong": 8,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 9
+        }
+       },
+       "topological": {
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 10,
+       "failure_rate": 0.454545,
+       "correct": 12,
+       "wrong": 9,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 10
+        }
+       },
+       "topological": {
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 16,
+       "failure_rate": 0.727273,
+       "correct": 6,
+       "wrong": 13,
+       "error": 3,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 16
+        }
+       },
+       "topological": {
+        "invalid_output": 13,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 12,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "mutant": {
+   "library": "geotruth exact engine with deliberate faults (mutant)",
+   "lib": "geotruth-mutant@0.1.0",
+   "version": "engine 0.1.0",
+   "commit": null,
+   "upstream": "https://github.com/abafaboy/geotruth",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2368,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3200,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 0
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 1855,
+       "failure_rate": 0.579688,
+       "correct": 1317,
+       "wrong": 1855,
+       "error": 0,
+       "convention": 28,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 136
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 1719
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 3400,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 3200,
+       "failures": 93,
+       "failure_rate": 0.029063,
+       "correct": 3107,
+       "wrong": 93,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 92
+        }
+       },
+       "topological": {
+        "invalid_output": 22,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 10
+       }
+      },
+      "overlay.union": {
+       "graded": 3200,
+       "failures": 149,
+       "failure_rate": 0.046562,
+       "correct": 3051,
+       "wrong": 149,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 9
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 140
+        }
+       },
+       "topological": {
+        "invalid_output": 21,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 12
+       }
+      },
+      "overlay.difference": {
+       "graded": 3200,
+       "failures": 127,
+       "failure_rate": 0.039688,
+       "correct": 3073,
+       "wrong": 127,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 3
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 124
+        }
+       },
+       "topological": {
+        "invalid_output": 19,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 17
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 3200,
+       "failures": 144,
+       "failure_rate": 0.045,
+       "correct": 3056,
+       "wrong": 144,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 6
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 138
+        }
+       },
+       "topological": {
+        "invalid_output": 34,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 11
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 24,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 17,
+       "failure_rate": 0.607143,
+       "correct": 11,
+       "wrong": 17,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 17
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 34,
+       "failures": 1,
+       "failure_rate": 0.029412,
+       "correct": 33,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.union": {
+       "graded": 34,
+       "failures": 1,
+       "failure_rate": 0.029412,
+       "correct": 33,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.difference": {
+       "graded": 34,
+       "failures": 1,
+       "failure_rate": 0.029412,
+       "correct": 33,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 34,
+       "failures": 4,
+       "failure_rate": 0.117647,
+       "correct": 30,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 34,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "polyclip-ts": {
+   "library": "polyclip-ts",
+   "lib": "polyclip-ts@0.16.8",
+   "version": "0.16.8",
+   "commit": null,
+   "upstream": "https://github.com/luizbarboza/polyclip-ts",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 1149,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3400,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 2000,
+       "failures": 239,
+       "failure_rate": 0.1195,
+       "correct": 1761,
+       "wrong": 230,
+       "error": 9,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 237
+        }
+       },
+       "topological": {
+        "invalid_output": 74,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 18,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.union": {
+       "graded": 2000,
+       "failures": 232,
+       "failure_rate": 0.116,
+       "correct": 1768,
+       "wrong": 219,
+       "error": 13,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 232
+        }
+       },
+       "topological": {
+        "invalid_output": 86,
+        "invalid_output_exact_point_set": 10,
+        "invalid_output_within_rounding": 37,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 2000,
+       "failures": 274,
+       "failure_rate": 0.137,
+       "correct": 1726,
+       "wrong": 264,
+       "error": 10,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 274
+        }
+       },
+       "topological": {
+        "invalid_output": 88,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 24,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2000,
+       "failures": 404,
+       "failure_rate": 0.202,
+       "correct": 1596,
+       "wrong": 373,
+       "error": 31,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 403
+        }
+       },
+       "topological": {
+        "invalid_output": 316,
+        "invalid_output_exact_point_set": 24,
+        "invalid_output_within_rounding": 224,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 15,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 2,
+       "failure_rate": 0.090909,
+       "correct": 20,
+       "wrong": 2,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 2,
+       "failure_rate": 0.090909,
+       "correct": 20,
+       "wrong": 2,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 3,
+       "failure_rate": 0.136364,
+       "correct": 19,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 8,
+       "failure_rate": 0.363636,
+       "correct": 14,
+       "wrong": 8,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 8
+        }
+       },
+       "topological": {
+        "invalid_output": 8,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 8,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "polygon-clipping": {
+   "library": "polygon-clipping",
+   "lib": "polygon-clipping@0.15.7",
+   "version": "0.15.7",
+   "commit": null,
+   "upstream": "https://github.com/mfogel/polygon-clipping",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 753,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3400,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 2000,
+       "failures": 151,
+       "failure_rate": 0.0755,
+       "correct": 1849,
+       "wrong": 142,
+       "error": 9,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 151
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2000,
+       "failures": 196,
+       "failure_rate": 0.098,
+       "correct": 1804,
+       "wrong": 185,
+       "error": 11,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 195
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 2000,
+       "failures": 192,
+       "failure_rate": 0.096,
+       "correct": 1808,
+       "wrong": 182,
+       "error": 10,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 191
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2000,
+       "failures": 214,
+       "failure_rate": 0.107,
+       "correct": 1786,
+       "wrong": 199,
+       "error": 15,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 213
+        }
+       },
+       "topological": {
+        "invalid_output": 70,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 65,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 14,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "validity": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 2,
+       "failure_rate": 0.090909,
+       "correct": 20,
+       "wrong": 0,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 3,
+       "failure_rate": 0.136364,
+       "correct": 19,
+       "wrong": 1,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 4,
+       "failure_rate": 0.181818,
+       "correct": 18,
+       "wrong": 2,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 5,
+       "failure_rate": 0.227273,
+       "correct": 17,
+       "wrong": 4,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "rust-geo": {
+   "library": "geo (georust), with i_overlay for boolean operations",
+   "lib": "geo@0.33.1",
+   "version": "geo 0.33.1, i_overlay 4.5.2, i_float 1.16.0",
+   "commit": null,
+   "upstream": "https://github.com/georust/geo",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 445,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3106,
+       "failures": 178,
+       "failure_rate": 0.057308,
+       "correct": 2928,
+       "wrong": 178,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 94,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 117
+        },
+        "normal": {
+         "graded": 2873,
+         "failures": 61
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3106,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 2977,
+       "wrong": 129,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 94,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 129,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2873,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 3386,
+       "failures": 41,
+       "failure_rate": 0.012109,
+       "correct": 3345,
+       "wrong": 41,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 14,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 41
+        },
+        "normal": {
+         "graded": 3118,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2012,
+       "failures": 48,
+       "failure_rate": 0.023857,
+       "correct": 1964,
+       "wrong": 48,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 48
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2012,
+       "failures": 67,
+       "failure_rate": 0.0333,
+       "correct": 1945,
+       "wrong": 67,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 67
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 2012,
+       "failures": 84,
+       "failure_rate": 0.04175,
+       "correct": 1928,
+       "wrong": 84,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 84
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2012,
+       "failures": 27,
+       "failure_rate": 0.013419,
+       "correct": 1985,
+       "wrong": 27,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1188,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 2009,
+         "failures": 27
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 5,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 27,
+       "failures": 4,
+       "failure_rate": 0.148148,
+       "correct": 23,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 27,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 27,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 0
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 1,
+       "failure_rate": 0.045455,
+       "correct": 21,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 22,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "shapely": {
+   "library": "GEOS (through Shapely)",
+   "lib": "geos@3.13.1+shapely@2.1.2",
+   "version": "GEOS 3.13.1, Shapely 2.1.2",
+   "commit": null,
+   "upstream": "https://github.com/shapely/shapely",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 558,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 3200,
+       "failures": 162,
+       "failure_rate": 0.050625,
+       "correct": 3038,
+       "wrong": 162,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 100
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 62
+        }
+       }
+      },
+      "predicates": {
+       "graded": 3200,
+       "failures": 103,
+       "failure_rate": 0.032188,
+       "correct": 3097,
+       "wrong": 103,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 78
+        },
+        "normal": {
+         "graded": 2967,
+         "failures": 25
+        }
+       }
+      },
+      "validity": {
+       "graded": 3400,
+       "failures": 45,
+       "failure_rate": 0.013235,
+       "correct": 3355,
+       "wrong": 43,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 45
+        },
+        "normal": {
+         "graded": 3132,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2990,
+       "failures": 68,
+       "failure_rate": 0.022742,
+       "correct": 2922,
+       "wrong": 47,
+       "error": 21,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 34
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 34
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 2990,
+       "failures": 66,
+       "failure_rate": 0.022074,
+       "correct": 2924,
+       "wrong": 54,
+       "error": 12,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 61
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 11
+       }
+      },
+      "overlay.difference": {
+       "graded": 2990,
+       "failures": 50,
+       "failure_rate": 0.016722,
+       "correct": 2940,
+       "wrong": 33,
+       "error": 17,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 34
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 16
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 5
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2990,
+       "failures": 64,
+       "failure_rate": 0.021405,
+       "correct": 2926,
+       "wrong": 52,
+       "error": 12,
+       "convention": 0,
+       "unsupported": 210,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 194,
+         "failures": 58
+        },
+        "normal": {
+         "graded": 2796,
+         "failures": 6
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 11
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 10,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "capabilities": {
+      "relate": {
+       "graded": 28,
+       "failures": 4,
+       "failure_rate": 0.142857,
+       "correct": 24,
+       "wrong": 4,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 4
+        }
+       }
+      },
+      "predicates": {
+       "graded": 28,
+       "failures": 3,
+       "failure_rate": 0.107143,
+       "correct": 25,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 3
+        }
+       }
+      },
+      "validity": {
+       "graded": 28,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 28,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 28,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 23,
+       "failures": 1,
+       "failure_rate": 0.043478,
+       "correct": 22,
+       "wrong": 0,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 23,
+       "failures": 1,
+       "failure_rate": 0.043478,
+       "correct": 22,
+       "wrong": 1,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 23,
+       "failures": 1,
+       "failure_rate": 0.043478,
+       "correct": 22,
+       "wrong": 0,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 1
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 23,
+       "failures": 0,
+       "failure_rate": 0.0,
+       "correct": 23,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 11,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 23,
+         "failures": 0
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "turf": {
+   "library": "Turf",
+   "lib": "turf@7.4.0",
+   "version": "7.4.0 (@turf/turf)",
+   "commit": null,
+   "upstream": "https://github.com/Turfjs/turf",
+   "tiers": {
+    "core": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 3400,
+      "run": 3400,
+      "scored": 3400
+     },
+     "headline_failures": 2846,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77+dirty",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 3200,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 3000,
+       "failures": 1392,
+       "failure_rate": 0.464,
+       "correct": 1608,
+       "wrong": 1384,
+       "error": 8,
+       "convention": 0,
+       "unsupported": 200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 233,
+         "failures": 115
+        },
+        "normal": {
+         "graded": 2767,
+         "failures": 1277
+        }
+       }
+      },
+      "validity": {
+       "graded": 3297,
+       "failures": 547,
+       "failure_rate": 0.165908,
+       "correct": 2750,
+       "wrong": 547,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 103,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 268,
+         "failures": 90
+        },
+        "normal": {
+         "graded": 3029,
+         "failures": 457
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 2000,
+       "failures": 239,
+       "failure_rate": 0.1195,
+       "correct": 1761,
+       "wrong": 230,
+       "error": 9,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 237
+        }
+       },
+       "topological": {
+        "invalid_output": 74,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 18,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.union": {
+       "graded": 2000,
+       "failures": 232,
+       "failure_rate": 0.116,
+       "correct": 1768,
+       "wrong": 219,
+       "error": 13,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 232
+        }
+       },
+       "topological": {
+        "invalid_output": 86,
+        "invalid_output_exact_point_set": 10,
+        "invalid_output_within_rounding": 37,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 2000,
+       "failures": 274,
+       "failure_rate": 0.137,
+       "correct": 1726,
+       "wrong": 264,
+       "error": 10,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 274
+        }
+       },
+       "topological": {
+        "invalid_output": 88,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 24,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 2000,
+       "failures": 162,
+       "failure_rate": 0.081,
+       "correct": 1697,
+       "wrong": 279,
+       "error": 24,
+       "convention": 0,
+       "unsupported": 1200,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 141,
+       "by_range": {
+        "extreme": {
+         "graded": 3,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 1997,
+         "failures": 162
+        }
+       },
+       "topological": {
+        "invalid_output": 135,
+        "invalid_output_exact_point_set": 13,
+        "invalid_output_within_rounding": 92,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    },
+    "curated": {
+     "date": "2026-09-26",
+     "cases": {
+      "total": 34,
+      "run": 34,
+      "scored": 34
+     },
+     "headline_failures": 29,
+     "timeouts": 0,
+     "crashes": 0,
+     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77+dirty",
+     "capabilities": {
+      "relate": {
+       "graded": 0,
+       "failures": 0,
+       "failure_rate": null,
+       "correct": 0,
+       "wrong": 0,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 28,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {}
+      },
+      "predicates": {
+       "graded": 27,
+       "failures": 16,
+       "failure_rate": 0.592593,
+       "correct": 11,
+       "wrong": 16,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 16
+        }
+       }
+      },
+      "validity": {
+       "graded": 27,
+       "failures": 2,
+       "failure_rate": 0.074074,
+       "correct": 25,
+       "wrong": 2,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 1,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 27,
+         "failures": 2
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 22,
+       "failures": 2,
+       "failure_rate": 0.090909,
+       "correct": 20,
+       "wrong": 2,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.union": {
+       "graded": 22,
+       "failures": 2,
+       "failure_rate": 0.090909,
+       "correct": 20,
+       "wrong": 2,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 1,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.difference": {
+       "graded": 22,
+       "failures": 3,
+       "failure_rate": 0.136364,
+       "correct": 19,
+       "wrong": 3,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 3
+        }
+       },
+       "topological": {
+        "invalid_output": 3,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 22,
+       "failures": 4,
+       "failure_rate": 0.181818,
+       "correct": 15,
+       "wrong": 7,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 12,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 3,
+       "by_range": {
+        "normal": {
+         "graded": 22,
+         "failures": 4
+        }
+       },
+       "topological": {
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 0
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

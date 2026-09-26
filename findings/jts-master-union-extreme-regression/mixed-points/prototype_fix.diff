@@ -1,0 +1,66 @@
+diff --git a/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java b/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java
+index 4bfa7a39..1130a55c 100644
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java
+@@ -153,6 +153,11 @@ class OverlayMixedPoints {
+     List<Polygon> resultPolyList = null;
+     if (geomNonPointDim == 2) {
+       resultPolyList = extractPolygons(geomNonPoint);
++      /**
++       * With a fixed precision model the union of the areal input can also
++       * contain lines from collapsed polygons (non-strict mode)
++       */
++      resultLineList = extractLines(geomNonPoint);
+     }
+     
+     return OverlayUtil.createResultGeometry(resultPolyList, resultLineList, resultPointList, geometryFactory);
+@@ -234,9 +239,9 @@ class OverlayMixedPoints {
+   private static List<Polygon> extractPolygons(Geometry geom) {
+     List<Polygon> list = new ArrayList<Polygon>();
+     for (int i = 0; i < geom.getNumGeometries(); i++) {
+-      Polygon poly = (Polygon) geom.getGeometryN(i);
+-      if(! poly.isEmpty()) {
+-        list.add(poly);
++      Geometry elem = geom.getGeometryN(i);
++      if (elem instanceof Polygon && ! elem.isEmpty()) {
++        list.add((Polygon) elem);
+       }
+     }
+     return list;
+@@ -245,9 +250,9 @@ class OverlayMixedPoints {
+   private static List<LineString> extractLines(Geometry geom) {
+     List<LineString> list = new ArrayList<LineString>();
+     for (int i = 0; i < geom.getNumGeometries(); i++) {
+-      LineString line = (LineString) geom.getGeometryN(i);
+-      if (! line.isEmpty()) {
+-        list.add(line);
++      Geometry elem = geom.getGeometryN(i);
++      if (elem instanceof LineString && ! elem.isEmpty()) {
++        list.add((LineString) elem);
+       }
+     }
+     return list;
+diff --git a/modules/core/src/test/java/org/locationtech/jts/operation/overlayng/OverlayNGMixedPointsTest.java b/modules/core/src/test/java/org/locationtech/jts/operation/overlayng/OverlayNGMixedPointsTest.java
+index 0fd20207..662291df 100644
+--- a/modules/core/src/test/java/org/locationtech/jts/operation/overlayng/OverlayNGMixedPointsTest.java
++++ b/modules/core/src/test/java/org/locationtech/jts/operation/overlayng/OverlayNGMixedPointsTest.java
+@@ -25,6 +25,19 @@ public class OverlayNGMixedPointsTest extends GeometryTestCase {
+     Geometry expected = read("POINT (5 1)");
+     checkEqual(expected, OverlayNGTest.intersection(a, b, 1));
+   }
++  /**
++   * With a fixed precision model the thin triangle collapses to a line.
++   * The union with a point must not fail (it threw ClassCastException),
++   * and must keep the collapse line, as the union with a line or polygon does.
++   */
++  public void testPolygonCollapseUnion() {
++    Geometry a = read("MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0)))");
++    Geometry b = read("POINT (7 7)");
++    Geometry expected = read("GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))");
++    checkEqual(expected, OverlayNGTest.union(a, b, 1));
++    checkEqual(expected, OverlayNGTest.symDifference(a, b, 1));
++  }
++
+   public void testSimpleLineUnion() {
+     Geometry a = read("LINESTRING (1 1, 9 1)");
+     Geometry b = read("POINT (5 1)");

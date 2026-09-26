@@ -1,0 +1,31 @@
+jts-core commit 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd
+JTS 1.21.0 SNAPSHOT
+
+case 1 point on the shared edge of two squares, GC has a POLYGON EMPTY (GEOS: SIGSEGV)
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  isValid(A) = true, isValid(B) = true
+  expected relate(A,B)      = 0FFFFF212
+  RelateNG.relate(A,B)      = 0FFFFF212   ok
+  RelateNG.relate(B,A)      = 0F2FF1FF2
+  RelateNG intersects(A,B)  = true
+
+case 2 GC(point, LINESTRING EMPTY) vs POINT EMPTY (GEOS: SIGSEGV)
+  A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
+  B = POINT EMPTY
+  isValid(A) = true, isValid(B) = true
+  expected relate(A,B)      = FF0FFFFF2
+  RelateNG.relate(A,B)      = THROWS java.lang.NullPointerException: Cannot invoke "org.locationtech.jts.operation.relateng.LinearBoundary.hasBoundary()" because "this.lineBoundary" is null
+      at org.locationtech.jts.operation.relateng.RelatePointLocator.hasBoundary(RelatePointLocator.java:99)   <-- WRONG
+  RelateNG.relate(B,A)      = THROWS java.lang.NullPointerException: Cannot invoke "org.locationtech.jts.operation.relateng.LinearBoundary.hasBoundary()" because "this.lineBoundary" is null
+      at org.locationtech.jts.operation.relateng.RelatePointLocator.hasBoundary(RelatePointLocator.java:99)
+  RelateNG intersects(A,B)  = false
+
+case 3 GC(line, POLYGON EMPTY) vs a disjoint point (GEOS: wrong matrix)
+  A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
+  B = POINT (5 5)
+  isValid(A) = true, isValid(B) = true
+  expected relate(A,B)      = FF1FF00F2
+  RelateNG.relate(A,B)      = FF2FF10F2   <-- WRONG
+  RelateNG.relate(B,A)      = FF0FFF212
+  RelateNG intersects(A,B)  = false

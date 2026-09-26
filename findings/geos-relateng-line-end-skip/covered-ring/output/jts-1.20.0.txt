@@ -1,0 +1,12 @@
+# covered-ring/Repro.java, jts-1.20.0 (jts-core-1.20.0.jar)
+JTS 1.20.0
+case 1                     RelateNG.relate = FF210F102 ok     Geometry.relate (RelateOp) = FF210F102  exact FF210F102
+case 1, operands swapped   RelateNG.relate = F11F002F2 ok     Geometry.relate (RelateOp) = F11F002F2  exact F11F002F2
+case 2 (rectangle)         RelateNG.relate = FF210F102 ok     Geometry.relate (RelateOp) = FF210F102  exact FF210F102
+case 3 (one LineString)    RelateNG.relate = FF210F1F2 ok     Geometry.relate (RelateOp) = FF210F1F2  exact FF210F1F2
+case 4 (hole touch)        RelateNG.relate = FF2101FF2 ok     Geometry.relate (RelateOp) = FF2101FF2  exact FF2101FF2
+case 5 (touching parts)    RelateNG.relate = FF2101FF2 ok     Geometry.relate (RelateOp) = FF2101FF2  exact FF2101FF2
+case 6 (GC as B)           RelateNG.relate = 2FF11F212 ok     Geometry.relate (RelateOp) = (n/a: GC)  exact 2FF11F212
+case 4: RelateNG contains = false (exact false), touches = true (exact true)
+case 5: RelateNG covers = true (exact true)
+case 6: RelateNG within = true (exact true), contains(B, A) = true (exact true)

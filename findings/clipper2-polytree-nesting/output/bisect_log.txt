@@ -1,0 +1,16 @@
+# bad: [ef88ee97c0e759792e43a2b2d8072def6c9244e8] Release version 1.5.4
+# good: [736ddb0b53d97fd5f65dd3d9bbf8a0993eaf387c] Release version to 1.4.0
+git bisect start 'ef88ee97c0e759792e43a2b2d8072def6c9244e8' '736ddb0b53d97fd5f65dd3d9bbf8a0993eaf387c'
+# good: [e39a44f51606369725e9ce6830573290863bea91] Version 1.5.1
+git bisect good e39a44f51606369725e9ce6830573290863bea91
+# bad: [f8dced506fb3decb433845de7af5459cbe130428] Fixed a performance bug introduced in very recent commit (PR #965)
+git bisect bad f8dced506fb3decb433845de7af5459cbe130428
+# good: [ca6e8fd58e30521115d5b83ee785b90cea07c059] InflatePaths - fixed issue with no ArcTolerance scaling (#949) clipper.offset.cpp - fixed missing PreserveCollinear assignment (#951)
+git bisect good ca6e8fd58e30521115d5b83ee785b90cea07c059
+# good: [3dd975ad6d6d770ed5be02e5b898a0937c21b806] Fixed UInt128Struct broken in previous 2 commits (C++)
+git bisect good 3dd975ad6d6d770ed5be02e5b898a0937c21b806
+# bad: [459cf52da5683fd59f1afcf64916d6d900cd53a5] Fixed trivial bug in previous commit.
+git bisect bad 459cf52da5683fd59f1afcf64916d6d900cd53a5
+# bad: [e8ebdef0931771443be86c092874e1bb0b51038a] Fixed incorrect Polytree ownership following clipping op. (#957) Fixed obscure clipper offset bug (PR #965)
+git bisect bad e8ebdef0931771443be86c092874e1bb0b51038a
+# first bad commit: [e8ebdef0931771443be86c092874e1bb0b51038a] Fixed incorrect Polytree ownership following clipping op. (#957) Fixed obscure clipper offset bug (PR #965)

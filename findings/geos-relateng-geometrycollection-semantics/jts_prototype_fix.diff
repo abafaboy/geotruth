@@ -1,0 +1,258 @@
+diff -u jts-orig/AdjacentEdgeLocator.java jts-fix/AdjacentEdgeLocator.java
+--- jts-orig/AdjacentEdgeLocator.java	2026-09-26 07:57:33.357262098 +0000
++++ jts-fix/AdjacentEdgeLocator.java	2026-09-26 07:57:33.385130111 +0000
+@@ -39,7 +39,9 @@
+  */
+ class AdjacentEdgeLocator {
+ 
+-  private List<Coordinate[]> ringList;;
++  private List<Coordinate[]> ringList;
++  private List<int[]> ringIds = new ArrayList<int[]>();
++  private int polyCount = 0;
+ 
+   public AdjacentEdgeLocator(Geometry geom) {
+     init(geom);
+@@ -47,15 +49,15 @@
+ 
+   public int locate(Coordinate p) {
+     NodeSections sections = new NodeSections(p);
+-    for (Coordinate[] ring : ringList) {
+-      addSections(p, ring, sections);
++    for (int k = 0; k < ringList.size(); k++) {
++      addSections(p, ringList.get(k), ringIds.get(k), sections);
+     }
+     RelateNode node = sections.createNode();
+     //node.finish(false, false);
+     return node.hasExteriorEdge(true) ? Location.BOUNDARY : Location.INTERIOR;
+   }
+ 
+-  private void addSections(Coordinate p, Coordinate[] ring, NodeSections sections) {
++  private void addSections(Coordinate p, Coordinate[] ring, int[] ids, NodeSections sections) {
+     for (int i = 0; i < ring.length - 1; i++) {
+       Coordinate p0 = ring[i];
+       Coordinate pnext = ring[i + 1];
+@@ -67,19 +69,19 @@
+       else if (p.equals2D(p0)) {
+         int iprev = i > 0 ? i - 1 : ring.length - 2; 
+         Coordinate pprev = ring[iprev];
+-        sections.addNodeSection(createSection(p, pprev, pnext));
++        sections.addNodeSection(createSection(p, pprev, pnext, ids));
+       }
+       else if (PointLocation.isOnSegment(p, p0, pnext)) {
+-        sections.addNodeSection(createSection(p, p0, pnext));
++        sections.addNodeSection(createSection(p, p0, pnext, ids));
+       }
+     }
+   }
+ 
+-  private NodeSection createSection(Coordinate p, Coordinate prev, Coordinate next) {
++  private NodeSection createSection(Coordinate p, Coordinate prev, Coordinate next, int[] ids) {
+     if (prev.distance(p) == 0 || next.distance(p) == 0) {
+       System.out.println("Found zero-length section segment");
+     };
+-    NodeSection ns = new NodeSection(true, Dimension.A, 1, 0, null, false, prev, p, next);
++    NodeSection ns = new NodeSection(true, Dimension.A, ids[0], ids[1], null, false, prev, p, next);
+     return ns;
+   }
+ 
+@@ -93,11 +95,12 @@
+   private void addRings(Geometry geom, List<Coordinate[]> ringList2) {
+     if (geom instanceof Polygon) {
+       Polygon poly = (Polygon) geom;
++      int polyId = polyCount++;
+       LinearRing shell = poly.getExteriorRing();
+-      addRing(shell, true);
++      addRing(shell, true, polyId, 0);
+       for (int i = 0; i < poly.getNumInteriorRing(); i++) {
+         LinearRing hole = poly.getInteriorRingN(i);
+-        addRing(hole, false);
++        addRing(hole, false, polyId, i + 1);
+       }
+     }
+     else if (geom instanceof GeometryCollection) {
+@@ -108,10 +111,11 @@
+     }
+   }
+ 
+-  private void addRing(LinearRing ring, boolean requireCW) {
++  private void addRing(LinearRing ring, boolean requireCW, int polyId, int ringId) {
+     //TODO: remove repeated points?
+     Coordinate[] pts = RelateGeometry.orient(ring.getCoordinates(), requireCW);  
+     ringList.add(pts);
++    ringIds.add(new int[] { polyId, ringId });
+   }
+ 
+ }
+diff -u jts-orig/NodeSections.java jts-fix/NodeSections.java
+--- jts-orig/NodeSections.java	2026-09-26 07:57:33.360851123 +0000
++++ jts-fix/NodeSections.java	2026-09-26 07:57:33.384107573 +0000
+@@ -36,6 +36,25 @@
+     sections.add(e);
+   }
+   
++  /**
++   * Tests whether all sections are area sections of one geometry,
++   * from at least two of its elements.
++   */
++  public boolean hasAreaSectionsOfSeveralElements() {
++    if (sections.size() < 2) return false;
++    NodeSection first = sections.get(0);
++    boolean isSeveral = false;
++    for (NodeSection ns : sections) {
++      if (ns.isA() != first.isA() || ! ns.isArea()) return false;
++      if (ns.id() != first.id()) isSeveral = true;
++    }
++    return isSeveral;
++  }
++
++  public boolean isA() {
++    return sections.get(0).isA();
++  }
++
+   public boolean hasInteractionAB() {
+     boolean isA = false;
+     boolean isB = false;
+diff -u jts-orig/RelateNG.java jts-fix/RelateNG.java
+--- jts-orig/RelateNG.java	2026-09-26 07:57:33.364424818 +0000
++++ jts-fix/RelateNG.java	2026-09-26 07:57:33.385201791 +0000
+@@ -508,6 +508,18 @@
+     Coordinate pt = ring.getCoordinate();
+     
+     int locArea = geom.locateAreaVertex(pt);
++    if (locArea == Location.INTERIOR) {
++      //-- a vertex inside another polygon of a GC says nothing about the union boundary,
++      //-- so use a ring vertex on the union boundary, if there is one
++      Coordinate[] pts = ring.getCoordinates();
++      for (int i = 1; i < pts.length - 1; i++) {
++        if (geom.locateAreaVertex(pts[i]) == Location.BOUNDARY) {
++          pt = pts[i];
++          locArea = Location.BOUNDARY;
++          break;
++        }
++      }
++    }
+     int locDimTarget = geomTarget.locateWithDim(pt);
+     int locTarget = DimensionLocation.location(locDimTarget);
+     int dimTarget = DimensionLocation.dimension(locDimTarget, topoComputer.getDimension(! isA));
+diff -u jts-orig/RelateNode.java jts-fix/RelateNode.java
+--- jts-orig/RelateNode.java	2026-09-26 07:57:33.353466967 +0000
++++ jts-fix/RelateNode.java	2026-09-26 07:57:33.384492196 +0000
+@@ -60,14 +60,15 @@
+       //-- assumes node edges have CW orientation (as per JTS norm)
+       //-- entering edge - interior on L
+       RelateEdge e0 = addAreaEdge(ns.isA(), ns.getVertex(0), false);
++      //-- check the sector e0 was inserted into, before e1 is added
++      updateIfAreaPrev(ns.isA(), edges.indexOf(e0));
+       //-- exiting edge - interior on R
+       RelateEdge e1 = addAreaEdge(ns.isA(), ns.getVertex(1), true);
++      updateIfAreaNext(ns.isA(), edges.indexOf(e1));
+ 
+       int index0 = edges.indexOf(e0);
+       int index1 = edges.indexOf(e1);
+       updateEdgesInArea(ns.isA(), index0, index1);
+-      updateIfAreaPrev(ns.isA(), index0);
+-      updateIfAreaNext(ns.isA(), index1);
+     }
+   }
+ 
+@@ -82,6 +83,7 @@
+   
+   private void updateIfAreaPrev(boolean isA, int index) {
+     int indexPrev = prevIndex(edges, index);
++    if (indexPrev == index) return;
+     RelateEdge edgePrev = edges.get(indexPrev);
+     if (edgePrev.isInterior(isA, Position.LEFT)) {
+       RelateEdge edge = edges.get(index);
+@@ -91,6 +93,7 @@
+   
+   private void updateIfAreaNext(boolean isA, int index) {
+     int indexNext = nextIndex(edges, index);
++    if (indexNext == index) return;
+     RelateEdge edgeNext = edges.get(indexNext);
+     if (edgeNext.isInterior(isA, Position.RIGHT)) {
+       RelateEdge edge = edges.get(index);
+@@ -169,7 +172,7 @@
+ //Debug.println("After: " + this);
+   }
+   
+-  private void finishNode(boolean isA, boolean isAreaInterior) {
++  void finishNode(boolean isA, boolean isAreaInterior) {
+     if (isAreaInterior) {
+       RelateEdge.setAreaInterior(edges, isA);
+     }
+diff -u jts-orig/TopologyComputer.java jts-fix/TopologyComputer.java
+--- jts-orig/TopologyComputer.java	2026-09-26 07:57:33.349912058 +0000
++++ jts-fix/TopologyComputer.java	2026-09-26 07:57:33.383992870 +0000
+@@ -287,9 +287,16 @@
+       /**
+        * If a point intersects an area target, then the area interior and boundary
+        * must extend beyond the point and thus interact with its exterior.
++       * Only the neighbourhood of the point can be used:
++       * the point may be an element of a mixed GeometryCollection
++       * whose other elements cover the rest of the target.
++       * (For a puntal geometry these entries are set by initExteriorDims.)
+        */
+-      updateDim(isPointA, Location.EXTERIOR, Location.INTERIOR, Dimension.A);      
+-      updateDim(isPointA, Location.EXTERIOR, Location.BOUNDARY, Dimension.L);      
++      if (locTarget == Location.EXTERIOR)
++        return;
++      updateDim(isPointA, Location.EXTERIOR, Location.INTERIOR, Dimension.A);
++      if (locTarget == Location.BOUNDARY)
++        updateDim(isPointA, Location.EXTERIOR, Location.BOUNDARY, Dimension.L);
+       return;
+     }
+     throw new IllegalStateException("Unknown target dimension: " + dimTarget);
+@@ -318,6 +325,12 @@
+     //-- Line and Area targets may have additional topology
+     switch (dimTarget) {
+     case Dimension.P:
++      /**
++       * The line end is on a Point (for instance a Point element of a mixed GC),
++       * so some length of the line interior is in the target exterior.
++       * (For a puntal target this entry is set by initExteriorDims.)
++       */
++      updateDim(isLineA, Location.INTERIOR, Location.EXTERIOR, Dimension.L);
+       return;
+     case Dimension.L:
+       addLineEndOnLine(isLineA, locLineEnd, locTarget, pt);
+@@ -489,6 +502,40 @@
+         if (isResultKnown())
+           return;
+       }
++      else if (nodeSections.hasAreaSectionsOfSeveralElements()) {
++        evaluateCollectionNode(nodeSections);
++        if (isResultKnown())
++          return;
++      }
++    }
++  }
++
++  /**
++   * Evaluates a node where polygons of one GeometryCollection meet
++   * but the other geometry has no edge.
++   * The union boundary there may belong to no input ring
++   * (e.g. a hole formed by several overlapping polygons),
++   * so it is seen nowhere else.
++   * The node's location in the other geometry is constant around the node.
++   */
++  private void evaluateCollectionNode(NodeSections nodeSections) {
++    Coordinate p = nodeSections.getCoordinate();
++    boolean isA = nodeSections.isA();
++    RelateGeometry geom = isA ? geomA : geomB;
++    RelateGeometry geomOther = isA ? geomB : geomA;
++    int locDimOther = geomOther.locateWithDim(p);
++    int locOther = DimensionLocation.location(locDimOther);
++    if (locOther == Location.BOUNDARY)
++      return;
++    if (locOther == Location.INTERIOR && DimensionLocation.dimension(locDimOther) != Dimension.A)
++      return;
++    RelateNode node = nodeSections.createNode();
++    boolean isAreaInterior = geom.isNodeInArea(p, nodeSections.getPolygonal(isA));
++    node.finishNode(isA, isAreaInterior);
++    for (RelateEdge e : node.getEdges()) {
++      updateDim(isA, e.location(isA, Position.LEFT), locOther, Dimension.A);
++      updateDim(isA, e.location(isA, Position.RIGHT), locOther, Dimension.A);
++      updateDim(isA, e.location(isA, Position.ON), locOther, Dimension.L);
+     }
+   }
+ 

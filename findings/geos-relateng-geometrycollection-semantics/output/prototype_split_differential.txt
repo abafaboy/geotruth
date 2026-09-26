@@ -1,0 +1,12 @@
+# each prototype patch alone on GEOS main ae9cdd9, then all three, over the 6 sweep families (33,719 cases);
+# GEOSRelate(A,B) and GEOSRelate(B,A) against the exact matrix (geotruth arrangement route)
+# fixed = wrong on main, exact with the patch; broken = exact on main, wrong with the patch
+# class = which single-fix experiment build (on top of the other findings' fixes) corrects the case:
+#   'other finding' = already corrected by the other findings' fixes (GH-1201 self-noding, line-end/area-vertex skip, real dimension)
+patch 1  : {'fixed, class D1': 689, 'fixed, class other finding': 1}
+patch 2  : {'broken': 10, 'fixed, class D2': 260}
+patch 3  : {'fixed, class D3': 32, 'fixed, class other finding': 19}
+patch all: {'fixed, class D1': 689, 'fixed, class D2': 260, 'fixed, class D3': 32, 'fixed, class other finding': 20}
+# the 10 cases broken by patch 2 alone are all in adj-4: A = GC(notched polygon, polygon covering the notch), B far away;
+# patch 2 correctly makes the first ring vertex (the covered reflex vertex) INTERIOR, which unmasks the area-vertex
+# skip of geos-relateng-line-end-skip (9 cases) or the no-boundary-vertex form of D3 (1 case); patch 2 + patch 3 breaks nothing.

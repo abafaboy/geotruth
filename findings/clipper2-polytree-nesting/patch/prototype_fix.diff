@@ -1,0 +1,34 @@
+diff --git a/CPP/Clipper2Lib/include/clipper2/clipper.h b/CPP/Clipper2Lib/include/clipper2/clipper.h
+index fe1e299..a59addd 100644
+--- a/CPP/Clipper2Lib/include/clipper2/clipper.h
++++ b/CPP/Clipper2Lib/include/clipper2/clipper.h
+@@ -736,7 +736,28 @@ namespace Clipper2Lib {
+         break;
+       }
+     }
+-    if (pip != PointInPolygonResult::IsInside) return false;
++    if (pip != PointInPolygonResult::IsInside)
++    {
++      // No vertex of path1 is inside path2: every vertex is on path2, except
++      // perhaps one that rounding has put just outside. The vertices cannot
++      // decide, so let the midpoints of path1's edges vote (both paths are
++      // doubled so that the midpoints are exact grid points).
++      Path<T> path2x2;
++      path2x2.reserve(path2.size());
++      for (const Point<T>& pt : path2) path2x2.emplace_back(pt.x * 2, pt.y * 2);
++      int inside = 0, outside = 0;
++      for (size_t i = 0, j = path1.size() - 1; i < path1.size(); j = i++)
++      {
++        Point<T> mid(path1[i].x + path1[j].x, path1[i].y + path1[j].y);
++        switch (PointInPolygon(mid, path2x2))
++        {
++        case PointInPolygonResult::IsInside: ++inside; break;
++        case PointInPolygonResult::IsOutside: ++outside; break;
++        default: break;
++        }
++      }
++      return inside > outside;
++    }
+     // result is likely true but check midpoint
+     Point<T> mp1 = GetBounds(path1).MidPoint();
+     return PointInPolygon(mp1, path2) == PointInPolygonResult::IsInside;

@@ -61,7 +61,9 @@ operands back as `JSON.parse` read them.
   **derived**, `union(difference(A, B), difference(B, A))` with `turf.union` (what a Turf
   user would write), and the manifest says so, so the scorer counts it once when a
   difference is wrong too. A boolean function that throws "... not supported" for a type
-  pair (for example `booleanCrosses` of two polygons) is `"unsupported"`.
+  pair (for example `booleanCrosses` of two polygons) is `"unsupported"`, and so is
+  `booleanOverlap` of operands of different dimensions, which it rejects with "features
+  must be of the same type" (Turf documents it for same-dimension pairs only).
 - **polygon-clipping, polyclip-ts, martinez**: `intersection`, `union`, `difference`
   (martinez: `diff`), `xor` of the coordinate arrays. They clip polygons only: other
   operand types are `"unsupported"`.

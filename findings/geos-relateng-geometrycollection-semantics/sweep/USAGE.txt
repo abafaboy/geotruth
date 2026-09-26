@@ -1,0 +1,23 @@
+Sweeps used by ISSUE.md sections 5 and 6 (run from a scratch directory; paths to the geotruth
+checkout are hard-coded as /home/user/geotruth).
+
+  python3 sweep.py mix 4000 1      # mix-1.tsv + mix-1.exact (exact relate(A,B), arrangement route)
+  python3 sweep.py ovl 4000 2
+  python3 sweep.py mix2 4000 3
+  python3 sweep.py adj 4000 4
+  python3 sweep.py frame 3000 5
+  python3 xsweep.py xc             # tools/crosscheck_relate.py sources (lattice, dense, adversarial, exhaustive)
+
+  cc -O1 rbatch.c $(geos-config --cflags) $(geos-config --clibs) -o rb   # one binary per GEOS build
+  ./rb < mix-1.tsv > mix-1.main     # "relate(A,B) relate(B,A) predicate-bits" per line
+
+  python3 compare.py mix-1 main [other builds...]   # wrong counts and diff signatures
+  python3 listwrong.py mix-1 main [other builds...] # the wrong cases
+  python3 inexact.py mix-1 build                    # do the wrong cases have a non-dyadic node?
+  python3 attrib.py mix-1 ...                       # needs outputs main, eX, eXM, eXN, eXHV, eallV
+
+experiment_toggles.diff: GEOS main + the line-end-skip finding's two patches, plus environment
+switches used to attribute cases: RNG_X (self-node B, the covered-ring experiment), RNG_SEG (real
+dimension, the segfault finding's fix), RNG_FM/RNG_FL (D1), RNG_FN (D2), RNG_FH/RNG_FV (D3).
+Build names in attrib.txt: eX = RNG_X+RNG_SEG; eXM = eX+FM+FL; eXN = eX+FN; eXHV = eX+FH+FV;
+eallV = all switches.

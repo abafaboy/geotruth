@@ -1,0 +1,21 @@
+# JTS core JUnit tests (modules/core/src/test/java with the 3 tests added by prototype_fix.diff;
+# all 245 *Test classes, JUnit 4.13.1), run with the patched jts-core (master 3ea61f8 +
+# prototype_fix.diff) and with unpatched master 3ea61f8 (same compiled tests).
+# Besides real failures, JUnitCore lists 34 'warning' entries (abstract or non-test classes matched by
+# *Test) and 2 initializationErrors (QuadtreeCorrectTest, BinTreeCorrectTest are main() programs);
+# these 36 entries are the same with and without the patch.
+
+## master 3ea61f8 + prototype_fix.diff
+Tests run: 2348,  Failures: 36
+      1 initializationError(org.locationtech.jts.index.bintree.BinTreeCorrectTest)
+      1 initializationError(org.locationtech.jts.index.quadtree.QuadtreeCorrectTest)
+     34 warning(junit.framework.TestSuite$1)
+
+## master 3ea61f8 (unpatched)
+Tests run: 2348,  Failures: 39
+      1 initializationError(org.locationtech.jts.index.bintree.BinTreeCorrectTest)
+      1 initializationError(org.locationtech.jts.index.quadtree.QuadtreeCorrectTest)
+      1 testLargeCoordinatesSelfUnion(org.locationtech.jts.operation.overlayng.OverlayNGRobustTest)
+      1 testLargeToleranceDoesNotSnapDistantPoints(org.locationtech.jts.index.kdtree.KdTreeTest)
+      1 testZeroToleranceKeepsTinyDistinctPoints(org.locationtech.jts.index.kdtree.KdTreeTest)
+     34 warning(junit.framework.TestSuite$1)

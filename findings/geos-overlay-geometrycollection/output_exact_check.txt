@@ -1,0 +1,115 @@
+GEOS isValid via shapely 2.1.2 (GEOS 3.13.1)
+
+1a-gc-polygon-symdiff-point  symdifference  [D1 symdifference]
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = POINT (3 3)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)), POINT (3 3))   = recorded
+  geos_main  POLYGON ((0 0, 0 4, 4 0, 0 0))   certificate: vertex at (3 3), located E in A and I in B: R must give I, but gives E
+  geos_3150  POLYGON ((0 0, 0 4, 4 0, 0 0))   certificate: vertex at (3 3), located E in A and I in B: R must give I, but gives E
+  hand (indep.py): POINT (3 3) vs the triangle: out
+
+1b-gc-empty-polygon-symdiff-point  symdifference  [D1 symdifference]
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT (1 1)   = recorded
+  geos_main  POINT EMPTY   certificate: vertex at (1 1), located E in A and I in B: R must give I, but gives E
+  geos_3150  POINT EMPTY   certificate: vertex at (1 1), located E in A and I in B: R must give I, but gives E
+  hand (indep.py): GC(POLYGON EMPTY) has no points: A xor B = B: True
+
+1c-point-symdiff-mixed-gc  symdifference  [D1 symdifference]
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))   = recorded
+  geos_main  POINT (1 0)   certificate: edge at (1/2 0), located E in A and I in B: R must give I, but gives E; edge at (3/2 0), located E in A and I in B: R must give I, but gives E; vertex at (0 0), located E in A and B in B: R must give I or B, but gives E (+2 more)
+  geos_3150  POINT (1 0)   certificate: edge at (1/2 0), located E in A and I in B: R must give I, but gives E; edge at (3/2 0), located E in A and I in B: R must give I, but gives E; vertex at (0 0), located E in A and B in B: R must give I or B, but gives E (+2 more)
+  hand (indep.py): (1 0) on segment (0 0)-(2 0): True
+  hand (indep.py): (3 3) on segment (0 0)-(2 0): False
+
+1d-equal-point-sets-symdiff  symdifference  [D1 symdifference]
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))
+  B = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POLYGON EMPTY   = recorded
+  geos_main  LINESTRING (0 1, 2 1)   certificate: edge at (1 1), located I in A and I in B: R must give E, but gives I; vertex at (0 1), located B in A and B in B: R must give E, but gives B; vertex at (2 1), located B in A and B in B: R must give E, but gives B
+  geos_3150  LINESTRING (0 1, 2 1)   certificate: edge at (1 1), located I in A and I in B: R must give E, but gives I; vertex at (0 1), located B in A and B in B: R must give E, but gives B; vertex at (2 1), located B in A and B in B: R must give E, but gives B
+  hand (indep.py): (0 1) on the square's boundary: on
+  hand (indep.py): (2 1) on the square's boundary: on
+  hand (indep.py): (1 1) inside the square: in
+
+2a-point-difference-mixed-gc  difference  [D2 difference]
+  A = POINT (1 0)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT EMPTY   = recorded
+  geos_main  POINT (1 0)   certificate: vertex at (1 0), located I in A and I in B: R must give E, but gives I
+  geos_3150  POINT (1 0)   certificate: vertex at (1 0), located I in A and I in B: R must give E, but gives I
+  hand (indep.py): (1 0) on segment (0 0)-(2 0): True
+
+3a-gc-empty-polygon-intersection-point  intersection  [D3 assertion]
+  A = GEOMETRYCOLLECTION (POLYGON EMPTY)
+  B = POINT (1 1)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT EMPTY   = recorded
+  geos_main  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  geos_3150  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  hand (indep.py): an empty operand: the intersection is empty: True
+
+3b-point-empty-intersection-gc-polygon  intersection  [D3 assertion]
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT EMPTY   = recorded
+  geos_main  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  geos_3150  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  hand (indep.py): an empty operand: the intersection is empty: True
+
+3c-point-empty-difference-gc-polygon  difference  [D3 assertion]
+  A = POINT EMPTY
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT EMPTY   = recorded
+  geos_main  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  geos_3150  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  hand (indep.py): an empty first operand: the difference is empty: True
+
+3d-mixed-gc-intersection-multipolygon-empty  intersection  [D3 assertion]
+  A = GEOMETRYCOLLECTION (POINT (0 2), LINESTRING (0 0, 6 0))
+  B = MULTIPOLYGON EMPTY
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) LINESTRING EMPTY   = recorded
+  geos_main  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  geos_3150  EXCEPTION: AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension
+  hand (indep.py): an empty operand: the intersection is empty: True
+
+4a-point-on-prenoded-line  intersection  [D4 pre-noding (secondary)]
+  A = POINT (3 2)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT (3 2)   = recorded
+  geos_main  POINT EMPTY   certificate: vertex at (3 2), located I in A and I in B: R must give I, but gives E
+  geos_3150  POINT EMPTY   certificate: vertex at (3 2), located I in A and I in B: R must give I, but gives E
+  hand (indep.py): (3 2) on segment (0 4)-(6 0): True
+
+4b-segment-on-prenoded-line  intersection  [D4 pre-noding (secondary)]
+  A = LINESTRING (3 2, 6 0)
+  B = GEOMETRYCOLLECTION (MULTILINESTRING ((0 2, 2 4), (0 4, 6 0)), POINT (9 9))
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) LINESTRING (3 2, 6 0)   = recorded
+  geos_main  POINT (6 0)   certificate: edge at (9/2 1), located I in A and I in B: R must give I, but gives E; vertex at (3 2), located B in A and I in B: R must give I or B, but gives E
+  geos_3150  POINT (6 0)   certificate: edge at (9/2 1), located I in A and I in B: R must give I, but gives E; vertex at (3 2), located B in A and I in B: R must give I or B, but gives E
+  hand (indep.py): (3 2) on segment (0 4)-(6 0): True
+  hand (indep.py): (6 0) on segment (0 4)-(6 0): True
+
+5a-nested-empty-gc  intersection  [D5 nested GEOMETRYCOLLECTION EMPTY (minor)]
+  A = LINESTRING (0 0, 1 1)
+  B = GEOMETRYCOLLECTION (LINESTRING (0 1, 1 0), GEOMETRYCOLLECTION EMPTY)
+  valid (exact) A=True B=True; GEOS isValid A=True B=True
+  exact (geotruth, certified) POINT (0.5 0.5)   = recorded
+  geos_main  EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension
+  geos_3150  EXCEPTION: IllegalArgumentException: Overlay input is mixed-dimension
+  hand (indep.py): (1/2 1/2) on both segments: True
+
+all exact answers and hand facts as recorded

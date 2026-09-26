@@ -1,0 +1,29 @@
+diff --git a/src/operation/relateng/AdjacentEdgeLocator.cpp b/src/operation/relateng/AdjacentEdgeLocator.cpp
+index aeb5f80..7dfd32d 100644
+--- a/src/operation/relateng/AdjacentEdgeLocator.cpp
++++ b/src/operation/relateng/AdjacentEdgeLocator.cpp
+@@ -113,6 +113,9 @@ void
+ AdjacentEdgeLocator::addRings(const Geometry* geom)
+ {
+     if (const Polygon* poly = dynamic_cast<const Polygon*>(geom)) {
++        //-- an empty polygon has no rings to add
++        if (poly->isEmpty())
++            return;
+         const LinearRing* shell = poly->getExteriorRing();
+         addRing(shell, true);
+         for (std::size_t i = 0; i < poly->getNumInteriorRing(); i++) {
+diff --git a/src/operation/relateng/TopologyComputer.cpp b/src/operation/relateng/TopologyComputer.cpp
+index e911bc6..fd60452 100644
+--- a/src/operation/relateng/TopologyComputer.cpp
++++ b/src/operation/relateng/TopologyComputer.cpp
+@@ -124,7 +124,9 @@ TopologyComputer::isAreaArea() const
+ int
+ TopologyComputer::getDimension(bool isA) const
+ {
+-    return getGeometry(isA).getDimension();
++    //-- the real dimension: a GeometryCollection's getDimension()
++    //-- also counts its EMPTY elements
++    return getGeometry(isA).getDimensionReal();
+ }
+ 
+ 

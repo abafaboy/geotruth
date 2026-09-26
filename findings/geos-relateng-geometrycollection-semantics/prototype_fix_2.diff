@@ -1,0 +1,171 @@
+diff --git a/include/geos/operation/relateng/AdjacentEdgeLocator.h b/include/geos/operation/relateng/AdjacentEdgeLocator.h
+index 3a84a79c6..fe1eef563 100644
+--- a/include/geos/operation/relateng/AdjacentEdgeLocator.h
++++ b/include/geos/operation/relateng/AdjacentEdgeLocator.h
+@@ -18,6 +18,7 @@
+ #include <geos/geom/CoordinateSequence.h>
+ #include <geos/geom/Location.h>
+ #include <geos/export.h>
++#include <utility>
+ 
+ 
+ // Forward declarations
+@@ -85,6 +86,14 @@ private:
+ 
+     std::vector<const CoordinateSequence*> ringList;
+ 
++    /*
++     * The polygon and ring index of each ring, so that the sections of the
++     * rings of one polygon are merged, and different polygons (which may
++     * overlap) are added to the node separately.
++     */
++    std::vector<std::pair<int, int>> ringIds;
++    int polyCount = 0;
++
+     /*
+      * When we have to reorient rings, we end up allocating new
+      * rings, since we cannot reorient the rings of the input
+@@ -98,18 +107,20 @@ private:
+     void addSections(
+         const CoordinateXY* p,
+         const CoordinateSequence* ring,
++        std::pair<int, int> ids,
+         NodeSections& sections);
+ 
+     NodeSection* createSection(
+         const CoordinateXY* p,
+         const CoordinateXY* prev,
+-        const CoordinateXY* next);
++        const CoordinateXY* next,
++        std::pair<int, int> ids);
+ 
+     void init(const Geometry* geom);
+ 
+     void addRings(const Geometry* geom);
+ 
+-    void addRing(const LinearRing* ring, bool requireCW);
++    void addRing(const LinearRing* ring, bool requireCW, int polyId, int ringId);
+ 
+ 
+ };
+diff --git a/src/operation/relateng/AdjacentEdgeLocator.cpp b/src/operation/relateng/AdjacentEdgeLocator.cpp
+index aeb5f8084..23752d8fb 100644
+--- a/src/operation/relateng/AdjacentEdgeLocator.cpp
++++ b/src/operation/relateng/AdjacentEdgeLocator.cpp
+@@ -48,8 +48,8 @@ Location
+ AdjacentEdgeLocator::locate(const CoordinateXY* p)
+ {
+     NodeSections sections(p);
+-    for (const CoordinateSequence* ring : ringList) {
+-        addSections(p, ring, sections);
++    for (std::size_t k = 0; k < ringList.size(); k++) {
++        addSections(p, ringList[k], ringIds[k], sections);
+     }
+     std::unique_ptr<RelateNode> node = sections.createNode();
+ 
+@@ -62,6 +62,7 @@ void
+ AdjacentEdgeLocator::addSections(
+     const CoordinateXY* p,
+     const CoordinateSequence* ring,
++    std::pair<int, int> ids,
+     NodeSections& sections)
+ {
+     for (std::size_t i = 0; i < ring->getSize() - 1; i++) {
+@@ -74,11 +75,11 @@ AdjacentEdgeLocator::addSections(
+         else if (p->equals2D(p0)) {
+             std::size_t iprev = i > 0 ? i - 1 : ring->getSize() - 2;
+             const CoordinateXY& pprev = ring->getAt(iprev);
+-            NodeSection *ns = createSection(p, &pprev, &pnext);
++            NodeSection *ns = createSection(p, &pprev, &pnext, ids);
+             sections.addNodeSection(ns);
+         }
+         else if (PointLocation::isOnSegment(*p, p0, pnext)) {
+-            NodeSection *ns = createSection(p, &p0, &pnext);
++            NodeSection *ns = createSection(p, &p0, &pnext, ids);
+             sections.addNodeSection(ns);
+         }
+     }
+@@ -89,12 +90,13 @@ AdjacentEdgeLocator::addSections(
+ NodeSection*
+ AdjacentEdgeLocator::createSection(const CoordinateXY* p,
+     const CoordinateXY* prev,
+-    const CoordinateXY* next)
++    const CoordinateXY* next,
++    std::pair<int, int> ids)
+ {
+     if (prev->distance(*p) == 0 || next->distance(*p) == 0) {
+         //System.out.println("Found zero-length section segment");
+     };
+-    return new NodeSection(true, Dimension::A, 1, 0, nullptr, false, prev, *p, next);
++    return new NodeSection(true, Dimension::A, ids.first, ids.second, nullptr, false, prev, *p, next);
+ }
+ 
+ 
+@@ -113,11 +115,12 @@ void
+ AdjacentEdgeLocator::addRings(const Geometry* geom)
+ {
+     if (const Polygon* poly = dynamic_cast<const Polygon*>(geom)) {
++        int polyId = polyCount++;
+         const LinearRing* shell = poly->getExteriorRing();
+-        addRing(shell, true);
++        addRing(shell, true, polyId, 0);
+         for (std::size_t i = 0; i < poly->getNumInteriorRing(); i++) {
+             const LinearRing* hole = poly->getInteriorRingN(i);
+-            addRing(hole, false);
++            addRing(hole, false, polyId, static_cast<int>(i) + 1);
+         }
+     }
+     else if (geom->isCollection()) {
+@@ -131,8 +134,9 @@ AdjacentEdgeLocator::addRings(const Geometry* geom)
+ 
+ /* private */
+ void
+-AdjacentEdgeLocator::addRing(const LinearRing* ring, bool requireCW)
++AdjacentEdgeLocator::addRing(const LinearRing* ring, bool requireCW, int polyId, int ringId)
+ {
++    ringIds.emplace_back(polyId, ringId);
+     //TODO: remove repeated points?
+     const CoordinateSequence* pts = ring->getCoordinatesRO();
+     bool isFlipped = requireCW == Orientation::isCCW(pts);
+diff --git a/src/operation/relateng/RelateNode.cpp b/src/operation/relateng/RelateNode.cpp
+index 626b97122..89252692e 100644
+--- a/src/operation/relateng/RelateNode.cpp
++++ b/src/operation/relateng/RelateNode.cpp
+@@ -101,14 +101,17 @@ RelateNode::addEdges(const NodeSection* ns)
+         //-- assumes node edges have CW orientation (as per JTS norm)
+         //-- entering edge - interior on L
+         const RelateEdge* e0 = addAreaEdge(ns->isA(), ns->getVertex(0), false);
++        //-- check the sector e0 was inserted into, before e1 is added
++        if (e0 != nullptr)
++            updateIfAreaPrev(ns->isA(), indexOf(edges, e0));
+         //-- exiting edge - interior on R
+         const RelateEdge* e1 = addAreaEdge(ns->isA(), ns->getVertex(1), true);
++        if (e1 != nullptr)
++            updateIfAreaNext(ns->isA(), indexOf(edges, e1));
+ 
+         std::size_t index0 = indexOf(edges, e0);
+         std::size_t index1 = indexOf(edges, e1);
+         updateEdgesInArea(ns->isA(), index0, index1);
+-        updateIfAreaPrev(ns->isA(), index0);
+-        updateIfAreaNext(ns->isA(), index1);
+     }
+ }
+ 
+@@ -131,6 +134,8 @@ void
+ RelateNode::updateIfAreaPrev(bool isA, std::size_t index)
+ {
+     std::size_t indexPrev = prevIndex(edges, index);
++    if (indexPrev == index)
++        return;
+     auto& edgePrev = edges[indexPrev];
+     if (edgePrev->isInterior(isA, Position::LEFT)) {
+         std::unique_ptr<RelateEdge>& edge = edges[index];
+@@ -144,6 +149,8 @@ void
+ RelateNode::updateIfAreaNext(bool isA, std::size_t index)
+ {
+     std::size_t indexNext = nextIndex(edges, index);
++    if (indexNext == index)
++        return;
+     auto& edgeNext = edges[indexNext];
+     if (edgeNext->isInterior(isA, Position::RIGHT)) {
+         auto& edge = edges[index];

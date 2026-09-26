@@ -1,0 +1,53 @@
+# covered-ring/repro.c, GEOS 3.15.0 d0228513abb0c29c185443cf2bfb06c9281024b5
+GEOS 3.15.0-CAPI-1.21.0
+
+case 1: B = A's boundary ring + a segment starting at (1 0) on it
+  A = POLYGON ((0 0, 2 0, 1 1, 0 0))   (valid=1)
+  B = MULTILINESTRING ((0 0, 2 0, 1 1, 0 0), (1 0, 1 -1))   (valid=1)
+  relate(A, B)         = FF2101102   expected FF210F102   WRONG
+  preparedRelate(A, B) = FF2101102   expected FF210F102   WRONG
+  covers(B, boundary(A))          = 1   expected 1   ok
+  relatePattern(A, B, "*****F***") = 0   expected 1   WRONG
+case 1, operands swapped (expected = transpose)
+  A = MULTILINESTRING ((0 0, 2 0, 1 1, 0 0), (1 0, 1 -1))   (valid=1)
+  B = POLYGON ((0 0, 2 0, 1 1, 0 0))   (valid=1)
+  relate(A, B)         = F11F002F2   expected F11F002F2   ok
+  preparedRelate(A, B) = F11F002F2   expected F11F002F2   ok
+case 1 with (1 0) added as a vertex of B's ring (same point sets)
+  A = POLYGON ((0 0, 2 0, 1 1, 0 0))   (valid=1)
+  B = MULTILINESTRING ((0 0, 1 0, 2 0, 1 1, 0 0), (1 0, 1 -1))   (valid=1)
+  relate(A, B)         = FF210F102   expected FF210F102   ok
+  preparedRelate(A, B) = FF210F102   expected FF210F102   ok
+
+case 2: the same with a rectangle
+  A = POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))   (valid=1)
+  B = MULTILINESTRING ((0 0, 2 0, 2 1, 0 1, 0 0), (1 0, 1 -1))   (valid=1)
+  relate(A, B)         = FF2101102   expected FF210F102   WRONG
+  preparedRelate(A, B) = FF2101102   expected FF210F102   WRONG
+case 3: B is a single self-touching LineString
+  A = POLYGON ((0 0, 2 0, 1 1, 0 0))   (valid=1)
+  B = LINESTRING (0 0, 2 0, 1 1, 0 0, 1 -1, 1 0)   (valid=1)
+  relate(A, B)         = FF21011F2   expected FF210F1F2   WRONG
+  preparedRelate(A, B) = FF21011F2   expected FF210F1F2   WRONG
+
+case 4: polygon whose hole touches the shell at (2 0), vs the shell's bottom edge
+  A = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))   (valid=1)
+  B = LINESTRING (0 0, 4 0)   (valid=1)
+  relate(A, B)         = 1F2101FF2   expected FF2101FF2   WRONG
+  preparedRelate(A, B) = 1F2101FF2   expected FF2101FF2   WRONG
+  case 4: contains=1(WRONG) touches=0(WRONG) covers=1 preparedContains=1(WRONG) preparedTouches=0(WRONG) preparedCovers=1
+case 5: MultiPolygon whose parts touch at (1 2), vs the square's top edge
+  A = MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))   (valid=1)
+  B = LINESTRING (0 2, 2 2)   (valid=1)
+  relate(A, B)         = FF21011F2   expected FF2101FF2   WRONG
+  preparedRelate(A, B) = FF21011F2   expected FF2101FF2   WRONG
+  case 5: contains=0 touches=1 covers=0(WRONG) preparedContains=0 preparedTouches=1 preparedCovers=0(WRONG)
+
+case 6: polygon inside the union of two overlapping polygons of a GC
+  A = POLYGON ((0 0, 0 3, 3 3, 3 2, 0 0))   (valid=1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0)), POLYGON ((1 0, 2 0, 2 4, 1 4, 1 0)))   (valid=1)
+  relate(A, B)         = 212111212   expected 2FF11F212   WRONG
+  preparedRelate(A, B) = 212111212   expected 2FF11F212   WRONG
+  case 6: within(A, B)=0(WRONG) contains(B, A)=1
+
+20 wrong result(s)

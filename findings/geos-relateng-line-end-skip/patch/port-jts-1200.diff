@@ -1,0 +1,98 @@
+diff --git a/include/geos/operation/relateng/RelateNG.h b/include/geos/operation/relateng/RelateNG.h
+index 66f3839..400c96f 100644
+--- a/include/geos/operation/relateng/RelateNG.h
++++ b/include/geos/operation/relateng/RelateNG.h
+@@ -92,6 +92,7 @@ class GEOS_DLL RelateNG {
+     using Envelope = geos::geom::Envelope;
+     using SegmentString = geos::noding::SegmentString;
+     using IntersectionMatrix = geos::geom::IntersectionMatrix;
++    using Location = geos::geom::Location;
+ 
+ private:
+ 
+@@ -136,9 +137,10 @@ private:
+      * @param pt
+      * @param geomTarget
+      * @param topoComputer
+-     * @return true if the line endpoint is in the exterior of the target
++     * @return the location of the line end (INTERIOR or BOUNDARY) if it is in
++     *         the exterior of the target, otherwise Location::NONE
+      */
+-    bool computeLineEnd(RelateGeometry& geom, bool isA, const CoordinateXY* pt, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
++    Location computeLineEnd(RelateGeometry& geom, bool isA, const CoordinateXY* pt, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
+ 
+     bool computeAreaVertex(RelateGeometry& geom, bool isA, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
+ 
+diff --git a/src/operation/relateng/RelateNG.cpp b/src/operation/relateng/RelateNG.cpp
+index 8342fe8..36b2110 100644
+--- a/src/operation/relateng/RelateNG.cpp
++++ b/src/operation/relateng/RelateNG.cpp
+@@ -519,7 +519,8 @@ RelateNG::computeLineEnds(
+         return false;
+     }
+ 
+-    bool hasExteriorIntersection = false;
++    bool hasInteriorExteriorIntersection = false;
++    bool hasBoundaryExteriorIntersection = false;
+     std::vector<const Geometry*> elems;
+     GeometryLister::list(geom.getGeometry(), elems);
+     for (const Geometry* elem : elems) {
+@@ -528,22 +529,26 @@ RelateNG::computeLineEnds(
+ 
+         if (elem->getGeometryTypeId() == GEOS_LINESTRING ||
+             elem->getGeometryTypeId() == GEOS_LINEARRING) {
+-            //-- once an intersection with target exterior is recorded, skip further known-exterior points
+-            if (hasExteriorIntersection
++            //-- once intersections with target exterior are recorded for both line-interior and line-boundary ends,
++            //-- skip further known-exterior line components (optimization)
++            if (hasInteriorExteriorIntersection && hasBoundaryExteriorIntersection
+                 && elem->getEnvelopeInternal()->disjoint(geomTarget.getEnvelope()))
+                 continue;
+ 
+             const LineString* line = static_cast<const LineString*>(elem);
+-            //TODO: add optimization to skip disjoint elements once exterior point found
+             const CoordinateXY& e0 = line->getCoordinatesRO()->getAt(0);
+-            hasExteriorIntersection |= computeLineEnd(geom, isA, &e0, geomTarget, topoComputer);
++            Location loc0 = computeLineEnd(geom, isA, &e0, geomTarget, topoComputer);
++            if (loc0 == Location::INTERIOR) hasInteriorExteriorIntersection = true;
++            else if (loc0 == Location::BOUNDARY) hasBoundaryExteriorIntersection = true;
+             if (topoComputer.isResultKnown()) {
+                 return true;
+             }
+ 
+             if (! line->isClosed()) {
+                 const CoordinateXY& e1 = line->getCoordinatesRO()->getAt(line->getNumPoints() - 1);
+-                hasExteriorIntersection |= computeLineEnd(geom, isA, &e1, geomTarget, topoComputer);
++                Location loc1 = computeLineEnd(geom, isA, &e1, geomTarget, topoComputer);
++                if (loc1 == Location::INTERIOR) hasInteriorExteriorIntersection = true;
++                else if (loc1 == Location::BOUNDARY) hasBoundaryExteriorIntersection = true;
+                 if (topoComputer.isResultKnown()) {
+                     return true;
+                 }
+@@ -556,7 +561,7 @@ RelateNG::computeLineEnds(
+ 
+ 
+ /* private */
+-bool
++Location
+ RelateNG::computeLineEnd(RelateGeometry& geom, bool isA, const CoordinateXY* pt,
+       RelateGeometry& geomTarget, TopologyComputer& topoComputer)
+ {
+@@ -564,13 +569,15 @@ RelateNG::computeLineEnd(RelateGeometry& geom, bool isA, const CoordinateXY* pt,
+     int dimLineEnd = DimensionLocation::dimension(locDimLineEnd, topoComputer.getDimension(isA));
+     //-- skip line ends which are in a GC area
+     if (dimLineEnd != Dimension::L)
+-        return false;
++        return Location::NONE;
+     Location locLineEnd = DimensionLocation::location(locDimLineEnd);
+     int locDimTarget = geomTarget.locateWithDim(pt);
+     Location locTarget = DimensionLocation::location(locDimTarget);
+     int dimTarget = DimensionLocation::dimension(locDimTarget, topoComputer.getDimension(! isA));
+     topoComputer.addLineEndOnGeometry(isA, locLineEnd, locTarget, dimTarget, pt);
+-    return locTarget == Location::EXTERIOR;
++    if (locTarget == Location::EXTERIOR)
++        return locLineEnd;
++    return Location::NONE;
+ }
+ 
+ /* private */

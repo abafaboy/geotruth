@@ -1,0 +1,36 @@
+# Registry snippet for findings/registry.toml (not merged there; same keys as registry entries).
+
+[[finding]]
+id = "geos-overlay-geometrycollection"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "overlay with a GeometryCollection operand that HeuristicOverlay hands to StructuredCollection (a mixed-dimension GC, or any GC with a polygonal element, even POLYGON EMPTY): (D1) symdifference drops the other operand's points and lines and keeps its own where the other covers them (GC(POLYGON((0 0,4 0,0 4,0 0))) xor POINT(3 3) = the polygon alone; exact GC(polygon, POINT(3 3))); (D2) difference keeps points of A on lines of B (POINT(1 0) minus GC(LINESTRING(0 0,2 0), POINT(3 3)) = POINT(1 0), exact POINT EMPTY); (D3) intersection/difference throw AssertionFailedException 'Unable to determine overlay result geometry dimension' when one operand has no non-empty element (GC(POLYGON EMPTY) and POINT(1 1); exact POINT EMPTY)"
+fields = ["overlay.intersection", "overlay.difference", "overlay.symdifference"]
+families = ["empty"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 (head on 2026-09-26): D1, D2, D3 wrong",
+    "GEOS 3.15.0 d0228513abb0c29c185443cf2bfb06c9281024b5: D1, D2, D3 wrong (identical to main)",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) and 3.13.1 (Shapely 2.1.2 wheel): D1, D2, D3 wrong",
+    "GEOS 3.13.0 d7957246c (before GH-1229): D1 on mixed GCs and D2 wrong; D1 on simple GCs and D3 correct",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel): all cases correct",
+    "GEOS main + prototype_fix.diff: D1, D2, D3 correct; unit HeuristicOverlay 17/17, ctest 535/535",
+    "JTS master 3ea61f8 and 1.20.0: not affected (Geometry.symDifference/difference reject GC operands as documented; OverlayNGRobust correct on the simple-GC cases)",
+]
+cases = "findings/geos-overlay-geometrycollection/cases.jsonl"
+repro = "findings/geos-overlay-geometrycollection/repro.c"
+evidence = "findings/geos-overlay-geometrycollection/ISSUE.md"
+links = [
+    "https://github.com/libgeos/geos/pull/923",
+    "https://github.com/libgeos/geos/issues/797",
+    "https://github.com/libgeos/geos/pull/1229",
+    "https://github.com/libgeos/geos/issues/1224",
+    "https://github.com/libgeos/geos/issues/948",
+    "https://github.com/libgeos/geos/issues/1023",
+    "https://github.com/duckdb/duckdb-spatial/issues/803",
+    "https://github.com/locationtech/jts/issues/667",
+]
+upstream_issue = ""
+supersedes_lead = "geos-overlay-empty-vs-gc-assertion"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the report drafted for libgeos/geos, with a patch). All three defects are in StructuredCollection (src/geom/HeuristicOverlay.cpp): doSymDifference computes one-sided DIFFERENCE for lines and points (lines 505-528); doDifference subtracts A's own lines instead of a.getLineUnion() from A's points (lines 488-491); the dimension of an operand without non-empty elements stays Dimension::DONTCARE (HeuristicOverlay.h:67), so OverlayUtil::createEmptyResult(-3) asserts. Contract: cases 1a, 1b, 3a-3c meet even OverlayNG's own input requirements (simple GCs) and GEOS*Prec_r(..., 0) gets them right; the mixed-GC cases are supported by the public API since 3.12 (NEWS GH-797), and the C API documents no restriction (the C++ Geometry.h '@throws IllegalArgumentException for a non-empty GeometryCollection' is stale). D1/D2 date from #923 (3.12.0); D3 and D1 on simple polygonal GCs from #1229 (3.14.0, backported to 3.12.3 and 3.13.1). Two further mechanisms are documented in ISSUE.md but not claimed as contract violations: D4 (the GC's lines are pre-noded on their own in floating point, so rounded nodes lose exact coincidences: POINT(3 2) and GC(MULTILINESTRING((0 2,2 4),(0 4,6 0)), POINT(9 9)) intersect to POINT EMPTY), and D5 (a nested GEOMETRYCOLLECTION EMPTY makes a lineal GC 'mixed-dimension': clear IllegalArgumentException). The lead's cases in tests/crosscheck/test_overlay_crosscheck.py (GEOS_GC_OVERLAY, GEOS_GC_EMPTY_ASSERTION) are D1, D2 and D3. No duplicate found upstream (libgeos/geos issues and PRs, shapely, jts; duckdb/duckdb-spatial#803 is a downstream report of D3). families: the superseded lead's cases are corpus family 'empty'; the other cases come from the adversarial generator of tools/crosscheck_overlay.py. Nothing has been posted."

@@ -1,0 +1,23 @@
+# pre-commit hooks (https://pre-commit.com): `pip install pre-commit && pre-commit install`.
+#
+# Only checks that never rewrite data files: the corpus, the expected answers, the findings
+# and the vendored references are kept byte for byte (their checksums are in manifests and
+# tests), so there are no whitespace or end-of-file fixers here.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.9  # keep in step with RUFF_VERSION in .github/workflows/ci.yml
+    hooks:
+      - id: ruff-check
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+        # the tracked corpus tiers and their exact answers are large on purpose
+        exclude: ^corpus/(cases|expected)/

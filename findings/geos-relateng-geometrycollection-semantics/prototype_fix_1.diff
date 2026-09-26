@@ -1,0 +1,35 @@
+diff --git a/src/operation/relateng/TopologyComputer.cpp b/src/operation/relateng/TopologyComputer.cpp
+index e911bc6f8..1421cd7b9 100644
+--- a/src/operation/relateng/TopologyComputer.cpp
++++ b/src/operation/relateng/TopologyComputer.cpp
+@@ -333,9 +336,16 @@ TopologyComputer::addPointOnGeometry(bool isPointA, Location locTarget, int dimT
+         /**
+          * If a point intersects an area target, then the area interior and boundary
+          * must extend beyond the point and thus interact with its exterior.
++         * Only the neighbourhood of the point can be used:
++         * the point may be an element of a mixed GeometryCollection
++         * whose other elements cover the rest of the target.
++         * (For a puntal geometry these entries are set by initExteriorDims.)
+          */
++        if (locTarget == Location::EXTERIOR)
++            return;
+         updateDim(isPointA, Location::EXTERIOR, Location::INTERIOR, Dimension::A);
+-        updateDim(isPointA, Location::EXTERIOR, Location::BOUNDARY, Dimension::L);
++        if (locTarget == Location::BOUNDARY)
++            updateDim(isPointA, Location::EXTERIOR, Location::BOUNDARY, Dimension::L);
+         return;
+     }
+     throw IllegalStateException("Unknown target dimension: " + std::to_string(dimTarget));
+@@ -357,6 +367,12 @@ TopologyComputer::addLineEndOnGeometry(bool isLineA, Location locLineEnd, Locati
+     //-- Line and Area targets may have additional topology
+     switch (dimTarget) {
+     case Dimension::P:
++        /**
++         * The line end is on a Point (for instance a Point element of a mixed GC),
++         * so some length of the line interior is in the target exterior.
++         * (For a puntal target this entry is set by initExteriorDims.)
++         */
++        updateDim(isLineA, Location::INTERIOR, Location::EXTERIOR, Dimension::L);
+         return;
+     case Dimension::L:
+         addLineEndOnLine(isLineA, locLineEnd, locTarget, pt);

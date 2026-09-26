@@ -43,7 +43,8 @@ supported = [
     "intersects", "disjoint", "touches", "overlaps", "contains", "within",  # boolean* with default options
     "equals",  # booleanEqual: structural vertex comparison after cleanCoords, not topological equality
     "area_inter", "area_union", "area_diff",  # turf.intersect / union / difference (polyclip-ts 0.16.8 inside)
-    # v2 paths (typed lines); the boolean functions' "... not supported" type pairs are "unsupported"
+    # v2 paths (typed lines); the boolean functions' "... not supported" type pairs, and
+    # booleanOverlap's "features must be of the same type" (different dimensions), are "unsupported"
     "echo",  # the operands as parsed (JSON.parse), written back by jsonOut
     "predicates.intersects", "predicates.disjoint", "predicates.touches",
     "predicates.crosses",  # booleanCrosses (not implemented for polygon/polygon: "unsupported")

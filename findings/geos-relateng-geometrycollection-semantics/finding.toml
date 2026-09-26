@@ -1,0 +1,90 @@
+# Registry snippets for findings/registry.toml (not merged there; same keys as registry entries).
+# The lead "geos-relateng-geometrycollection-semantics" splits into three independent RelateNG
+# defects, one [[finding]] each. All three share this directory (cases.jsonl, repro.*, ISSUE.md);
+# each has its own report. The lead's other two classes are covered by existing findings:
+# gc-overlapping-polygons = geos-relateng-line-end-skip/covered-ring (GH-1201 regression),
+# empty-element-dimension = geos-relateng-segfault (case 3). See ISSUE.md section 8.
+
+[[finding]]
+id = "geos-relateng-geometrycollection-semantics/d1-mixed-gc-exterior-inference"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG), mixed GeometryCollections: TopologyComputer::addPointOnGeometry (TopologyComputer.cpp:332-339) records Exterior x Interior = 2 and Exterior x Boundary = 1 for a Point element and an areal target even when the point is in the target's exterior (valid only for a puntal source), and addLineEndOnGeometry (359-360) records nothing for a line end on a Point element of a mixed target (Interior x Exterior = 1 lost): GC(square [0,4]^2, POINT (10 10)) vs square [1,2]^2 gives 212FF1212 (exact 212FF1FF2, contains false); LINESTRING (0 0, 1 0, 0 1, 0 0) is within GC(POINT (0 0), LINESTRING (5 5, 6 6)) (0FFFFF102, exact 0F1FFF102)"
+fields = ["relate", "predicates.contains", "predicates.covers", "predicates.within", "predicates.covered_by", "predicates.overlaps", "predicates.crosses"]
+families = ["gc", "witness-lattice:GC", "sweep:mix", "sweep:mix2"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel), 3.13.0 (d7957246, source build): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): polygon+point cases correct, line-end cases wrong differently",
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd and 1.20.0 (6e95fe82), RelateNG: identical wrong matrices",
+    "GEOS main + prototype_fix_1.diff: ctest 535/535; 689 of 33,719 sweep answers corrected, none broken",
+]
+cases = "findings/geos-relateng-geometrycollection-semantics/cases.jsonl"
+repro = "findings/geos-relateng-geometrycollection-semantics/repro.c"
+evidence = "findings/geos-relateng-geometrycollection-semantics/FINAL.md"
+links = [
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/TopologyComputer.cpp#L332-L339",
+    "https://github.com/libgeos/geos/issues/1148",
+    "https://github.com/locationtech/jts/pull/1069",
+    "https://github.com/libgeos/geos/issues/1022",
+    "https://github.com/libgeos/geos/issues/982",
+    "https://github.com/libgeos/geos/issues/981",
+]
+upstream_issue = ""
+supersedes_lead = "relateng-gc-polygon-with-exterior-point"
+notes = "Confirmed at triage; not yet reported (FINAL.md for GEOS, JTS_FINAL.md section 1 for JTS). No duplicate found; #1148/JTS #1069 fixed the covered-element case (correct on main), #1022/#981/#982 are pre-RelateNG GC reports that give the union-semantics answer on main. This is the mixed-gc class of tests/crosscheck/test_witness_vs_geos.py and supersedes the corpus/curated/leads.toml lead relateng-gc-polygon-with-exterior-point. The fix also corrects geos-relateng-segfault case 3 (the EMPTY-element wrong matrix) by a different route; that finding's getDimensionReal fix is still needed for its crashes."
+
+[[finding]]
+id = "geos-relateng-geometrycollection-semantics/d2-overlapping-sections"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG), GeometryCollections of overlapping polygons: RelateNode::addEdges (RelateNode.cpp:92-111) checks whether a new area edge fell into an already-interior sector only after both edges of the section are inserted, so overlapping sections keep EXTERIOR sides; AdjacentEdgeLocator (point on 2+ GC polygon boundaries) then returns BOUNDARY for an interior point and node evaluation mislabels edges: GC(arrowhead POLYGON ((0 0, 2 1, 4 0, 2 3, 0 0)), rectangle POLYGON ((1 0, 3 0, 3 1, 1 1, 1 0))) vs POINT (2 1) gives FF20F1FF2 (exact 0F2FF1FF2: contains false, touches true); also AdjacentEdgeLocator gives every ring section id 1 / ring 0 (holes treated as shells)"
+fields = ["relate", "predicates.contains", "predicates.covers", "predicates.touches", "predicates.crosses"]
+families = ["witness-lattice:GC", "crosscheck:dense-stacked", "sweep:adj"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel), 3.13.0 (d7957246): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): TopologyException (overlapping GCs unsupported before RelateNG)",
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd and 1.20.0 (6e95fe82), RelateNG: identical wrong matrices",
+    "GEOS main + prototype_fix_2.diff: ctest 535/535; 260 sweep answers corrected, but 10 broken on its own (unmasks the area-vertex skip / D3); with patches 1-3 together none broken",
+]
+cases = "findings/geos-relateng-geometrycollection-semantics/cases.jsonl"
+repro = "findings/geos-relateng-geometrycollection-semantics/repro.c"
+evidence = "findings/geos-relateng-geometrycollection-semantics/FINAL_2_overlapping_sections.md"
+links = [
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/RelateNode.cpp#L92-L111",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/AdjacentEdgeLocator.cpp#L47-L98",
+]
+upstream_issue = ""
+notes = "Confirmed at triage; not yet reported (FINAL_2_overlapping_sections.md, JTS_FINAL.md section 2). This is the gc-adjacent-edge / GEOS_POINT_LOCATION class of tests/crosscheck/test_relate_dual.py; the docstring of the gc-overlapping-polygons class in test_witness_vs_geos.py describes this mechanism, but its pinned case is the GH-1201 regression. Adjacent (non-overlapping) GC polygons are handled correctly. The patch must land with d3's (see ISSUE.md section 6). The AdjacentEdgeLocator empty-polygon crash of geos-relateng-segfault is in the same function (trivial rebase)."
+
+[[finding]]
+id = "geos-relateng-geometrycollection-semantics/d3-union-boundary"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG), GeometryCollections of overlapping polygons: parts of the union boundary away from the other geometry's edges are seen only through one tested vertex per ring (RelateNG::computeAreaVertex, RelateNG.cpp:619-630, TODO at 621) and nodes where the GC's own polygons cross are never evaluated (TopologyComputer::evaluateNodes, 533-543, only hasInteractionAB nodes): four overlapping strips forming a 3x3 frame with a 1x1 hole are equals/contains/covers the full square (2FFF1FFF2, exact 2FF11F2F2); rings starting at a vertex interior to the union lose BE (FF2FFF102, exact FF2FF1102)"
+fields = ["relate", "predicates.equals", "predicates.contains", "predicates.covers"]
+families = ["sweep:frame", "sweep:adj", "sweep:ovl"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel), 3.13.0 (d7957246): wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): TopologyException for the frame",
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd and 1.20.0 (6e95fe82), RelateNG: identical wrong matrices",
+    "GEOS main + prototype_fix_3.diff: ctest 535/535; 32 sweep answers of this class corrected (+19 area-vertex-skip cases), none broken; relate(square, frame) additionally needs the GH-1201 self-noding revert",
+]
+cases = "findings/geos-relateng-geometrycollection-semantics/cases.jsonl"
+repro = "findings/geos-relateng-geometrycollection-semantics/repro.c"
+evidence = "findings/geos-relateng-geometrycollection-semantics/FINAL_3_union_boundary.md"
+links = [
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/RelateNG.cpp#L619-L630",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/TopologyComputer.cpp#L533-L543",
+    "https://github.com/libgeos/geos/pull/1201",
+]
+upstream_issue = ""
+notes = "Confirmed at triage; not yet reported (FINAL_3_union_boundary.md, JTS_FINAL.md section 3). Found during this triage (not one of the lead's classes). GEOS contradicts itself: its point locator puts the frame's centre outside the frame and relate(unaryUnion(A), B) is exact. Related to the area-vertex part of geos-relateng-line-end-skip (the skip is safe only after a boundary vertex; this is the case of no boundary vertex tested at all). The prototype's extra node evaluation costs about 2.5x on a GC of 400 overlapping circles; the fix is a prototype, not a tuned implementation."

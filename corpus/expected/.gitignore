@@ -1,0 +1,4 @@
+# The full tier's answers are a release asset, like corpus/cases/full/: only their entry in
+# MANIFEST.json (sha256, size, status counts) is kept in git.
+full.jsonl
+*.tmp

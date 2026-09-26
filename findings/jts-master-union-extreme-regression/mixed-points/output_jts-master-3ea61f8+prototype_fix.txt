@@ -1,0 +1,35 @@
+=== jts-core master 3ea61f8 + prototype_fix.diff
+JTS 1.21.0 SNAPSHOT
+A = MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0)))
+P = POINT (7 7)
+precision model: Fixed (Scale=1.0)
+
+1. OverlayNG.overlay(A, P, op, new PrecisionModel(1))
+  INTERSECTION(A, P) = POINT EMPTY
+  INTERSECTION(P, A) = POINT EMPTY
+  UNION(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  UNION(P, A) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  DIFFERENCE(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0))
+  DIFFERENCE(P, A) = POINT (7 7)
+  SYMDIFFERENCE(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  SYMDIFFERENCE(P, A) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  expected UNION and SYMDIFFERENCE (non-strict, as for a line or polygon operand below):
+    GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+
+2. Strict mode (setStrictMode(true))
+  INTERSECTION(A, P) = POINT EMPTY
+  UNION(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+  DIFFERENCE(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0))
+  SYMDIFFERENCE(A, P) = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))
+
+3. The same A with a line or a polygon instead of the point (how collapses are treated)
+  UNION(A, LINESTRING (7 7, 8 8))         = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), LINESTRING (7 7, 8 8))
+  UNION(A, LINESTRING (7 7, 8 8)) strict  = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (7 7, 8 8))
+  UNION(A, POLYGON ((7 7, 8 7, 8 8, 7 7)))         = GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), POLYGON ((7 7, 8 8, 8 7, 7 7)), LINESTRING (3 0, 5 0))
+  UNION(A, POLYGON ((7 7, 8 7, 8 8, 7 7))) strict  = MULTIPOLYGON (((0 0, 0 2, 2 2, 2 0, 0 0)), ((7 7, 8 8, 8 7, 7 7)))
+
+4. OverlayNGRobust (floating precision) on the corpus case point-geometry-1-000016-in-hole.ba.int.extreme
+   (coordinates ~1e-161: the orientation underflow of JTS/GEOS at this scale collapses the small triangle,
+    then the same cast fails)
+  OverlayNGRobust.overlay(A, P, UNION) GeometryCollection with 4 elements
+  OverlayNGRobust.overlay(A, P, SYMDIFFERENCE) GeometryCollection with 4 elements

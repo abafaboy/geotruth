@@ -1,0 +1,8 @@
+== clipper2-polytree-nesting:medial-triangle
+  indep.py : area A 16, area B 4, inter 4, union 16, A-B 12, B-A 0, symdiff 12, selfcheck True
+  oracle.py: valid_a True valid_b True, exact inter 4, A-B 12, B-A 0
+  B vertices vs A: ['on', 'on', 'on'] ; centroid of B (Fraction(8, 3), Fraction(8, 3)) vs A: in , vs B: in
+== clipper2-polytree-nesting:inscribed-island
+  indep.py : area A 114, area B 15/2, inter 0, union 243/2, A-B 114, B-A 15/2, symdiff 243/2, selfcheck True
+  oracle.py: valid_a True valid_b True, exact inter 0, A-B 114, B-A 15/2
+  B vertices vs A: ['on', 'on', 'on'] ; centroid of B (Fraction(16, 3), Fraction(16, 3)) vs A: out , vs B: in

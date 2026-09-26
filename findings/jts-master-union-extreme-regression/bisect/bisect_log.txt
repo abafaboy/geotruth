@@ -1,0 +1,47 @@
+# git bisect of locationtech/jts 1.20.0 (good) .. master 3ea61f8 (bad).
+# Step script (bisect_step.sh): compile modules/core/src/main/java with javac, then run a check that
+# computes OverlayNGRobust.overlay(A, B, UNION) and exits 1 when the result is empty.
+
+## Bisect 1: the corpus case line-polygon-1-000090-along-edge-full.ba.int.extreme as is (max |ordinate| 3.8e220)
+# bad: [3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd] Update JTS_Version_History.md
+# good: [6e95fe82feb986a7aa657f4ffa406d8c290af509] Release version 1.20.0
+git bisect start 'master' '1.20.0'
+# bad: [6def33ad77fd3fb73327bbe58012ac9a9a57bdf1] Add CoverageCleaner test for snapping collapse
+git bisect bad 6def33ad77fd3fb73327bbe58012ac9a9a57bdf1
+# good: [d58ca0ccf1f2b750d03c599e997362c89e6d8757] Javadoc
+git bisect good d58ca0ccf1f2b750d03c599e997362c89e6d8757
+# good: [071d12be0107624d4b5bc32b1acedd06455ea41e] Add compactness function
+git bisect good 071d12be0107624d4b5bc32b1acedd06455ea41e
+# good: [681db792555da28047e60cfefd8cc9c8893fed67] Improve MIC unit tests
+git bisect good 681db792555da28047e60cfefd8cc9c8893fed67
+# good: [ae49a519499e4907a66bf1ceeee21fe260f31f0c] Remove unused import
+git bisect good ae49a519499e4907a66bf1ceeee21fe260f31f0c
+# good: [ff30268ba25863f2126e7aa94ddb728571555a7e] Update JTS_Version_History.md
+git bisect good ff30268ba25863f2126e7aa94ddb728571555a7e
+# bad: [0b68b9ec2002055e8fb0fbd57a57ffe6d866a5c9] Update JTS_Version_History.md
+git bisect bad 0b68b9ec2002055e8fb0fbd57a57ffe6d866a5c9
+# bad: [4668803bdf3c460c1ab35f8c0ba00752e0b3edd4] Add KdTree nearestNeighbor() and nearestNeighbors() (#1114)
+git bisect bad 4668803bdf3c460c1ab35f8c0ba00752e0b3edd4
+# first bad commit: [4668803bdf3c460c1ab35f8c0ba00752e0b3edd4] Add KdTree nearestNeighbor() and nearestNeighbors() (#1114)
+
+## Bisect 2: the same case divided by 2^194 (max |ordinate| 1.5e162)
+# bad: [3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd] Update JTS_Version_History.md
+# good: [6e95fe82feb986a7aa657f4ffa406d8c290af509] Release version 1.20.0
+git bisect start 'master' '1.20.0'
+# good: [6def33ad77fd3fb73327bbe58012ac9a9a57bdf1] Add CoverageCleaner test for snapping collapse
+git bisect good 6def33ad77fd3fb73327bbe58012ac9a9a57bdf1
+# good: [219f1f1fbc88eebdc1a06373514020553ee31a8c] Update JTS_Version_History.md
+git bisect good 219f1f1fbc88eebdc1a06373514020553ee31a8c
+# good: [0e963c01b1c163280e6dc617c8fef8a224f583d2] Update JTS_Version_History.md
+git bisect good 0e963c01b1c163280e6dc617c8fef8a224f583d2
+# bad: [52c5d988237367a01800f90b7f4ebbd9de60f8a9] OverlayEdge: Don't skip first point when adding coordinates (#1187)
+git bisect bad 52c5d988237367a01800f90b7f4ebbd9de60f8a9
+# good: [1ed12ea0fb9b53897beb3b31a99d1af554f613f6] Bump org.apache.commons:commons-lang3 from 3.7 to 3.18.0 (#1206)
+git bisect good 1ed12ea0fb9b53897beb3b31a99d1af554f613f6
+# good: [e29cf0e6650f375de80d91709e898a80fb100503] JTSOp method renames
+git bisect good e29cf0e6650f375de80d91709e898a80fb100503
+# good: [6f04fa834ebf086ec120c728f608dcdcf34c6c37] Avoid Coordinate allocations in Area and Length sequence computations (#1211)
+git bisect good 6f04fa834ebf086ec120c728f608dcdcf34c6c37
+# good: [909d8b2ca784873165bb6e15c5ef23842a808dd8] Use try-with-resources in WKT and WKB readers (#1210)
+git bisect good 909d8b2ca784873165bb6e15c5ef23842a808dd8
+# first bad commit: [52c5d988237367a01800f90b7f4ebbd9de60f8a9] OverlayEdge: Don't skip first point when adding coordinates (#1187)

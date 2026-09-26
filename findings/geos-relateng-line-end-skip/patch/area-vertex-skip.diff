@@ -1,0 +1,69 @@
+--- a/src/operation/relateng/RelateNG.cpp
++++ b/src/operation/relateng/RelateNG.cpp
+@@ -591,7 +591,10 @@
+     if (geomTarget.getDimension() < Dimension::L)
+         return false;
+ 
+-    bool hasExteriorIntersection = false;
++    //-- a BOUNDARY area vertex in the target exterior records every entry a further
++    //-- known-exterior polygon could add (IE, BE, EE); an INTERIOR one (a vertex inside
++    //-- another polygon of a GC) records only IE
++    bool hasBoundaryExteriorIntersection = false;
+ 
+     std::vector<const Geometry*> elems;
+     GeometryLister::list(geom.getGeometry(), elems);
+@@ -600,17 +603,19 @@
+             continue;
+ 
+         if (elem->getGeometryTypeId() == GEOS_POLYGON) {
+-            //-- once an intersection with target exterior is recorded, skip further known-exterior points
+-            if (hasExteriorIntersection && elem->getEnvelopeInternal()->disjoint(geomTarget.getEnvelope()))
++            //-- once a boundary intersection with target exterior is recorded, skip further known-exterior polygons
++            if (hasBoundaryExteriorIntersection && elem->getEnvelopeInternal()->disjoint(geomTarget.getEnvelope()))
+                 continue;
+ 
+             const Polygon* poly = static_cast<const Polygon*>(elem);
+-            hasExteriorIntersection |= computeAreaVertex(geom, isA, poly->getExteriorRing(), geomTarget, topoComputer);
++            if (computeAreaVertex(geom, isA, poly->getExteriorRing(), geomTarget, topoComputer) == Location::BOUNDARY)
++                hasBoundaryExteriorIntersection = true;
+             if (topoComputer.isResultKnown()) {
+                 return true;
+             }
+             for (std::size_t j = 0; j < poly->getNumInteriorRing(); j++) {
+-                hasExteriorIntersection |= computeAreaVertex(geom, isA, poly->getInteriorRingN(j), geomTarget, topoComputer);
++                if (computeAreaVertex(geom, isA, poly->getInteriorRingN(j), geomTarget, topoComputer) == Location::BOUNDARY)
++                    hasBoundaryExteriorIntersection = true;
+                 if (topoComputer.isResultKnown()) {
+                     return true;
+                 }
+@@ -622,7 +627,7 @@
+ 
+ 
+ /* private */
+-bool
++Location
+ RelateNG::computeAreaVertex(RelateGeometry& geom, bool isA, const LinearRing* ring, RelateGeometry& geomTarget, TopologyComputer& topoComputer)
+ {
+     //TODO: use extremal (highest) point to ensure one is on boundary of polygon cluster
+@@ -633,7 +638,9 @@
+     Location locTarget = DimensionLocation::location(locDimTarget);
+     int dimTarget = DimensionLocation::dimension(locDimTarget, topoComputer.getDimension(! isA));
+     topoComputer.addAreaVertex(isA, locArea, locTarget, dimTarget, pt);
+-    return locTarget == Location::EXTERIOR;
++    if (locTarget == Location::EXTERIOR)
++        return locArea;
++    return Location::NONE;
+ }
+ 
+ 
+--- a/include/geos/operation/relateng/RelateNG.h
++++ b/include/geos/operation/relateng/RelateNG.h
+@@ -144,7 +144,7 @@
+ 
+     bool computeAreaVertex(RelateGeometry& geom, bool isA, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
+ 
+-    bool computeAreaVertex(RelateGeometry& geom, bool isA, const LinearRing* ring, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
++    Location computeAreaVertex(RelateGeometry& geom, bool isA, const LinearRing* ring, RelateGeometry& geomTarget, TopologyComputer& topoComputer);
+ 
+     void computeAtEdges(RelateGeometry& geomB, TopologyComputer& topoComputer);
+ 

@@ -1,0 +1,332 @@
+# Nightly scoreboard (DESIGN.md §7): one job per library target builds the library from
+# upstream with the adapter's own build script, runs it over a corpus tier, scores it
+# against the committed exact answers and uploads the results; then the static site is
+# built from all of them and, on request, deployed to GitHub Pages and the run's summaries
+# are committed to the `data` branch.
+#
+# ---------------------------------------------------------------------------------------
+# DISABLED. This workflow is complete, but DESIGN.md §6-§7 keep it off until
+#   1. every failure cluster in findings/registry.toml has been triaged, and
+#   2. each library's maintainers have been shown their results (a preview build) before
+#      anything about their library is published.
+# Until then it runs only when started by hand (Actions > Nightly scoreboard > Run
+# workflow), and by default it neither deploys the site nor pushes data, and it stamps
+# every page as an unpublished preview. To enable the schedule, uncomment `schedule`
+# below. A scheduled run deploys the site (without the preview stamp) and pushes data.
+#
+# One-time repository settings for the deploy: Settings > Pages > Source = "GitHub
+# Actions". The `data` branch is created by the first run that pushes data.
+# ---------------------------------------------------------------------------------------
+
+name: Nightly scoreboard
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: "Comma-separated target ids (geotruth run --list), or 'all'"
+        type: string
+        default: all
+      tier:
+        description: "Corpus tier (its exact answers are committed in corpus/expected/)"
+        type: choice
+        options: [core, curated]
+        default: core
+      preview:
+        description: "Stamp every page as an unpublished preview (for maintainers)"
+        type: boolean
+        default: true
+      deploy_pages:
+        description: "Deploy the site to GitHub Pages"
+        type: boolean
+        default: false
+      push_data:
+        description: "Commit the run's summaries and provenance to the data branch"
+        type: boolean
+        default: false
+  # schedule:
+  #   - cron: "23 3 * * *"   # 03:23 UTC daily
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-scoreboard
+  cancel-in-progress: false
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+  SHAPELY_VERSION: "2.1.2"
+  # inputs are empty on a scheduled run: these are the scheduled defaults
+  TIER: ${{ inputs.tier || 'core' }}
+  PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.preview }}
+  DEPLOY_PAGES: ${{ github.event_name == 'schedule' || inputs.deploy_pages }}
+  PUSH_DATA: ${{ github.event_name == 'schedule' || inputs.push_data }}
+
+jobs:
+  plan:
+    name: plan (select targets)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Select the targets
+        id: plan
+        env:
+          WANT: ${{ inputs.targets || 'all' }}
+        # One entry per [[target]] of adapters/*/adapter.toml. `build` is the adapter's own
+        # build script (pinned upstream commits live in those scripts); `toolchain` picks the
+        # setup steps below; `apt` lists Ubuntu 24.04 packages the build needs.
+        run: |
+          python - <<'EOF'
+          import json, os, subprocess, sys
+
+          js = {"dir": "js", "build": "adapters/js/install.sh", "toolchain": "node", "apt": ""}
+          boost = {"dir": "boost_geometry", "toolchain": "cxx", "apt": "libboost-dev"}
+          TARGETS = [
+              {"id": "engine-control", "dir": "engine_control", "build": "", "toolchain": "python", "apt": ""},
+              {"id": "mutant", "dir": "mutant", "build": "", "toolchain": "python", "apt": ""},
+              {"id": "shapely", "dir": "shapely", "build": "", "toolchain": "shapely", "apt": ""},
+              {"id": "geos-main", "dir": "geos_main", "build": "adapters/geos_main/build.sh main", "toolchain": "cxx", "apt": ""},
+              {"id": "geos-release", "dir": "geos_main", "build": "adapters/geos_main/build.sh release", "toolchain": "cxx", "apt": ""},
+              {"id": "jts-main", "dir": "jts_main", "build": "adapters/jts_main/build.sh main", "toolchain": "java", "apt": ""},
+              {"id": "jts-release", "dir": "jts_main", "build": "adapters/jts_main/build.sh release", "toolchain": "java", "apt": ""},
+              {"id": "clipper2", "dir": "clipper2", "build": "adapters/clipper2/build.sh", "toolchain": "cxx", "apt": ""},
+              {"id": "boost-1.83", **boost, "build": "VARIANTS=1.83 adapters/boost_geometry/build.sh"},
+              {"id": "boost-develop", **boost, "build": "VARIANTS=develop adapters/boost_geometry/build.sh"},
+              {"id": "boost-release", **boost, "build": "VARIANTS=release adapters/boost_geometry/build.sh"},
+              {"id": "cgal", "dir": "cgal", "build": "adapters/cgal/build.sh", "toolchain": "cxx", "apt": "libcgal-dev libgmp-dev libmpfr-dev"},
+              {"id": "rust-geo", "dir": "rust_geo", "build": "adapters/rust_geo/build.sh", "toolchain": "rust", "apt": ""},
+              {"id": "turf", **js},
+              {"id": "polygon-clipping", **js},
+              {"id": "polyclip-ts", **js},
+              {"id": "martinez", **js},
+              {"id": "jsts", **js},
+          ]
+          known = {t["id"] for t in TARGETS}
+
+          # every manifest target should have an entry here
+          listing = subprocess.run(
+              [sys.executable, "-m", "geotruth", "run", "--list"],
+              env={**os.environ, "PYTHONPATH": "src"}, capture_output=True, text=True, check=True,
+          ).stdout
+          manifest_ids = {line.split()[0] for line in listing.splitlines() if line.strip()}
+          for missing in sorted(manifest_ids - known):
+              print(f"::warning::target {missing} is in adapters/*/adapter.toml but not in nightly.yml")
+          for extra in sorted(known - manifest_ids):
+              sys.exit(f"nightly.yml names target {extra}, which no adapter manifest defines")
+
+          want = os.environ["WANT"].strip()
+          if want in ("", "all"):
+              selected = TARGETS
+          else:
+              ids = [w.strip() for w in want.split(",") if w.strip()]
+              unknown = sorted(set(ids) - known)
+              if unknown:
+                  sys.exit(f"unknown targets {unknown}; known: {sorted(known)}")
+              selected = [t for t in TARGETS if t["id"] in ids]
+          print("targets:", ", ".join(t["id"] for t in selected))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("matrix=" + json.dumps({"include": selected}) + "\n")
+          EOF
+
+  score:
+    name: ${{ matrix.id }}
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      JOBS: "4"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build root
+        run: echo "GEOTRUTH_BUILD_DIR=$HOME/.cache/geotruth" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install geotruth
+        run: python -m pip install -e ".[dev]"
+      - name: Install Shapely
+        if: matrix.toolchain == 'shapely'
+        run: python -m pip install "shapely==${SHAPELY_VERSION}"
+      - name: Set up Java
+        if: matrix.toolchain == 'java'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Set up Node.js
+        if: matrix.toolchain == 'node'
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Set up Rust (the toolchain the manifest records)
+        if: matrix.toolchain == 'rust'
+        run: |
+          rustup toolchain install 1.94.1 --profile minimal
+          rustup default 1.94.1
+      - name: System packages
+        if: matrix.apt != ''
+        env:
+          APT_PACKAGES: ${{ matrix.apt }}
+        run: |
+          sudo apt-get update -q
+          # shellcheck disable=SC2086 # a list of package names
+          sudo apt-get install -y -q --no-install-recommends $APT_PACKAGES
+      - name: Restore the build tree
+        if: matrix.build != ''
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/geotruth
+          key: build-${{ matrix.id }}-${{ runner.os }}-${{ hashFiles(format('adapters/{0}/**', matrix.dir), 'adapters/geos_main/adapter_v2.hpp') }}
+      - name: Build ${{ matrix.id }}
+        if: matrix.build != ''
+        env:
+          BUILD: ${{ matrix.build }}
+        run: bash -c "$BUILD"
+      - name: Run
+        env:
+          TARGET: ${{ matrix.id }}
+        run: python -m geotruth run --lib "$TARGET" --tier "$TIER" --out results
+      - name: Score
+        env:
+          TARGET: ${{ matrix.id }}
+        run: |
+          python -m geotruth score --lib "$TARGET" --tier "$TIER" --results-dir results \
+            --expected "corpus/expected/$TIER.jsonl" --jobs 4
+      - name: Upload the results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-${{ matrix.id }}
+          path: results/
+          if-no-files-found: warn
+          retention-days: 90
+
+  site:
+    name: site
+    needs: score
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install geotruth
+        run: python -m pip install -e ".[dev]"
+      - name: Download the results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: results
+          merge-multiple: true
+      - name: Build the site
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          flags=()
+          if [ "$PREVIEW" = "true" ]; then flags+=(--preview); fi
+          python -m geotruth site --scores results --tier "$TIER" --out site/_build \
+            --ref "$SHA" "${flags[@]}"
+      - name: Upload the site for inspection
+        uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: site/_build/
+          retention-days: 30
+      - name: Configure Pages
+        if: env.DEPLOY_PAGES == 'true'
+        uses: actions/configure-pages@v6
+      - name: Upload the Pages artifact
+        if: env.DEPLOY_PAGES == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/_build/
+
+  deploy:
+    name: deploy (GitHub Pages)
+    needs: site
+    if: ${{ github.event_name == 'schedule' || inputs.deploy_pages }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  data:
+    name: data branch
+    needs: score
+    if: ${{ !cancelled() && (github.event_name == 'schedule' || inputs.push_data) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Download the results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: ${{ runner.temp }}/results
+          merge-multiple: true
+      - name: Commit the summaries to the data branch
+        # Only the small files: provenance, run statistics and score summaries. The full
+        # result and score records stay in the workflow artifacts (90 days).
+        env:
+          SHA: ${{ github.sha }}
+          RESULTS: ${{ runner.temp }}/results
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch origin data
+            git switch data
+          else
+            git switch --orphan data
+          fi
+          run_dir="runs/$(date -u +%Y-%m-%d)-${SHA::7}-${GITHUB_RUN_ID}"
+          mkdir -p "$run_dir"
+          for target_dir in "$RESULTS"/*/; do
+            target="$(basename "$target_dir")"
+            case "$target" in _*) continue ;; esac
+            mkdir -p "$run_dir/$target"
+            for f in "$target_dir"run.json "$target_dir"*.stats.json "$target_dir"*.summary.json "$target_dir"*.summary.txt; do
+              if [ -f "$f" ]; then cp "$f" "$run_dir/$target/"; fi
+            done
+          done
+          printf '{"commit": "%s", "run_id": "%s", "tier": "%s"}\n' "$SHA" "$GITHUB_RUN_ID" "$TIER" > "$run_dir/run-info.json"
+          git add runs
+          git commit -q -m "nightly: $run_dir"
+          git push origin data
