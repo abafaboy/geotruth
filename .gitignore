@@ -2,3 +2,8 @@ results/
 cases/*.jsonl
 !cases/seed.jsonl
 __pycache__/
+node_modules/
+target/
+*.o
+*.class
+build/

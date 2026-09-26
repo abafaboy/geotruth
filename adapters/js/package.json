@@ -1,0 +1,14 @@
+{
+  "name": "geometry-bughunt-js-adapters",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Differential-testing adapters for JavaScript polygon libraries (see ../../FORMAT.md)",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@turf/turf": "7.4.0",
+    "martinez-polygon-clipping": "0.8.1",
+    "polyclip-ts": "0.16.8",
+    "polygon-clipping": "0.15.7"
+  }
+}
