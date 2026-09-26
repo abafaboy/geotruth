@@ -160,7 +160,7 @@ pip install -e .                  # or '.[dev]' for the tests and the linter
 
 ```console
 $ geotruth version
-geotruth 0.1.0.dev0 (engine 0.1.0)
+geotruth 0.1.0 (engine 0.1.0)
 python 3.11.15, gmpy2 2.3.1, rational backend gmpy2
 ```
 

@@ -7,7 +7,7 @@ together: the package version (below), the engine version (`geotruth.ENGINE_VERS
 changes whenever an expected answer could change) and the corpus version
 (`corpus/MANIFEST.json`).
 
-## [0.1.0] - unreleased
+## [0.1.0] - 2026-09-26
 
 The first release: the exact engine, the corpus with its exact answers, the harness that
 runs and grades libraries, and the tools around them. Engine 0.1.0, corpus 2.0.0, expected

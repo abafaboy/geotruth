@@ -20,7 +20,7 @@ Module map (Phase 0 primitives, DESIGN §2.1):
 __all__ = ["ENGINE_VERSION", "__version__"]
 
 #: Version of the Python package.
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 #: Version of the exact engine's *answers*. Bump it whenever any expected answer could
 #: change (a semantic fix, a new canonical form). Every expected-answer record cites it,
