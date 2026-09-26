@@ -137,6 +137,12 @@ button.theme, button.copy {
   border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 12px; cursor: pointer;
 }
 button.theme:hover, button.copy:hover { color: var(--ink); border-color: var(--axis); }
+/* phones: brand and theme switch on one row, the navigation on its own row below */
+@media (max-width: 599px) {
+  .bar { gap: 2px 12px; padding-top: 8px; padding-bottom: 2px; min-height: 0; }
+  button.theme { order: 2; margin-left: auto; }
+  nav.primary { order: 3; flex: 1 0 100%; gap: 4px 20px; }
+}
 footer.site { border-top: 1px solid var(--hairline); color: var(--ink-2); font-size: 0.875rem; padding: 20px 0 32px; }
 footer.site p { margin: 0.3em 0; }
 .banner { background: var(--warn-bg); border-bottom: 1px solid var(--t-gross); padding: 8px 16px; text-align: center; font-size: 0.95rem; }

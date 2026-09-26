@@ -12,4 +12,16 @@ locationtech/jts (`jts-full/`), with `D` pointing at a directory that holds `jts
   magnitude #1187 is what makes the first four snapping tries fail (see ../ISSUE.md), and the
   fifth then hits the #1114 overflow.
 
+The #1187 step applies to this corpus case only. The minimal triangle
+POLYGON ((0 0, 2 1, 1 2, 0 0)) scaled by 2^538 is already empty at 4668803 and at 52c5d988^.
+
 `bisect_log.txt` holds both `git bisect log`s.
+
+`History.java` (public API only) runs four checks on jts-core built at each commit involved
+(#1112 aa755818, #1114 4668803, #1187 52c5d988 and their parents), on 1.18.0, 1.20.0, master and
+master + ../prototype_fix.diff: `KdTree(0.0)` with points 1e-170 apart, `KdTree(1e155)` with
+points 1e300 apart, the first power of two at which the triangle's self-union is empty, and
+the 1.5e162 corpus copy. `output_history.txt` holds the results. They show that the
+large-tolerance merge starts at #1114, that the tolerance-0 merge at the tiny end comes back
+on master with #1112 (1.18.0 has it too; only 1.20.0 does not), and that #1187 only matters for
+the corpus case.

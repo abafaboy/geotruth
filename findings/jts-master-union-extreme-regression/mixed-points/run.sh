@@ -11,6 +11,7 @@ for JAR in "$@"; do
   javac -cp "$JAR" -d "$OUT" Repro.java ScanScales.java
   echo "=== $JAR"
   java -cp "$JAR:$OUT" Repro
+  java -Djts.overlay=ng -cp "$JAR:$OUT" Repro entry-points
   java -cp "$JAR:$OUT" ScanScales
 done
 if [ -n "$GEOS_CONFIG" ]; then

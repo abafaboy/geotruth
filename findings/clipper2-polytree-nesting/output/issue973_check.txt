@@ -1,0 +1,41 @@
+# issue973_check.cpp (the #973 input: Union, NonZero, PolyTree64), g++ 13.3.0 -std=c++17; bad = nodes whose orientation contradicts their level
+== Clipper2_1.5.2 6901921
+ver 1.5.2 bad=0
+ L1 outer area=+2727879000.0 n=8
+   L2 hole area=-1560050400.0 n=4
+     L3 outer area=+1425116800.0 n=8
+       L4 hole area=-1222166400.0 n=4
+   L2 hole area=-919107000.0 n=4
+     L3 outer area=+688749400.0 n=8
+       L4 hole area=-527259000.0 n=14
+         L5 outer area=+7609500.0 n=4
+== e8ebdef e8ebdef
+ver 1.5.2 bad=4
+ L1 outer area=-919107000.0 n=4
+ L1 outer area=+2727879000.0 n=8
+   L2 hole area=-1560050400.0 n=4
+     L3 outer area=+1425116800.0 n=8
+       L4 hole area=-1222166400.0 n=4
+   L2 hole area=+688749400.0 n=8
+     L3 outer area=-527259000.0 n=14
+       L4 hole area=+7609500.0 n=4
+== 0d0ba0f 0d0ba0f
+ver 1.5.2 bad=0
+ L1 outer area=+2727879000.0 n=8
+   L2 hole area=-1560050400.0 n=4
+     L3 outer area=+1425116800.0 n=8
+       L4 hole area=-1222166400.0 n=4
+   L2 hole area=-919107000.0 n=4
+     L3 outer area=+688749400.0 n=8
+       L4 hole area=-527259000.0 n=14
+         L5 outer area=+7609500.0 n=4
+== main f9c5eb6
+ver 2.0.1 bad=0
+ L1 outer area=+2727879000.0 n=8
+   L2 hole area=-1560050400.0 n=4
+     L3 outer area=+1425116800.0 n=8
+       L4 hole area=-1222166400.0 n=4
+   L2 hole area=-919107000.0 n=4
+     L3 outer area=+688749400.0 n=8
+       L4 hole area=-527259000.0 n=14
+         L5 outer area=+7609500.0 n=4

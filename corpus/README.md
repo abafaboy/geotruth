@@ -18,6 +18,7 @@ rest of the repository it is MIT-licensed ([../LICENSE](../LICENSE)).
 | `cases/full/` | **full tier** (v2, not in git, a release asset listed in the MANIFEST): 1000 cases per family, seed 1 |
 | [`cases/seed.jsonl`](cases/seed.jsonl) | the 1000-case v1 smoke-test corpus of the bug hunt: 4 near-degenerate families × 250 (`generators/seed.py 250 1`) |
 | [`curated/leads.toml`](curated/leads.toml) | the source of the curated leads: documented candidate bugs without a `findings/` directory yet |
+| [`expected/`](expected/) | expected answers, version 2: the engine's exact answer to every case of the core, curated and full tiers, with their manifest ([README](expected/README.md)) |
 | [`expected-v1/`](expected-v1/) | expected answers, version 1: the legacy answers of the audited oracle (see below) |
 | [`generators/`](generators/) | the case generators, v1 and v2, and the tier builder ([README](generators/README.md)) |
 | [`SHA256SUMS`](SHA256SUMS) | checksums of every tracked case and expected-answer file |
@@ -104,9 +105,10 @@ answer for those doubles, taken as rationals.
   corpus version (2.0.0 for the first v2 tiers) and the generator version; a change to a
   generator that could change a case bumps the generator version and the corpus version.
   The curated tier grows as findings are triaged: a new corpus version each time.
-- **Expected answers are versioned separately** from the cases, as `expected-vN/`, with
-  errata released as new versions. Every claim cites the corpus version, the expected
-  version and the engine commit.
+- **Expected answers are versioned separately** from the cases (`expected_version` in
+  [`expected/MANIFEST.json`](expected/MANIFEST.json): 2 for the engine's answers, 1 for the
+  legacy oracle answers in `expected-v1/`), with errata released as new versions. Every
+  claim cites the corpus version, the expected version and the engine version.
 
 ### `expected-v1/`: legacy oracle answers
 
@@ -127,4 +129,4 @@ python tests/reference/oracle.py corpus/cases/seed.jsonl | cmp - corpus/expected
 ```
 
 These answers cover polygon/polygon predicates, validity and overlay **areas** only. Full
-DE-9IM matrices and exact overlay geometry arrive with the geotruth engine as `expected-v2`.
+DE-9IM matrices and exact overlay geometry are in [`expected/`](expected/) (version 2).

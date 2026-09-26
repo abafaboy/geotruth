@@ -1,0 +1,35 @@
+# Registry snippet for findings/registry.toml (not merged there; same keys as registry entries).
+# It replaces the [[lead]] entry "turf-touches-overlaps-vertex-rules" (status "unreviewed").
+
+[[finding]]
+id = "turf-boolean-predicates"
+library = "turf"
+lib = "turf@7.4.0"
+signature = "booleanTouches, Polygon/MultiPolygon operands: decided from A's vertices only, and only from the first part of a MultiPolygon. Polygon/Polygon (index.ts L560-L581): touches = some vertex of A's outer ring on B's outer ring and no vertex of A strictly inside B; B's vertices, vertex-free interior overlap and holes as contact locations are never examined. So identical or overlapping polygons touch (POLYGON ((0 0, 1 0, 0 1, 0 0)) with itself: true, exact 2FFF1FFF2), and real touches are missed or depend on argument order (square [0,2]^2 and a triangle whose apex (1, 2) is on its top edge: touches(A, B) = false, touches(B, A) = true, exact FF2F01212). Polygon/MultiPolygon (L598) and MultiPolygon/MultiPolygon (L753) pass a single ring as a Polygon's coordinates, so the strictly-inside test never fires and A touches B as soon as a tested vertex of A lies on a ring of B's first part, even with A inside B (POLYGON ((2 0, 3 2, 1 2, 2 0)) and MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0))): true, exact 2FF10F212). MultiPolygon/MultiPolygon also bounds its vertex loop by the ring count (L731)"
+fields = ["predicates.touches"]
+families = ["hole-contact", "int-grid", "multi-touch", "near-collinear", "scaled", "shared-edge", "sliver-spike", "tiling-contact", "tiny-transform", "vertex-on-edge", "tiny-rotation", "shared-sloped-edge"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "Turf master bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7 (head on 2026-09-26; packages/*/index.ts bundled with esbuild): 5/5 minimal cases wrong; the extra.mjs cases (L598, L753, L731, holes) as in output/extra-turf-master-bec3ac7.txt",
+    "@turf/turf 7.4.0 (npm latest, tag v7.4.0 = 22acbd806adb80eece91b7fc43589d5d7788e815): 5/5 wrong; extra.mjs output identical to master",
+    "@turf/boolean-touches 7.0.0, pinned (with @turf/boolean-point-on-line, boolean-point-in-polygon, helpers and invariant 7.0.0): 5/5 wrong",
+    "@turf/boolean-touches 6.5.0: 5/5 wrong",
+    "exact: geotruth relate --dual (both routes agree), tests/reference/indep.py and oracle.py (both orders), JSTS 2.12.1 and Shapely 2.1.2 / GEOS 3.13.1 touches: all agree with each other and disagree with Turf; the extra.mjs matrices (output/exact-extra.txt) agree with JSTS 2.12.1",
+]
+cases = "findings/turf-boolean-predicates/cases.jsonl"
+repro = "findings/turf-boolean-predicates/repro.mjs"
+evidence = "findings/turf-boolean-predicates/FINAL.md"
+links = [
+    "https://github.com/Turfjs/turf/blob/bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7/packages/turf-boolean-touches/index.ts#L560-L605",
+    "https://github.com/Turfjs/turf/blob/bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7/packages/turf-boolean-touches/index.ts#L703-L761",
+    "https://github.com/Turfjs/turf/pull/3088",
+    "https://github.com/Turfjs/turf/issues/2454",
+    "https://github.com/Turfjs/turf/issues/1882",
+    "https://github.com/Turfjs/turf/issues/1467",
+    "https://github.com/Turfjs/turf/issues/3109",
+    "https://github.com/Turfjs/turf/issues/3025",
+]
+upstream_issue = ""
+supersedes_lead = "turf-touches-overlaps-vertex-rules"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report for Turfjs/turf). It contradicts booleanTouches' own doc ('true if none of the points common to both geometries intersect the interiors of both geometries') and the JSTS/Shapely touches that the package's test.ts compares against. No tolerance is involved: booleanPointOnLine is called without epsilon, and the 5 minimal cases use small integers (all float arithmetic exact). The four Polygon/Polygon fixtures (two true, two false) all pass the small square as feature1, and test.ts runs one argument order. Core tier: 404 of 2000 areal pairs wrong, and 70 of 207 integer-coordinate pairs (60 false positives). No duplicate: #3088 (open PR) fixes only the LineString/MultiLineString branch. Related, not duplicates: #1467 (open) raises the same vertex-only concern for booleanContains, which #3104 (7.4.0, closing #2242) addressed with edge splitting in isPolyInPoly (#1467's own example is exactly contains = true, and Turf 7.4.0 returns true); #3109 (open, v8) plans to replace isPolyInPoly. The lead's other parts are not new bugs. booleanOverlap is true on any edge contact: known, #2454 (open). ISSUE.md drafts an optional comment for #2454's unreported sub-case, containment with a shared boundary ([0,2]^2 and [0,1]^2: booleanOverlap = true and booleanContains = true, exact 212F11FF2). booleanContains ignores holes: known, #1882, and #3109 plans the rewrite. booleanOverlap's geojsonEquality precision 6 and booleanContains' BOUNDARY_DISTANCE_TOLERANCE 1e-6 are by-design tolerances (RFC 7946 rationale in the source). A few near-miss touches/overlaps flips are float robustness, and Turf claims no exactness. Out of scope, noted in ISSUE.md: the MultiLineString/MultiPoint branch indexes lines with the MultiPoint index (L336, L344). An independent review's corrections were applied (7.0.0 re-run with pinned dependencies, L598/L753 root cause, hole wording, fixture count; see ISSUE.md). Nothing has been posted."

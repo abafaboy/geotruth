@@ -9,6 +9,9 @@ case 1 point on the shared edge of two squares, GC has a POLYGON EMPTY (GEOS: SI
   RelateNG.relate(A,B)      = 0FFFFF212   ok
   RelateNG.relate(B,A)      = 0F2FF1FF2
   RelateNG intersects(A,B)  = true
+  default a.relate(b)       = THROWS java.lang.IllegalArgumentException: Operation does not support GeometryCollection arguments
+      at org.locationtech.jts.geom.Geometry.checkNotGeometryCollection(Geometry.java:1735)
+  default a.intersects(b)   = true
 
 case 2 GC(point, LINESTRING EMPTY) vs POINT EMPTY (GEOS: SIGSEGV)
   A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
@@ -20,6 +23,9 @@ case 2 GC(point, LINESTRING EMPTY) vs POINT EMPTY (GEOS: SIGSEGV)
   RelateNG.relate(B,A)      = THROWS java.lang.NullPointerException: Cannot invoke "org.locationtech.jts.operation.relateng.LinearBoundary.hasBoundary()" because "this.lineBoundary" is null
       at org.locationtech.jts.operation.relateng.RelatePointLocator.hasBoundary(RelatePointLocator.java:99)
   RelateNG intersects(A,B)  = false
+  default a.relate(b)       = THROWS java.lang.IllegalArgumentException: Operation does not support GeometryCollection arguments
+      at org.locationtech.jts.geom.Geometry.checkNotGeometryCollection(Geometry.java:1735)
+  default a.intersects(b)   = false
 
 case 3 GC(line, POLYGON EMPTY) vs a disjoint point (GEOS: wrong matrix)
   A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
@@ -29,3 +35,6 @@ case 3 GC(line, POLYGON EMPTY) vs a disjoint point (GEOS: wrong matrix)
   RelateNG.relate(A,B)      = FF2FF10F2   <-- WRONG
   RelateNG.relate(B,A)      = FF0FFF212
   RelateNG intersects(A,B)  = false
+  default a.relate(b)       = THROWS java.lang.IllegalArgumentException: Operation does not support GeometryCollection arguments
+      at org.locationtech.jts.geom.Geometry.checkNotGeometryCollection(Geometry.java:1735)
+  default a.intersects(b)   = false

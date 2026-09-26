@@ -2,12 +2,14 @@
 
 ## Summary
 
-In a GeometryCollection of overlapping polygons, parts of the union's boundary are never evaluated
-unless the other geometry's edges cross them. Two forms occur:
+In a GeometryCollection of overlapping (or adjacent) polygons, parts of the union's boundary are
+not evaluated unless the other geometry's edges meet them. Two forms occur:
 
-- a union boundary that belongs to no input ring, such as a hole enclosed by several overlapping
-  polygons;
-- rings whose first vertex lies inside the union.
+- a component of the union boundary made only of pieces of several rings, such as a hole enclosed
+  by several overlapping polygons. This is the main case of this report;
+- a ring whose first vertex lies inside the union. The TODO in `RelateNG::computeAreaVertex`
+  already anticipates this; the second example below is a concrete case where it gives a wrong
+  matrix.
 
 Four overlapping strips forming a 3x3 frame with a 1x1 hole are reported `equals`, `contains` and
 `covers` the full 3x3 square. GEOS's own point locator says the square's centre is outside the
@@ -65,30 +67,36 @@ routes).
 - GEOS `main` ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513a): wrong.
 - 3.14.1, 3.13.1 and 3.13.0 (d7957246): wrong.
 - 3.11.4: RelateOp throws a TopologyException.
-- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): identical.
+- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): the same wrong `relate(A, B)` on all of these cases
+  (reported to JTS separately; there RelateNG is opt-in). For the frame's `relate(B, A)`, JTS
+  master gives `212F11FF2` like GEOS main, and JTS 1.20.0 gives `2FFF1FFF2` like GEOS 3.13.0.
 
 ## Analysis
 
 Away from the other geometry's edges, RelateNG learns about an areal geometry from one vertex per
 ring. `RelateNG::computeAreaVertex(ring)` (src/operation/relateng/RelateNG.cpp:619-630) tests
-`ring->getCoordinate()` only, and its TODO says so:
+`ring->getCoordinate()` only. The TODO above it already anticipates that this vertex may not be
+on the boundary of a polygon cluster:
 
 ```cpp
     //TODO: use extremal (highest) point to ensure one is on boundary of polygon cluster
     const CoordinateXY* pt = ring->getCoordinate();
 ```
 
-For a Polygon or MultiPolygon this is enough, because every ring is boundary. For overlapping
-polygons of a GeometryCollection the union's boundary is made of *pieces* of several rings, joined
-where rings of the same collection cross. This causes two failures:
+For a Polygon or MultiPolygon this is enough, because every ring is boundary. For overlapping or
+adjacent polygons of a GeometryCollection the union's boundary is made of *pieces* of several
+rings, joined where rings of the same collection cross or meet. This causes two failures:
 
-1. **The ring's first vertex is interior to the union.** `addAreaVertex` then records only I/E
-   (TopologyComputer.cpp:413-430) and nothing about the ring's boundary pieces.
+1. **The ring's first vertex is interior to the union**, the situation the TODO describes.
+   `addAreaVertex` then records only I/E (TopologyComputer.cpp:413-430) and nothing about the
+   ring's boundary pieces. The notched-square example above is a concrete case.
 2. **A union boundary component contains no ring vertex at all**, like the frame's hole, whose
-   corners are T-crossings of the strips. Its only special points are the crossings between the
-   collection's own polygons. Those crossings are computed: the collection is self-noded, and
-   `TopologyComputer::addIntersection` (233-245) stores their node sections. But `evaluateNodes`
-   (533-543) evaluates only nodes with `hasInteractionAB()`, so they are discarded.
+   corners are T-crossings of the strips. Choosing a different vertex per ring, such as the
+   extremal one the TODO proposes, would not reach it. Its only special points are the crossings
+   between the collection's own polygons. Those crossings are computed: the collection is
+   self-noded, and `TopologyComputer::addIntersection` (233-245) stores their node sections. But
+   `evaluateNodes` (533-543) evaluates only nodes with `hasInteractionAB()`, so they are never
+   evaluated.
 
 ## Suggested fix
 
@@ -119,7 +127,7 @@ NodeSections.h/.cpp, and RelateNode.h (`finishNode` made public).
 Test results:
 
 - **GEOS test suite.** `ctest` passes 535/535 with this patch.
-- **Differential run.** Over 33,719 generated relate cases it corrects 32 answers of this class
+- **Differential run.** Over 29,719 generated relate cases it corrects 32 answers of this class
   (plus 19 cases of the area-vertex skip reported separately), and changes no correct answer.
 - **Operand order.** `relate(B, A)`, with the collection as the *second* argument, stays wrong.
   Since #1201 (3.13.1) a collection B is not self-noded when A is polygonal, so the crossings are
@@ -131,12 +139,19 @@ Test results:
 
 ## Related issues
 
-- The TODO at RelateNG.cpp:621 (JTS RelateNG.java:507).
-- The area-vertex skip (reported separately) makes the first form worse: after an INTERIOR first
-  vertex in the target exterior, later polygons are skipped.
-- #948 and JTS #784 / #833 are about *overlay* with overlapping GC polygons, not relate.
+- The TODO at RelateNG.cpp:621 (JTS RelateNG.java:507) anticipates the first-vertex form.
+- The area-vertex skip (reported separately) makes the first-vertex form worse: after an INTERIOR
+  first vertex in the target exterior, later polygons are skipped. The same skip for line ends
+  was locationtech/jts#1175, fixed in JTS by locationtech/jts#1200 (not yet in GEOS).
+- #1201, the port of locationtech/jts#1099: the self-noding change that affects `relate(B, A)`
+  above (reported separately).
+- #948 and locationtech/jts#784 / locationtech/jts#833 are about *overlay* with overlapping GC
+  polygons, not relate.
 - No report of this behaviour was found (libgeos/geos and locationtech/jts issues and PRs, open
-  and closed).
+  and closed). Checked and different: #1060 and the pre-RelateNG GeometryCollection issues it
+  lists (#981, #982, #983, #1011, #1022, #1027, #1033); #1148 (fixed by the port of
+  locationtech/jts#1069, covered GC elements); #1147 and #1149 (other RelateNG regressions);
+  #1275 (prepared and non-prepared results differing; here both are wrong in the same way).
 
 ---
 Found by differential testing against an exact rational oracle (geotruth: https://github.com/abafaboy/geotruth).

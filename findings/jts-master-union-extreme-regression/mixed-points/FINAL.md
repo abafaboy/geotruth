@@ -15,7 +15,12 @@
 
 when A is polygonal, P is a point (or points), and a polygon of A collapses to a line under the
 precision model. This happens in either argument order, and in strict mode as well. The input is
-valid and the coordinates are small integers.
+valid, with small, ordinary coordinates (0 to 7).
+
+It is also reachable without calling `OverlayNG` directly. With a `GeometryFactory` that has a
+fixed `PrecisionModel`, `OverlayNGRobust.overlay(A, P, OverlayNG.UNION)` throws, and with
+`-Djts.overlay=ng` so do `A.union(P)` and `A.symDifference(P)`. The point operand can even be
+empty: `OverlayNG.overlay(A, POINT EMPTY, UNION, pm)` throws too.
 
 ## Minimal reproduction
 
@@ -38,7 +43,8 @@ On the integer grid, (5 0.4) rounds to (5 0), so the thin triangle collapses to 
 (3 0)-(5 0).
 
 A complete program is attached (`Repro.java`, public API only;
-`javac -cp jts-core.jar Repro.java && java -cp jts-core.jar:. Repro`).
+`javac -cp jts-core.jar Repro.java && java -cp jts-core.jar:. Repro`). Its section 5 covers
+the other entry points above; run it with `-Djts.overlay=ng` to include `Geometry.union`.
 
 ## Expected vs actual
 
@@ -69,7 +75,8 @@ operands, checked with rational arithmetic. A is valid, and P lies outside A.
 - master `3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd`: `ClassCastException`.
 - 1.20.0: `ClassCastException`.
 - 1.18.0: `IllegalArgumentException: Argument must be Polygonal or LinearRing`, one step earlier,
-  from `IndexedPointInAreaLocator`.
+  from `IndexedPointInAreaLocator`. There it is thrown for `DIFFERENCE(A, P)` as well as for
+  `UNION` and `SYMDIFFERENCE` (in both orders); only `DIFFERENCE(P, A)` succeeds.
 
 The cast has been in `OverlayMixedPoints` since OverlayNG was added (#599).
 
@@ -124,8 +131,12 @@ as the non-point overlay does:
 `OverlayNGMixedPointsTest.testPolygonCollapseUnion`, which fails on master and passes with the
 patch. The rest of the core JUnit tests give the same results with and without the patch.
 
-To honour strict mode too, `OverlayMixedPoints` would need the strict flag. It could then call
-the strict union in `prepareNonPoint`, as GEOS 3.15 does. The prototype does not attempt that.
+The prototype only gives the correct result in the default non-strict mode. In strict mode it
+still keeps the collapse line: strict `UNION(A, P)` returns
+`GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7))`,
+because `OverlayMixedPoints` never sees the strict flag. To honour strict mode as well,
+`OverlayMixedPoints` would need that flag. It could then call the strict union in
+`prepareNonPoint`, as GEOS 3.15 does. The prototype does not attempt that.
 
 ## Related
 
@@ -133,16 +144,18 @@ the strict union in `prepareNonPoint`, as GEOS 3.15 does. The prototype does not
   - Up to 3.14.x the cast is reached with a `LineString`, which is undefined behaviour (the
     cast is `static_cast<const Polygon*>` in the 3.13.1 and 3.14.1 sources). It happens to
     return the non-strict answer above (run on 3.11.4, 3.13.1 and 3.14.1).
-  - 3.15.0 and main node the operand in strict mode (`OverlayNG::geomunion(geom, pm, noder)`).
-    The line never reaches the cast, and union gives `GEOMETRYCOLLECTION (POLYGON, POINT)`.
-    Union with a line operand still keeps the collapse line.
+  - 3.15.0 and main node the operand in strict mode (`OverlayNG::geomunion(geom, pm, noder)`
+    sets strict mode). The line never reaches the cast, and union gives
+    `GEOMETRYCOLLECTION (POLYGON, POINT)`. Union with a line operand still keeps the collapse
+    line. This came in with libgeos/geos@095c7270 "OverlayNG: Support curved types" (in 3.15.0),
+    which passes a noder to `geomunion`; as far as we can tell it was not aimed at this case.
 - NetTopologySuite has the same `(Polygon)` cast in `ExtractPolygons`; it was not run.
 - No existing issue was found. The searches covered locationtech/jts, libgeos/geos,
   shapely/shapely and NetTopologySuite, issues and PRs, open and closed:
   ClassCastException / OverlayMixedPoints / point-polygon overlay with a precision model /
   "Argument must be Polygonal or LinearRing".
-  - geos#931 (UB in `OverlayMixedPoints.cpp`) is a different defect: a null `PrecisionModel`
-    reference.
-  - jts#1133 (`SnapRoundingNoder` output is lines) is a usage question.
+  - libgeos/geos#931 (UB in `OverlayMixedPoints.cpp`) is a different defect: a null
+    `PrecisionModel` reference.
+  - #1133 (`SnapRoundingNoder` output is lines) is a usage question.
 
 Found by differential testing against an exact rational oracle (geotruth: https://github.com/abafaboy/geotruth).

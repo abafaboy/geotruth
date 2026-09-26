@@ -36,6 +36,7 @@ options = [
     "overlay: CGAL::Polygon_set_2 (Boolean_set_operations_2) on polygons with holes: the regularized areal overlay only",
     "rings are rebuilt for CGAL: closing point and repeated consecutive points dropped, shells turned counter-clockwise and holes clockwise by the exact signed area (CGAL requires this orientation; it does not change the point set)",
     "a MultiPolygon operand is the join of its polygons (Polygon_set_2::join); a polygon whose holes touch its shell or each other (OGC-valid, a CGAL precondition violation for Polygon_with_holes_2) enters as its shell minus its holes, the same point set",
+    "output polygons in OGC form, read off the result's arrangement (one polygon per face in the set, boundary walks split into simple rings at repeated vertices), not CGAL's polygons_with_holes(), whose outer boundaries may touch themselves and whose holes may touch the outer boundary at vertices; the same point set",
     "output doubles: the double nearest to each exact rational coordinate (ties to even, subnormals included), computed by the adapter with GMP; not CGAL::to_double",
     "--exact FILE writes the exact results (every ordinate as canonical \"n/d\", the exact area, the vertex count) to a side-car line per case",
 ]

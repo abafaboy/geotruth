@@ -68,7 +68,8 @@ polygons.
   RelateNG was introduced.
 - 3.11.4: RelateOp throws a TopologyException, because overlapping GCs were unsupported before
   RelateNG.
-- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): identical.
+- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): the same wrong matrices on all of these cases
+  (reported to JTS separately; there RelateNG is opt-in).
 
 ## Analysis
 
@@ -148,12 +149,13 @@ Test results:
 
 - **GEOS test suite.** `ctest` passes 535/535 with this patch, including `AdjacentEdgeLocatorTest`
   with its filled-hole cases.
-- **Differential run.** Over 33,719 generated relate cases it corrects 260 answers.
+- **Differential run.** Over 29,719 generated relate cases it corrects 260 answers.
 - **Dependency.** On its own it turns 10 correct answers wrong. In those GCs the first ring vertex
   is exactly such a covered reflex vertex. The old, wrong BOUNDARY answer happened to record B/E
   for that ring. The correct INTERIOR answer exposes two other defects that lose B/E:
   - the area-vertex skip in `computeAreaVertex` (reported separately);
-  - the "first ring vertex inside the union" problem (reported separately).
+  - a first ring vertex inside the union, the case the TODO in `computeAreaVertex` anticipates
+    (reported separately with a concrete case).
 
   With those fixed as well, nothing regresses, so this change should land together with them.
 
@@ -162,7 +164,15 @@ Test results:
 - `AdjacentEdgeLocatorTest` and `TestRelateGC.xml` ("point on common node of 3/6 adjacent
   polygons") cover adjacent polygons only.
 - No report of this behaviour was found (libgeos/geos and locationtech/jts issues and PRs, open
-  and closed).
+  and closed). Checked and different:
+  - #1060 (closed) and the pre-RelateNG GeometryCollection issues it lists (#981, #982, #983,
+    #1011, #1022, #1027, #1033): none has overlapping polygons meeting at a vertex;
+  - #1148 (closed, fixed by the port of locationtech/jts#1069): Point and Line elements covered
+    by the collection's polygon;
+  - #1147 and #1149 (closed): RelateNG regressions for a MultiPolygon and for the boundary node
+    rule;
+  - #1275 (closed): prepared and non-prepared results differing. Here both give the same wrong
+    answer.
 - The empty-polygon crash in `AdjacentEdgeLocator::addSections` is a separate report, but it is
   in the same function. Its fix skips empty polygons in `addRings` and needs a trivial rebase
   against this one.

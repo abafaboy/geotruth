@@ -1,4 +1,4 @@
-# node v22.22.2; @turf/turf 7.0.0 from npm
+# node v22.22.2; @turf/boolean-touches 7.0.0 from npm, pinned: installed with @turf/boolean-point-on-line, @turf/boolean-point-in-polygon, @turf/helpers and @turf/invariant 7.0.0 (shim-boolean-touches-7.0.0.mjs)
 WRONG identical triangles: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
 WRONG overlapping squares: booleanTouches(A, B) = true (expected false), booleanTouches(B, A) = true (expected false)
 WRONG apex of B on edge of A: booleanTouches(A, B) = false (expected true), booleanTouches(B, A) = true (expected true)

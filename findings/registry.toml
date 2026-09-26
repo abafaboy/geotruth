@@ -1,7 +1,9 @@
 # geotruth triage registry (DESIGN.md §0.4 and §5.4).
 #
-# One [[finding]] per failure cluster that has a directory under findings/. No automated
-# disagreement is presented as a confirmed bug: every cluster carries a triage status, one of
+# One [[finding]] per directory under findings/: a failure cluster with its evidence. Where
+# one triage found several related defects, they share the directory and its entry, and the
+# signature or the notes name each of them. No automated disagreement is presented as a
+# confirmed bug: every cluster carries a triage status, one of
 #
 #   unreviewed  found by the harness, not yet triaged by a person
 #   confirmed   triaged: a wrong answer within the library's documented contract
@@ -20,7 +22,8 @@
 #   status          see above; status_date is when it last changed
 #   priority        optional; set only when triage gave a priority other than normal
 #   verified_on     library versions or commits the minimal case was checked on, and the result
-#   cases           minimal cases (FORMAT-v1 case lines); repro: standalone program
+#   cases           minimal cases, one JSON line each (operands as typed JSON, FORMAT-v1
+#                   coordinate lists or WKT); repro: standalone program
 #   evidence        the triage write-up or the final report
 #   links           upstream documentation, issues and discussions (notes say which related
 #                   issues were checked and found to be different problems)
@@ -36,6 +39,8 @@
 # Documented candidate clusters without a findings/ directory are the leads of
 # corpus/curated/leads.toml, which holds their cases and details. Each has a [[lead]] entry at
 # the end of this file (status "unreviewed"), so that the registry lists every known cluster.
+# A lead that triage turned into a finding keeps its cases in leads.toml (the curated tier
+# keeps them) but has no [[lead]] entry here: the finding names it in supersedes_lead.
 registry_version = 1
 
 [[finding]]
@@ -65,6 +70,44 @@ links = [
 upstream_issue = ""
 supersedes_lead = "boost-develop-rotated-neighbours-230"
 notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report). #1288 is the issue the bisected commit fixed; #1487 (open) goes through the same code but is a different regression; FINAL.md lists the other issues checked. Disabling the added condition fixes this input but breaks the upstream #1288/#1293 tests, so no fix is proposed. The directory also holds a second, separate draft, FINAL_2_side_by_triangle_sign.md (case minimal-side-sign in cases.jsonl): a long-standing (1.83 to develop) wrong sign from the default side_by_triangle strategy that gives within = true for two triangles whose exact overlap is a 1.85e-17 sliver. This entry's status does not cover it."
+
+[[finding]]
+id = "clipper2-polytree-nesting"
+library = "clipper2"
+lib = "clipper2@2.0.1-f9c5eb6"
+signature = "overlay (PolyTree64/PolyTreeD nesting): a result ring whose every vertex lies on the boundary of the ring containing it is put one level too high: an inscribed hole becomes a second top-level node (a direct child of the root, IsHole false, clockwise), an inscribed island becomes a second hole (IsHole true, counter-clockwise); the flat Paths64 result is right. Path2ContainsPath1 (clipper.h:739) returns false when no vertex is strictly inside, so RecursiveCheckOwners (clipper.engine.cpp:2958-2981) drops the correct owner; also when one vertex is rounded just outside. Regression from e8ebdef (#957 fix), since 1.5.3; the symptom #973 reported, whose fix (0d0ba0f) did not cover this case"
+fields = ["overlay.difference", "overlay.symdifference", "overlay.union"]
+families = ["vertex-on-edge", "hole-contact"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "main f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd (head on 2026-09-26): wrong",
+    "release Clipper2_2.0.1 21ebba05db8894f0c7217ad35ea518080f324946: wrong",
+    "1.5.4 ef88ee9 and 1.5.3 fa165fe: wrong",
+    "#973 fix 0d0ba0f: wrong (the #973 input itself: wrong at e8ebdef, correct at 0d0ba0f, 1.5.2 and main; output/issue973_check.txt)",
+    "1.5.2 6901921, 1.4.0 736ddb0, 1.2.4 ff85874: correct",
+    "git bisect: first bad e8ebdef0931771443be86c092874e1bb0b51038a (#957 fix); parent 3dd975a correct",
+    "open PR #1101 (Ystripes) head 4115ae4: wrong",
+    "main + patch/prototype_fix.diff: correct; Clipper2 CPP/Tests 48/48 (and USINGZ build 48/48); 1804-case set: only the 5 lead cases change; random inscribed configurations 4434/4574 wrong -> 0/1 (the 1 is a flat-result near-miss)",
+]
+cases = "findings/clipper2-polytree-nesting/cases.jsonl"
+repro = "findings/clipper2-polytree-nesting/repro.cpp"
+evidence = "findings/clipper2-polytree-nesting/FINAL.md"
+links = [
+    "https://github.com/AngusJohnson/Clipper2/issues/973",
+    "https://github.com/AngusJohnson/Clipper2/issues/957",
+    "https://github.com/AngusJohnson/Clipper2/issues/942",
+    "https://github.com/AngusJohnson/Clipper2/issues/1084",
+    "https://github.com/AngusJohnson/Clipper2/issues/1008",
+    "https://github.com/AngusJohnson/Clipper2/discussions/1022",
+    "https://github.com/AngusJohnson/Clipper2/pull/1101",
+    "https://github.com/AngusJohnson/Clipper2/commit/e8ebdef0931771443be86c092874e1bb0b51038a",
+    "https://github.com/AngusJohnson/Clipper2/commit/0d0ba0ff982df3576e735451d908b397f6a37547",
+    "https://angusj.com/clipper2/Docs/Units/Clipper.Engine/Classes/PolyTree64/_Body.htm",
+]
+upstream_issue = ""
+supersedes_lead = "clipper2-polytree-nesting"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report). A remaining case of the regression #973 reported: #973 had the same symptom (a hole at the top level) from the same commit e8ebdef, and its fix (0d0ba0f/927daf7) repaired that input but kept the return false, so FINAL.md is framed as a follow-up to #973. Not a duplicate: no open or closed issue or PR has this input (20 open issues, #1058-#1112, checked 2026-09-26). #942 is an earlier nesting bug with a different mechanism; open #1084 (C#, no data) is loosely related at most; #1008 / Discussion #1022 is valid but non-canonical output, where Angus declined tweaks to results that correctly describe the filled regions, so FINAL.md stresses that the PolyTree ownership contract, not the region, is broken; open PR #1101 still reproduces. Severity: wrong structure, not wrong region. The rings, the flat Paths64 result and the tree's signed-area sum are exact; only PolyTree parent links are wrong, so the error is gross only for code that reads the tree (OGC-read area 20 vs 12 on the minimal case, 4166 vs 2010 on a lead case) and shows up as overlay results that are wrong when read as OGC polygons (adapter), not in v1 areas. Clipper2's own tests miss it: CheckPolytreeFullyContainsChildren only checks nodes that have children, and TestPolytreeHoles2 compares signed areas. The 93 % fuzz figure holds within a deliberately degenerate family (every vertex of B on A's boundary). Lead case hole-contact-7-000044 is the rounding variant (one island vertex snapped just outside its hole) of the same return false. C# port keeps the old midpoint fallback (probably unaffected); Delphi has the same Exit (probably affected); neither was run. The PolyTree64 doc sentences came through web search and the #957 text only (angusj.com and web.archive.org blocked in the sandbox): FINAL.md cites only clipper.engine.h and IsHole(); check the docs in a browser before citing them. The 3 other adapter nesting/orientation mismatches on the 1804-case set (int-grid-7-000041, tiny-rotation-1-000108/179) and the fuzz near-miss (A=(-51,59)(-41,24)(-26,-21), B=(-49,52)(-37,12)(-41,27): Difference 16.5, exact 27.5) are flat-result integer-grid effects, not this finding, untriaged."
 
 [[finding]]
 id = "clipper2-thin-triangle-dropped"
@@ -175,10 +218,91 @@ upstream_issue = ""
 notes = "Confirmed at triage; not yet reported. FINAL.md is the report drafted for libgeos/geos, JTS_FINAL.md the one for locationtech/jts. RelateNG's package documentation says numerical round-off may give incorrect answers (first link); FINAL.md explains why this case is still treated as within the contract: the inputs are valid and used as given, LineIntersector's exact orientation tests report the proper crossing that RelateNG then discards, RelateOp gets it right, and the answer contradicts GEOS's own point predicates and depends on the ring's start vertex. The other links are related reports, not duplicates (RelateNGRobustnessTest asserts 2F2101212 for PostGIS 5362 and GIS.SE 484691, a matrix two valid polygons cannot have); no existing report of this behaviour was found."
 
 [[finding]]
+id = "geos-overlay-geometrycollection"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "overlay with a GeometryCollection operand that HeuristicOverlay hands to StructuredCollection (a mixed-dimension GC, or any GC with a polygonal element, even POLYGON EMPTY): (D1) symdifference drops the other operand's points and lines and keeps its own where the other covers them (GC(POLYGON((0 0,4 0,0 4,0 0))) xor POINT(3 3) = the polygon alone, exact GC(polygon, POINT(3 3)); the same GC xor LINESTRING(1 1,6 6) = the polygon alone, exact GC(polygon, LINESTRING(2 2,6 6))); (D2) difference keeps points of A that lie on lines of B (POINT(1 0) minus GC(LINESTRING(0 0,2 0), POINT(3 3)) = POINT(1 0), exact POINT EMPTY); (D3) intersection and difference throw AssertionFailedException 'Unable to determine overlay result geometry dimension' when one operand has no non-empty element (GC(POLYGON EMPTY) and POINT(1 1); exact POINT EMPTY)"
+fields = ["overlay.intersection", "overlay.difference", "overlay.symdifference"]
+families = ["empty"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 (head on 2026-09-26): D1, D2, D3 wrong; D4 wrong, D5 IllegalArgumentException",
+    "GEOS 3.15.0 d0228513abb0c29c185443cf2bfb06c9281024b5: identical to main",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) and 3.13.1 (Shapely 2.1.2 wheel): D1, D2, D3 wrong; D4 wrong, D5 IllegalArgumentException",
+    "GEOS 3.13.0 d7957246c (before the GH-1229 backport): D1 on mixed GCs (1c, 1d) and D2 wrong; D1 on simple GCs (1a, 1b, 1e) correct; no D3 assertion (3d gives GEOMETRYCOLLECTION EMPTY, same point set); D4 wrong (4a GEOMETRYCOLLECTION EMPTY, 4b POINT (6 0)); D5 IllegalArgumentException",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel): all cases correct, D4 and D5 included (3d as LINESTRING Z EMPTY, same point set)",
+    "GEOS main + prototype_fix.diff: D1, D2, D3 correct (D4, D5 unchanged); unit HeuristicOverlay 17/17, ctest 535/535",
+    "JTS master 3ea61f8 and 1.20.0: not affected (Geometry.symDifference/difference reject GC operands as documented; OverlayNGRobust correct on the simple-GC cases 1a, 1b, 1e, 3a-3c)",
+]
+cases = "findings/geos-overlay-geometrycollection/cases.jsonl"
+repro = "findings/geos-overlay-geometrycollection/repro.c"
+evidence = "findings/geos-overlay-geometrycollection/ISSUE.md"
+links = [
+    "https://github.com/libgeos/geos/pull/923",
+    "https://github.com/libgeos/geos/issues/797",
+    "https://github.com/libgeos/geos/pull/1229",
+    "https://github.com/libgeos/geos/issues/1224",
+    "https://github.com/libgeos/geos/issues/948",
+    "https://github.com/libgeos/geos/issues/696",
+    "https://github.com/libgeos/geos/pull/716",
+    "https://github.com/libgeos/geos/issues/1023",
+    "https://github.com/libgeos/geos/pull/1050",
+    "https://github.com/libgeos/geos/issues/1059",
+    "https://github.com/libgeos/geos/issues/1316",
+    "https://github.com/duckdb/duckdb-spatial/issues/803",
+    "https://github.com/locationtech/jts/issues/667",
+    "https://github.com/locationtech/jts/issues/833",
+]
+upstream_issue = ""
+supersedes_lead = "geos-overlay-empty-vs-gc-assertion"
+notes = "Confirmed at triage and by an independent review; not yet reported. FINAL.md is the report drafted for libgeos/geos; it inlines prototype_fix.diff verbatim (applies to ae9cdd98). All three defects are in StructuredCollection (src/geom/HeuristicOverlay.cpp): doSymDifference computes one-sided DIFFERENCE for lines and points (lines 505-528); doDifference subtracts A's own lines instead of a.getLineUnion() from A's points (lines 488-491); the dimension of an operand without non-empty elements stays Dimension::DONTCARE (HeuristicOverlay.h:67), so OverlayUtil::createEmptyResult(-3) asserts. Contract: cases 1a, 1b, 1e, 3a-3c meet even OverlayNG's own input requirements (simple GCs) and GEOS*Prec_r(..., 0) gets them right; the mixed-GC cases are supported by the public API since 3.12 (NEWS 3.12.0 'Support mixed GeometryCollection in overlay ops (GH-797)', implemented by PR #923 'Overlay with mixed dimension'), and the C API documents no restriction (the C++ Geometry.h '@throws IllegalArgumentException for a non-empty GeometryCollection' is stale). D1 on mixed GCs, D2, D4 and D5 date from #923 (3.12.0); D3 and D1 on simple polygonal GCs from #1229 (3.14.0, backported to 3.12.3 and 3.13.1). Regression scope: accurate for 1a, 1b, 1e and D3 (since 3.12.3/3.13.1/3.14.0) and for everything relative to 3.11.4; GC overlay on main is not worse overall than on 3.13.0, which threw 1356 TopologyExceptions in the 7872-result scan where main throws none. Two further mechanisms are documented in ISSUE.md but not claimed as contract violations: D4 (the GC's lines are pre-noded on their own in floating point, so rounded nodes lose exact coincidences: POINT(3 2) and GC(MULTILINESTRING((0 2,2 4),(0 4,6 0)), POINT(9 9)) intersect to POINT EMPTY), and D5 (a nested GEOMETRYCOLLECTION EMPTY makes a lineal GC 'mixed-dimension': clear IllegalArgumentException). The lead's cases in tests/crosscheck/test_overlay_crosscheck.py (GEOS_GC_OVERLAY, GEOS_GC_EMPTY_ASSERTION) are D1, D2 and D3. Upstream search: no duplicate on GitHub (libgeos/geos issues and PRs, shapely, jts); duckdb/duckdb-spatial#803 is a downstream report of D3. PostGIS trac was not searched (the egress proxy blocks trac.osgeo.org). libgeos/geos#948 is still open although its input has given the correct result since 3.13.1 (#1229); FINAL.md suggests it may be possible to close it. Different problems, checked: #696/#716 (OverlayNG simple-GC support, 3.12.0), #1023/#1050 (3.9 branch), #1059 (representation of an intersection with a GC of adjacent squares), #1316 (no GC); jts#667 and jts#833 are open JTS proposals for GC support (context only). families: the superseded lead's cases are corpus family 'empty'; the other cases come from the adversarial generator of tools/crosscheck_overlay.py. Nothing has been posted."
+
+[[finding]]
+id = "geos-relateng-geometrycollection-semantics"
+library = "geos-main"
+lib = "geos@3.16.0dev-ae9cdd9"
+signature = "relate and predicates (RelateNG) with valid GeometryCollection operands (documented as supported under union semantics), three independent defects: (D1, mixed GCs) TopologyComputer::addPointOnGeometry records Exterior x Interior = 2 and Exterior x Boundary = 1 for a Point element against an areal target even when the point lies in the target's exterior, and addLineEndOnGeometry records nothing for a line end on a Point element of a mixed target: GC(square [0,4]^2, POINT (10 10)) vs square [1,2]^2 gives 212FF1212 (exact 212FF1FF2, contains false); LINESTRING (0 0, 1 0, 0 1, 0 0) is within GC(POINT (0 0), LINESTRING (5 5, 6 6)) (0FFFFF102, exact 0F1FFF102); (D2, overlapping GC polygons) RelateNode::addEdges checks the sector of a new area edge only after both edges of the section are inserted, so overlapping sections keep EXTERIOR sides and a point interior to the union is located on its boundary: GC(arrowhead, rectangle) vs POINT (2 1) gives FF20F1FF2 (exact 0F2FF1FF2: contains false, touches true); (D3, overlapping or adjacent GC polygons) away from the other operand the union boundary is seen only through each ring's first vertex (RelateNG::computeAreaVertex) and nodes where the GC's own polygons cross are never evaluated: four overlapping strips forming a 3x3 frame with a 1x1 hole equal the full square (2FFF1FFF2, exact 2FF11F2F2), and rings starting at a vertex interior to the union lose BE (FF2FFF102, exact FF2FF1102)"
+fields = ["relate", "predicates.contains", "predicates.covers", "predicates.within", "predicates.covered_by", "predicates.overlaps", "predicates.crosses", "predicates.touches", "predicates.equals"]
+families = ["gc"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): D1, D2, D3 wrong (identical results, prepared and unprepared)",
+    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel), 3.13.0 (d7957246, source build, the first RelateNG release): D1, D2, D3 wrong",
+    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): D1 cases with a Point element against an areal target correct, D1 cases where a line ends on a Point element wrong differently; D2 and D3 throw TopologyException (overlapping GCs unsupported before RelateNG)",
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd, RelateNG API (opt-in, not JTS's default): the same matrices as GEOS main on all 22 cases in both argument orders, prepared and unprepared",
+    "JTS 1.20.0 (6e95fe82feb986a7aa657f4ffa406d8c290af509), RelateNG API: the same relate(A,B) as GEOS main on 21 of 22 cases (known-gc-overlap-as-b is exact) and relate(B,A) on 20 (relate(square, frame) = 2FFF1FFF2 as on GEOS 3.13.0; main 212F11FF2; exact 212F1FFF2)",
+    "JTS master and 1.20.0 with the default relate (jts.relate unset): Geometry.relate (and Geometry.crosses, which calls it) throws IllegalArgumentException for GC arguments; the other named predicates go through RelateOp, which throws TopologyException on the D2 and D3 cases and gives the expected contains/covers/within/coveredBy on the D1 cases",
+    "GEOS main + prototype_fix_1.diff, _2.diff and _3.diff together: ctest 535/535; 1001 of 29,719 sweep answers corrected, none broken (patch 2 alone breaks 10, so it must land with patch 3)",
+]
+cases = "findings/geos-relateng-geometrycollection-semantics/cases.jsonl"
+repro = "findings/geos-relateng-geometrycollection-semantics/repro.c"
+evidence = "findings/geos-relateng-geometrycollection-semantics/ISSUE.md"
+links = [
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/include/geos/operation/relateng/RelateNG.h#L64-L65",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/TopologyComputer.cpp#L332-L339",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/RelateNode.cpp#L92-L111",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/RelateNG.cpp#L619-L630",
+    "https://github.com/libgeos/geos/blob/ae9cdd98be4e0bae552b918d4d14c94a9ce99c58/src/operation/relateng/TopologyComputer.cpp#L533-L543",
+    "https://github.com/libgeos/geos/issues/1148",
+    "https://github.com/locationtech/jts/pull/1069",
+    "https://github.com/libgeos/geos/issues/1060",
+    "https://github.com/libgeos/geos/issues/1022",
+    "https://github.com/libgeos/geos/issues/982",
+    "https://github.com/libgeos/geos/issues/981",
+    "https://github.com/libgeos/geos/pull/1201",
+    "https://github.com/locationtech/jts/pull/1099",
+]
+upstream_issue = ""
+supersedes_lead = "relateng-gc-polygon-with-exterior-point"
+notes = "Confirmed at triage and by an independent review; not yet reported. One directory, three GEOS reports and one JTS report: FINAL.md (D1), FINAL_2_overlapping_sections.md (D2) and FINAL_3_union_boundary.md (D3) for libgeos/geos, JTS_FINAL.md (sections 1 to 3) for locationtech/jts; the D2 and D3 patches must land together (ISSUE.md section 6). D3's first-vertex sub-case (d3-no-boundary-vertex) is the TODO at RelateNG.cpp:621 / RelateNG.java:507 ('use extremal (highest) point to ensure one is on boundary of polygon cluster') made concrete, not an unanticipated defect; that TODO's extremal-point idea would not fix the union-hole (frame) case, whose boundary contains no ring vertex. GEOS contradicts itself: relate(unaryUnion(A), B) is exact for D2 and D3 (not for D1, where the union is still a mixed GC; D1's evidence is contains without the far point and GEOS's own difference), and its point locator puts the frame's centre outside the frame. In the D1 line form GEOS's crosses = true is also the exact answer; only within and coveredBy are wrong there. In JTS, RelateNG is opt-in (GeometryRelate.RELATE_NG_DEFAULT = false), so JTS users meet these only through the RelateNG API or -Djts.relate=ng. No duplicate found: #1148 (fixed for 3.13.0 by the port of jts#1069) is the covered-element case, correct on main; #981, #982, #1022, #1027 and #1033 (the GC issues listed in #1060) give the expected answers on main; #983, #1011, #1147, #1149, #1275, jts#1052/#1055/#1073/#1089/#1090/#1099, jts#1175/#1200 (NTS #862) and the overlay issues #948, jts#784/#833 are different problems. The lead's other classes are covered by geos-relateng-line-end-skip (the GH-1201 covered-ring regression) and geos-relateng-segfault (the empty-element dimension case). The GEOS 3.13.0, 3.13.1 and 3.14.1 outputs were re-run when the review's corrections were applied (identical); the JTS test counts, the 29,719-case sweep and the 2.5x prototype cost are the triage's figures (output/). finding.toml proposes one entry per defect."
+
+[[finding]]
 id = "geos-relateng-line-end-skip"
 library = "geos-main"
 lib = "geos@3.16.0dev-ae9cdd9"
-signature = "relate (RelateNG): the known-exterior skip in computeLineEnds and computeAreaVertex fires after the first element point found in the other operand's exterior even when that point is a Mod-2 interior line end (the start of a closed line, a shared end) or a GC area vertex inside another polygon of the collection; later envelope-disjoint elements are skipped and their boundary is never recorded, so EB or BE is F instead of 0 (line ends) or 1 (GC polygons) and the matrix depends on element order (POINT (10 10) vs MULTILINESTRING ((0 0, 1 0, 1 1, 0 0), (5 5, 6 6)): FF0FFF1F2, exact FF0FFF102); relatePattern is affected, the named predicates are not"
+signature = "relate (RelateNG): the known-exterior skip in computeLineEnds and computeAreaVertex fires after the first element point found in the other operand's exterior even when that point is a Mod-2 interior line end (the start of a closed line, a shared end) or a GC area vertex inside another polygon of the collection; later envelope-disjoint elements are skipped and their boundary is never recorded, so EB or BE is F instead of 0 (line ends) or 1 (GC polygons) and the matrix depends on element order (POINT (10 10) vs MULTILINESTRING ((0 0, 1 0, 1 1, 0 0), (5 5, 6 6)): FF0FFF1F2, exact FF0FFF102; GEOMETRYCOLLECTION (POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1)), POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0))) vs LINESTRING (10 10, 11 11): FF2FFF102, exact FF2FF1102); relatePattern is affected, the named predicates are not"
 fields = ["relate"]
 families = ["multiline-line-ends", "gc-area-vertex"]
 status = "confirmed"
@@ -187,8 +311,8 @@ verified_on = [
     "GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513abb0c29c185443cf2bfb06c9281024b5): wrong",
     "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel) and 3.13.0 (d7957246, built from source): wrong",
     "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): correct",
-    "JTS 1.20.0: line ends and area vertices wrong; JTS master 3ea61f8: line ends fixed (locationtech/jts#1200), area vertices still wrong",
-    "GEOS main with patch/port-jts-1200.diff and patch/area-vertex-skip.diff: correct",
+    "JTS 1.20.0 (RelateNG): line ends and area vertices wrong; JTS master 3ea61f8: line ends fixed (locationtech/jts#1200), area vertices still wrong (45 of the 3000 gc-3 sweep cases); JTS's default Geometry.relate (RelateOp) is correct on the line cases and rejects GeometryCollections",
+    "GEOS main with patch/port-jts-1200.diff then patch/area-vertex-skip.diff (in this order): correct; sweeps 279 + 9 + 65 skip-class disagreements -> 0; GEOS XML tests 171/171 and RelateNG unit tests 155/155 pass",
 ]
 cases = "findings/geos-relateng-line-end-skip/cases.jsonl"
 repro = "findings/geos-relateng-line-end-skip/repro.c"
@@ -197,38 +321,51 @@ links = [
     "https://github.com/locationtech/jts/issues/1175",
     "https://github.com/locationtech/jts/pull/1200",
     "https://github.com/locationtech/jts/commit/e8de44d9fa36049ec165cc308cabaa66bf72957a",
+    "https://github.com/NetTopologySuite/NetTopologySuite/issues/862",
+    "https://github.com/NetTopologySuite/NetTopologySuite/pull/869",
     "https://github.com/NetTopologySuite/NetTopologySuite/pull/886",
+    "https://github.com/libgeos/geos/pull/1201",
+    "https://github.com/locationtech/jts/pull/1099",
 ]
 upstream_issue = ""
-notes = "Confirmed at triage (ISSUE.md); not yet reported. The line-end part is known upstream in JTS (locationtech/jts#1175, fixed by #1200 and ported to NetTopologySuite) but was never ported to GEOS, and no GEOS issue or PR exists; the area-vertex part is new and unfixed in GEOS and JTS master. FINAL.md (GEOS: port #1200 plus the area-vertex fix, with tested patches in patch/) and JTS_FINAL.md (area-vertex part only) are drafted. Only the DE-9IM matrix is affected. The same triage found a second, separate cluster in covered-ring/: a GEOS 3.13.1 regression from GH-1201 (a port of locationtech/jts#1099) after which a linear or GeometryCollection operand B is no longer self-noded when A is polygonal, which makes contains, touches, covers and within wrong for valid polygon/line and polygon/GC pairs (covered-ring/FINAL.md). It needs its own findings/ directory before it can have its own entry here; until then this note is its only registration. finding.toml in this directory is the triage's registry proposal for both clusters."
+notes = "Confirmed at triage (ISSUE.md) and by an independent review; not yet reported. Severity: wrong matrix, not wrong predicate (relate, prepared relate, relatePattern). The line-end part is known upstream in JTS (locationtech/jts#1175, fixed by #1200, merged 2026-06-13; ported to NetTopologySuite as NTS #862 / PR #869, with PR #886 syncing the JTS XML test) but was never ported to GEOS, and no GEOS issue or PR exists, so the GEOS report is a port request, not a new discovery. The area-vertex part is new and unfixed in GEOS and JTS master; it overlaps with geos-relateng-geometrycollection-semantics (D3, same function and TODO at RelateNG.cpp:621): D3's vertex choice fixes les-5 but not the nested-squares case les-6, so both fixes are needed and the reports cross-reference each other. FINAL.md (GEOS: port #1200 plus the area-vertex fix; patch/area-vertex-skip.diff must be applied after patch/port-jts-1200.diff, whose Location alias it uses) and JTS_FINAL.md (area-vertex part only; in JTS it is reachable only through RelateNG or jts.relate=ng) are drafted. les-1 is the smallest non-degenerate case; les-1-degenerate-closed is a valid 5-coordinate variant. GEOS #1147/#1148/#1149, #1275, #983, #1022, #1027, #1064 and #1346 were checked and are different problems. The same triage found a second, separate cluster in covered-ring/: a GEOS 3.13.1 regression from GH-1201 (a port of locationtech/jts#1099) after which a linear or GeometryCollection operand B is no longer self-noded when A is polygonal, which makes contains, touches, covers and within wrong for valid polygon/line and polygon/GC pairs (covered-ring/FINAL.md, covered-ring/JTS_FINAL.md). It needs its own findings/ directory before it can have its own entry here; until then this note is its only registration (finding.toml holds the proposed entry)."
 
 [[finding]]
 id = "geos-relateng-segfault"
 library = "geos-main"
 lib = "geos@3.16.0dev-ae9cdd9"
-signature = "relate and predicates (RelateNG) crash with SIGSEGV on a valid GeometryCollection that has an EMPTY element: in AdjacentEdgeLocator::addSections (a POLYGON EMPTY, and a point on the boundaries of two of the collection's polygons: intersects, within, touches, contains, covers, relate and the prepared predicates) or in LinearBoundary::hasBoundary from TopologyComputer::initExteriorEmpty (a LINESTRING EMPTY beside points, against an empty operand: relate); the same declared-versus-real dimension mix-up also gives a wrong matrix without a crash"
-fields = ["relate", "predicates.intersects", "predicates.within", "predicates.touches", "predicates.contains", "predicates.covers"]
-families = ["gc-empty-element"]
+signature = "relate/predicates (RelateNG): SIGSEGV when a GeometryCollection operand contains an EMPTY element: (1) POLYGON EMPTY + a located point on >= 2 polygon boundaries -> AdjacentEdgeLocator::addSections loops to SIZE_MAX over the 0-point shell (AdjacentEdgeLocator.cpp:67-68); the full-matrix entry points crash (relate, relate with a boundary node rule, prepared relate), relatePattern unless it can decide first, and so does each named predicate that reaches the point before deciding (which ones depends on the operand: for the point case intersects, disjoint, touches, crosses, within, covered_by, contains(B,A), covers(B,A) and prepared forms; equals and overlaps do not crash); (2) GC whose declared dimension comes from an empty LineString, related to an empty operand -> TopologyComputer::initExteriorEmpty (TopologyComputer.cpp:95,101) calls hasBoundary on a null LinearBoundary (RelatePointLocator.cpp:70); every full-matrix or pattern entry point crashes (relate, relate with a boundary node rule, prepared relate, relatePattern unless the empty operand decides the pattern early, e.g. FF*FF**** crashes and T******** does not); the named predicates short-circuit and do not crash. In RelateNG the same declared-vs-real dimension cause gives wrong exterior entries without a crash (EMPTY_ELEMENT_DIMENSION); that wrong matrix is not a RelateNG regression (GEOS 3.11.4 RelateOp gives the same)."
+fields = ["relate", "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses", "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within", "predicates.covered_by"]
+families = ["empty"]
 status = "confirmed"
 status_date = "2026-09-26"
 priority = "high"
 verified_on = [
-    "GEOS main ae9cdd98b and 3.15.0 (d0228513a): both crashes reproduce; the no-crash case is wrong",
-    "GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) and 3.13.1 (Shapely 2.1.2 wheel): both crashes, the no-crash case wrong",
-    "GEOS 3.11.4 (Shapely 2.0.7 wheel, RelateOp): no crash; the LINESTRING EMPTY case raises IllegalArgumentException; the no-crash case is already wrong",
-    "JTS master 3ea61f8 and 1.20.0 (RelateNG): the AdjacentEdgeLocator case is correct; the LINESTRING EMPTY case throws NullPointerException; the no-crash case is wrong",
+    "main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58: both crashes; the no-crash case wrong",
+    "release 3.15.0 d0228513abb0c29c185443cf2bfb06c9281024b5: identical to main; the 3.15 branch (head 86a4af48) has no relateng change since 3.15.0",
+    "3.14.1 (shapely 2.2.0rc1 wheel) and 3.13.1 (shapely 2.1.2 wheel): both crashes (relate, relate_pattern; crash 1 also intersects/within/touches); the no-crash case wrong",
+    "no crash: 3.11.4 (shapely 2.0.7 wheel, RelateOp): crash-1 input correct, crash-2 input raises IllegalArgumentException (RelateOp GC limitation, libgeos/geos#983), both wrong matrices already present",
+    "not run: 3.12.x, 3.13.0",
+    "main + prototype_fix.diff: no crash; every entry point equals the EMPTY-free control",
+    "JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd and 1.20.0 6e95fe82, RelateNG API or -Djts.relate=ng: crash (2) is a NullPointerException, crash (1) does not occur, the wrong matrix does; JTS default Geometry.relate (RelateOp) throws IllegalArgumentException for GC arguments and default intersects is correct",
 ]
 cases = "findings/geos-relateng-segfault/cases.jsonl"
 repro = "findings/geos-relateng-segfault/repro.c"
 evidence = "findings/geos-relateng-segfault/ISSUE.md"
 links = [
     "https://github.com/libgeos/geos/issues/1011",
+    "https://github.com/libgeos/geos/issues/983",
     "https://github.com/libgeos/geos/issues/1406",
+    "https://github.com/libgeos/geos/pull/1410",
     "https://github.com/libgeos/geos/issues/1002",
+    "https://github.com/libgeos/geos/issues/1060",
     "https://github.com/shapely/shapely/issues/2425",
+    "https://github.com/libgeos/geos/commit/face0894c3a82268d4e551f65fa1c620b48cbf20",
+    "https://github.com/locationtech/jts/pull/1090",
 ]
 upstream_issue = ""
-notes = "Status and priority are the verdict of the triage write-up (ISSUE.md: a new, valid bug with two crash sites, high priority, not reported upstream yet); FINAL.md is the report drafted for libgeos/geos. Registered on 2026-09-26 while the directory was still being written, so re-check before citing. The linked issues are related (the same empty-element dimension confusion before RelateNG, or crashes on empty collection members in other operations), not duplicates. The crashes were found by the adversarial generator of the relate cross-checks (tests/crosscheck/test_relate_dual.py pins two); gc-empty-element is the family of the minimal cases, not a generator family. Nothing has been posted."
+supersedes_lead = "relateng-empty-operand-type-dimension"
+notes = "New bug; no duplicate found in libgeos/geos, locationtech/jts or shapely/shapely (open and closed), confirmed by an independent skeptic review. FINAL.md (GEOS) and JTS_FINAL.md (JTS, NPE + wrong IM) are ready but not posted. Regression framing: crash 1 replaced a correct answer (3.11.4), crash 2 replaced RelateOp's IllegalArgumentException (#983, open); the wrong matrices are older than RelateNG, and 'same cause as crash 2' holds only for RelateNG (GEOS 3.13+, JTS RelateNG). Which named predicates crash depends on the operand; entrypoints.c and output_entrypoints_*.txt list every relate/pattern/named/prepared C API entry point with EMPTY-free controls. In JTS only RelateNG API callers or -Djts.relate=ng are affected. Prototype fix (prototype_fix.diff: skip empty polygons in AdjacentEdgeLocator::addRings; TopologyComputer::getDimension returns getDimensionReal; built on a copy of the main ae9cdd98b tree, local snapshot commit 12d720e, identical apart from the two files) passes GEOS ctest 535/535 and JTS relateng JUnit 154/154, removes all 13 crashes of a 25,000-case regeneration and changes no previously exact answer. The pinned GEOS_CRASHES and EMPTY_ELEMENT_DIMENSION cases in tests/crosscheck/test_relate_dual.py belong to this finding, and so does the leads.toml lead relateng-empty-operand-type-dimension (POINT EMPTY vs GC(POLYGON EMPTY, LINESTRING): FFFFFF212, exact FFFFFF102; in RelateNG the same initExteriorEmpty declared-dimension cause, fixed by the same patch; case lead-relateng-empty-operand-type-dimension in cases.jsonl). The finding did not grow out of that lead (it came from GEOS_CRASHES), but it subsumes it. The lead relateng-gc-polygon-with-exterior-point is a different defect (no EMPTY element; unchanged by the patch). geos-relateng-geometrycollection-semantics's D1 fix also corrects the wrong-matrix case by another route, and its D2 patch touches AdjacentEdgeLocator next to this fix (rebase needed for whichever lands second). families: the corpus family \"empty\" is where the subsumed lead's case comes from (corpus/cases/core/empty.jsonl); the crashes themselves were found by the adversarial generator of tools/crosscheck_relate.py (13 in 25,000 cases), which is not a corpus family, and cases.jsonl labels its minimal cases gc-empty-element. cases.jsonl and scan_crashes.jsonl are v2 typed-JSON case records (geotruth.io.case_from_json reads them) with the WKT kept in a_wkt/b_wkt. GEOS 3.12.x and 3.13.0 were not run; PostGIS was not tested. GEOS has no security policy or private reporting channel (checked 2026-09-26), so under SECURITY.md the report goes to its public tracker."
 
 [[finding]]
 id = "geos-tiny-coordinates-underflow"
@@ -290,6 +427,83 @@ upstream_issue = "https://github.com/libgeos/geos/issues/1405"
 supersedes_lead = "geos-3.13-tiling-union-drops-tile"
 notes = "The same bug as libgeos/geos#1405, fixed by #1499 in GEOS 3.15.0; do not file a new issue. libgeos/geos#1344, whose input comes from shapely/shapely#2368, is an open duplicate: FINAL.md is the comment drafted for it (same root cause as #1405, fixed in 3.15.0). ISSUE.md, the triage write-up, also drafts a request to backport #1499 to the 3.14 (and 3.13) branch. Nothing has been posted. Shapely 2.1.2 wheels bundle GEOS 3.13.1, so Shapely users still hit the bug (shapely/shapely#2426)."
 
+[[finding]]
+id = "jts-master-union-extreme-regression"
+library = "jts-main"
+lib = "jts@1.21.0-SNAPSHOT-3ea61f8"
+signature = "overlay, two independent JTS defects. (D1, regression on master only) since #1114 (4668803) KdTree.insertExact compares p.distanceSq(node) <= toleranceSq, and toleranceSq = tolerance^2 is +Infinity for a snap tolerance above 1.34e154; when an OverlayNGRobust overlay with large coordinates falls back to snapping (forced here because Geometry.getArea() overflows to NaN and the area check fails; tolerance = magnitude/1e12, times 10 per try), snapSelf merges every vertex and union, intersection, difference and symdifference return POLYGON EMPTY with no exception: OverlayNGRobust.overlay(A, A, UNION) for A = POLYGON ((0 0, 2e170 1e170, 1e170 2e170, 0 0)) is POLYGON EMPTY (exact: A), and new KdTree(1e155) merges (0 0) and (1e300 0). (D2, JTS 1.18.0 to master; 1.18.0 throws IllegalArgumentException instead) OverlayMixedPoints.extractPolygons casts every element of the non-strictly noded polygonal operand to Polygon, so union and symdifference of a polygonal geometry and a point throw ClassCastException 'LineString cannot be cast to Polygon' when a polygon collapses to a line under the precision model: OverlayNG.overlay(MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0))), POINT (7 7), UNION, new PrecisionModel(1)) throws (expected GEOMETRYCOLLECTION (POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0)), LINESTRING (3 0, 5 0), POINT (7 7)))"
+fields = ["overlay.union", "overlay.intersection", "overlay.difference", "overlay.symdifference"]
+families = ["line-polygon", "point-geometry"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "D1: JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd (head on 2026-09-26): wrong (POLYGON EMPTY from max |ordinate| of about 1.3e162, measured for these inputs)",
+    "D1: JTS 1.20.0 (6e95fe82feb986a7aa657f4ffa406d8c290af509): correct",
+    "D1: bisected to 4668803bdf3c460c1ab35f8c0ba00752e0b3edd4 (#1114) on the corpus case at 3.8e220; the minimal triangle is also correct at 4668803^ and empty at 4668803. The corpus case scaled to 1.5e162 bisects to 52c5d988 (#1187), which for that input only removes a ring rotation that let it pass the area check; the minimal triangle is empty from 2^538 already at 4668803 and 52c5d988^ (bisect/output_history.txt)",
+    "D1: JTS master 3ea61f8 + prototype_fix.diff: correct (exact or snap-rounded); core JUnit results unchanged; 3 new tests pass",
+    "D1: default Geometry.union (SnapIfNeededOverlayOp): correct on both builds for these inputs; Geometry.union with -Djts.overlay=ng: wrong on master",
+    "D1 context, not part of the regression: KdTree(0.0) merges (0 0) and (1e-170 0) (squared-distance underflow) on master, at aa755818 (#1112), at 4668803^ and in 1.18.0; aa755818^ and 1.20.0 keep 2 nodes (bisect/output_history.txt)",
+    "D2: JTS master 3ea61f8 and 1.20.0: ClassCastException for UNION and SYMDIFFERENCE, both argument orders, strict mode too; also through OverlayNGRobust.overlay with a fixed-PrecisionModel GeometryFactory, through A.union(P) and A.symDifference(P) with -Djts.overlay=ng, and with POINT EMPTY as the point operand",
+    "D2: JTS 1.18.0 (Maven Central jar): IllegalArgumentException 'Argument must be Polygonal or LinearRing' (IndexedPointInAreaLocator) for UNION, SYMDIFFERENCE and DIFFERENCE(A, P); DIFFERENCE(P, A) succeeds",
+    "D2: JTS master 3ea61f8 + mixed-points/prototype_fix.diff: correct in non-strict mode (GEOMETRYCOLLECTION (POLYGON, LINESTRING (3 0, 5 0), POINT (7 7))); strict mode still keeps the collapse line (OverlayMixedPoints ignores strict mode); core JUnit results unchanged; the new test passes",
+    "D2: GEOS 3.11.4, 3.13.1, 3.14.1 (Shapely wheels, grid_size=1): the expected non-strict answer (through an undefined-behaviour static_cast); GEOS 3.15.0 and main ae9cdd9: GEOMETRYCOLLECTION (POLYGON, POINT), no crash (strict noding since GEOS 095c7270, incidentally)",
+]
+cases = "findings/jts-master-union-extreme-regression/cases.jsonl"
+repro = "findings/jts-master-union-extreme-regression/Repro.java"
+evidence = "findings/jts-master-union-extreme-regression/ISSUE.md"
+links = [
+    "https://github.com/locationtech/jts/pull/1114",
+    "https://github.com/locationtech/jts/commit/4668803bdf3c460c1ab35f8c0ba00752e0b3edd4",
+    "https://github.com/locationtech/jts/pull/1187",
+    "https://github.com/locationtech/jts/pull/1112",
+    "https://github.com/locationtech/jts/issues/1110",
+    "https://github.com/locationtech/jts/pull/923",
+    "https://github.com/locationtech/jts/pull/1197",
+    "https://github.com/locationtech/jts/issues/951",
+    "https://github.com/locationtech/jts/issues/295",
+    "https://github.com/NetTopologySuite/NetTopologySuite/issues/814",
+    "https://github.com/NetTopologySuite/NetTopologySuite/pull/848",
+    "https://github.com/locationtech/jts/blob/3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd/modules/core/src/main/java/org/locationtech/jts/operation/overlayng/OverlayMixedPoints.java#L234-L243",
+    "https://github.com/libgeos/geos/commit/095c72709ea5043b4a1433d2adb3611410564cd3",
+    "https://github.com/libgeos/geos/issues/931",
+    "https://github.com/locationtech/jts/issues/1133",
+]
+upstream_issue = ""
+notes = "Confirmed at triage and by an independent review; not yet reported. One directory, two reports for locationtech/jts: FINAL.md (D1) and mixed-points/FINAL.md (D2, whose cases, repro and prototype fix are in mixed-points/); ISSUE.md is the full triage. No priority key because the entry covers both defects. D1 alone is low priority: it needs |ordinates| above about 1.3e162 (for these inputs) or a KdTree tolerance above 1.34e154, JTS documents no coordinate range, and the open, unmerged PR #1197 describes DD orientation as sound only for |coordinates| in about [2^-511, 2^511], so upstream may call such inputs out of range; it is still a silent wrong answer, a regression from 1.20.0 in unreleased code, with a one-line fix. D2 is normal priority: valid input with small, ordinary coordinates (0 to 7), through the documented fixed-PrecisionModel API. Both corpus cases need extreme coordinates (line-polygon-1-000090 at 3.8e220 for D1; point-geometry-1-000016 at about 1e-161 for D2, where the known orientation underflow of geos-tiny-coordinates-underflow collapses the small triangle), but neither defect is that mechanism. The tolerance-0 KdTree merge at the tiny end is older than #1114 (on master since #1112, whose MathUtil.hypot is a deliberate speed trade-off; also in 1.19.0 and earlier; only 1.20.0, with #923's Math.hypot, avoids it), so FINAL.md gives it as context and not as part of the regression. Related, none a duplicate: #1114, #1112/#1110, #923, #1187, #951, #1197, #295, #1133, geos#931, NTS#814 and PR NTS#848 (they port nearestNeighbor only, so NTS is unaffected for now), and GEOS 095c7270 (strict noding in 3.15+, not a fix for D2). NTS has the same (Polygon) cast as D2 (not run)."
+
+[[finding]]
+id = "turf-boolean-predicates"
+library = "turf"
+lib = "turf@7.4.0"
+signature = "booleanTouches, Polygon/MultiPolygon operands: decided from A's vertices only, and only from the first part of a MultiPolygon. Polygon/Polygon (index.ts L560-L581): touches = some vertex of A's outer ring on B's outer ring and no vertex of A strictly inside B; B's vertices, vertex-free interior overlap and holes as contact locations are never examined. So identical or overlapping polygons touch (POLYGON ((0 0, 1 0, 0 1, 0 0)) with itself: true, exact 2FFF1FFF2), and real touches are missed or depend on argument order (square [0,2]^2 and a triangle whose apex (1, 2) is on its top edge: touches(A, B) = false, touches(B, A) = true, exact FF2F01212). Polygon/MultiPolygon (L598) and MultiPolygon/MultiPolygon (L753) pass a single ring as a Polygon's coordinates, so the strictly-inside test never fires and A touches B as soon as a tested vertex of A lies on a ring of B's first part, even with A inside B (POLYGON ((2 0, 3 2, 1 2, 2 0)) and MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0))): true, exact 2FF10F212). MultiPolygon/MultiPolygon also bounds its vertex loop by the ring count (L731)"
+fields = ["predicates.touches"]
+families = ["hole-contact", "int-grid", "multi-touch", "near-collinear", "scaled", "shared-edge", "sliver-spike", "tiling-contact", "tiny-transform", "vertex-on-edge", "tiny-rotation", "shared-sloped-edge"]
+status = "confirmed"
+status_date = "2026-09-26"
+verified_on = [
+    "Turf master bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7 (head on 2026-09-26; packages/*/index.ts bundled with esbuild): 5/5 minimal cases wrong; the extra.mjs cases (L598, L753, L731, holes) as in output/extra-turf-master-bec3ac7.txt",
+    "@turf/turf 7.4.0 (npm latest, tag v7.4.0 = 22acbd806adb80eece91b7fc43589d5d7788e815): 5/5 wrong; extra.mjs output identical to master",
+    "@turf/boolean-touches 7.0.0, pinned (with @turf/boolean-point-on-line, boolean-point-in-polygon, helpers and invariant 7.0.0): 5/5 wrong",
+    "@turf/boolean-touches 6.5.0: 5/5 wrong",
+    "exact: geotruth relate --dual (both routes agree), tests/reference/indep.py and oracle.py (both orders), JSTS 2.12.1 and Shapely 2.1.2 / GEOS 3.13.1 touches: all agree with each other and disagree with Turf; the extra.mjs matrices (output/exact-extra.txt) agree with JSTS 2.12.1",
+]
+cases = "findings/turf-boolean-predicates/cases.jsonl"
+repro = "findings/turf-boolean-predicates/repro.mjs"
+evidence = "findings/turf-boolean-predicates/FINAL.md"
+links = [
+    "https://github.com/Turfjs/turf/blob/bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7/packages/turf-boolean-touches/index.ts#L560-L605",
+    "https://github.com/Turfjs/turf/blob/bec3ac7860d5d71a31bd9dbc44dd1ac5fab0c0b7/packages/turf-boolean-touches/index.ts#L703-L761",
+    "https://github.com/Turfjs/turf/pull/3088",
+    "https://github.com/Turfjs/turf/issues/2454",
+    "https://github.com/Turfjs/turf/issues/1882",
+    "https://github.com/Turfjs/turf/issues/1467",
+    "https://github.com/Turfjs/turf/issues/3109",
+    "https://github.com/Turfjs/turf/issues/3025",
+]
+upstream_issue = ""
+supersedes_lead = "turf-touches-overlaps-vertex-rules"
+notes = "Confirmed at triage; not yet reported (FINAL.md is the drafted report for Turfjs/turf). It contradicts booleanTouches' own doc ('true if none of the points common to both geometries intersect the interiors of both geometries') and the JSTS/Shapely touches that the package's test.ts compares against. No tolerance is involved: booleanPointOnLine is called without epsilon, and the 5 minimal cases use small integers (all float arithmetic exact). The four Polygon/Polygon fixtures (two true, two false) all pass the small square as feature1, and test.ts runs one argument order. Core tier: 404 of 2000 areal pairs wrong, and 70 of 207 integer-coordinate pairs (60 false positives). No duplicate: #3088 (open PR) fixes only the LineString/MultiLineString branch. Related, not duplicates: #1467 (open) raises the same vertex-only concern for booleanContains, which #3104 (7.4.0, closing #2242) addressed with edge splitting in isPolyInPoly (#1467's own example is exactly contains = true, and Turf 7.4.0 returns true); #3109 (open, v8) plans to replace isPolyInPoly. The lead's other parts are not new bugs. booleanOverlap is true on any edge contact: known, #2454 (open). ISSUE.md drafts an optional comment for #2454's unreported sub-case, containment with a shared boundary ([0,2]^2 and [0,1]^2: booleanOverlap = true and booleanContains = true, exact 212F11FF2). booleanContains ignores holes: known, #1882, and #3109 plans the rewrite. booleanOverlap's geojsonEquality precision 6 and booleanContains' BOUNDARY_DISTANCE_TOLERANCE 1e-6 are by-design tolerances (RFC 7946 rationale in the source). A few near-miss touches/overlaps flips are float robustness, and Turf claims no exactness. Out of scope, noted in ISSUE.md: the MultiLineString/MultiPoint branch indexes lines with the MultiPoint index (L336, L344). An independent review's corrections were applied (7.0.0 re-run with pinned dependencies, L598/L753 root cause, hole wording, fixture count; see ISSUE.md). Nothing has been posted."
+
 
 # ------------------------------------------------------------------------------ leads
 #
@@ -298,32 +512,11 @@ notes = "The same bug as libgeos/geos#1405, fixed by #1499 in GEOS 3.15.0; do no
 # register them. None of them has been triaged by a person.
 
 [[lead]]
-id = "geos-overlay-empty-vs-gc-assertion"
-library = ["geos-main", "geos-release"]
-status = "unreviewed"
-source = "corpus/curated/leads.toml"
-signature = "GEOSIntersection_r(EMPTY, GC(Point, Polygon)) (both orders) and GEOSDifference_r(EMPTY, GC(...)) throw AssertionFailedException: Should never reach here: Unable to determine overlay result geometry dimension"
-
-[[lead]]
-id = "relateng-empty-operand-type-dimension"
-library = ["geos-main", "geos-release", "shapely", "jts-main"]
-status = "unreviewed"
-source = "corpus/curated/leads.toml"
-signature = "A empty, B = GeometryCollection(POLYGON EMPTY, LineString): relate gives FFFFFF212 (exact FFFFFF102): the empty-A shortcut uses B's type dimension (2, from the empty polygon element) instead of the dimension of B's point set (1)"
-
-[[lead]]
 id = "geo-relate-gc-line-inside-polygon"
 library = ["rust-geo"]
 status = "unreviewed"
 source = "corpus/curated/leads.toml"
 signature = "A = GeometryCollection(Polygon P, LineString inside P), B = P: relate gives 2FF01FFF2 (exact 2FFF1FFF2): the line's endpoints count as boundary of A although P covers them"
-
-[[lead]]
-id = "clipper2-polytree-nesting"
-library = ["clipper2"]
-status = "unreviewed"
-source = "corpus/curated/leads.toml"
-signature = "PolyTree64 nesting disagrees with the flat Paths64 result on touching rings: an inscribed hole comes back as a second top-level (clockwise) polygon, an island on its hole's boundary as a second hole"
 
 [[lead]]
 id = "boost-overlay-ring-structure"
@@ -338,20 +531,6 @@ library = ["martinez"]
 status = "unreviewed"
 source = "corpus/curated/leads.toml"
 signature = "xor loops forever (100 % CPU, constant memory) on two unit squares that nearly share an edge"
-
-[[lead]]
-id = "relateng-gc-polygon-with-exterior-point"
-library = ["geos-main", "geos-release", "shapely"]
-status = "unreviewed"
-source = "corpus/curated/leads.toml"
-signature = "B = GeometryCollection(Polygon P, Point outside P), A = P: relate(A, B) = 2F2F110F2 (exact 2FFF1F0F2), as if B's polygon were absent; within/covered_by false, overlaps true. A Point inside P, a LineString outside P, or a second Polygon do not trigger it"
-
-[[lead]]
-id = "turf-touches-overlaps-vertex-rules"
-library = ["turf"]
-status = "unreviewed"
-source = "corpus/curated/leads.toml"
-signature = "booleanTouches(A, A) is true for a polygon and itself, and false for two triangles that touch only where a vertex of B lies on an edge of A (the README: booleanTouches only looks at A's shell vertices; booleanOverlap is true as soon as edges intersect)"
 
 [[lead]]
 id = "polygon-clipping-unable-to-complete-ring"

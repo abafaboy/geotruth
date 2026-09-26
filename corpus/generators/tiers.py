@@ -331,6 +331,21 @@ def _curated_prov(entry: dict, kind: str, case_spec: dict | None = None) -> dict
     return prov
 
 
+def _finding_operand(src: dict, key: str) -> Any:
+    """Operand ``key`` (``"a"`` or ``"b"``) of a finding's case line.
+
+    Finding directories write their cases as typed JSON, FORMAT-v1 coordinate lists or WKT
+    (``a``/``b`` holding a WKT string, or ``a_wkt``/``b_wkt``). WKT is read with the engine's
+    own reader (float semantics), so the doubles are the ones the library was given.
+    """
+    from geotruth.io import geometry_to_json, read_wkt
+
+    value = src.get(key, src.get(f"{key}_wkt"))
+    if value is None:
+        raise KeyError(f"case {src.get('id')!r} has no operand {key!r}")
+    return geometry_to_json(read_wkt(value)) if isinstance(value, str) else value
+
+
 def build_curated() -> list[dict]:
     """Curated records: every finding's cases (registry), then every documented lead."""
     tl = _toml()
@@ -339,12 +354,15 @@ def build_curated() -> list[dict]:
         registry = tl.load(fh)
     for f in registry.get("finding", []):
         for src in _read_lines(ROOT / f["cases"]):
-            a, b = src["a"], src["b"]
+            a, b = _finding_operand(src, "a"), _finding_operand(src, "b")
             prov = _curated_prov(f, "finding")
             prov["original_source"] = f["cases"]
+            # some findings already prefix their case ids with the finding id
+            prefix = f"{f['id']}:"
+            case_id = src["id"] if src["id"].startswith(prefix) else prefix + src["id"]
             out.append(
                 casev2.make_case(
-                    f"{f['id']}:{src['id']}",
+                    case_id,
                     src.get("family") or "curated",
                     a,
                     b,

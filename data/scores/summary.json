@@ -2,13 +2,13 @@
  "format": "geotruth-score-summary/1",
  "note": "Counts from `geotruth score` against the committed exact answers. The corpus is deliberately adversarial (near-degenerate input), so these rates are not real-world failure rates, and there is no single ranking: compare per capability. Unreviewed failure clusters are not confirmed bugs (findings/registry.toml).",
  "geotruth": {
-  "git_head": "caee9072045ec61bce57ff302b6d3fa85043fd97",
+  "git_head": "9061dd814c2d55f2929a1e59f8958e240ff953b1",
   "git_worktree_clean": false,
   "src_sha256": "9022e1750f8fcd5bd8acf208b1fecebc2f37d36911a08c6d04bcd18ce9bf770b"
  },
  "runs": {
-  "first_started": "2026-09-26T08:21:05Z",
-  "last_finished": "2026-09-26T08:40:24Z"
+  "first_started": "2026-09-26T09:06:09Z",
+  "last_finished": "2026-09-26T10:58:19Z"
  },
  "tiers": {
   "core": {
@@ -25,18 +25,121 @@
    "engine_version": "0.1.0"
   },
   "curated": {
-   "cases": 34,
+   "cases": 131,
    "corpus_version": "2.0.0",
    "expected": "corpus/expected/curated.jsonl",
    "expected_version": "2",
-   "expected_sha256": "345b9ae9db1e92ea6fda2cfb3a1f486d21696c8f3213c1c5a3592cef6c299647",
+   "expected_sha256": "bc3ab64a2da8882ed93b7ef02ccf24c47e5ff62d6ea41aa61f5d6521fb14bf83",
    "expected_status": {
-    "ok": 34,
+    "ok": 131,
     "engine_skipped": 0,
     "engine_error": 0
    },
    "engine_version": "0.1.0"
   }
+ },
+ "controls": {
+  "format": "geotruth-controls/1",
+  "tiers": {
+   "core": {
+    "engine-control": {
+     "records": 22600,
+     "verdicts": {
+      "correct": 22600
+     },
+     "ok": true
+    },
+    "mutant": {
+     "cases": 3400,
+     "mutated_fields": {
+      "overlay.difference": 127,
+      "overlay.intersection": 93,
+      "overlay.symdifference": 144,
+      "overlay.union": 149,
+      "predicates.contains": 188,
+      "predicates.covered_by": 188,
+      "predicates.covers": 188,
+      "predicates.crosses": 188,
+      "predicates.disjoint": 188,
+      "predicates.equals": 188,
+      "predicates.intersects": 189,
+      "predicates.overlaps": 189,
+      "predicates.touches": 188,
+      "predicates.within": 189
+     },
+     "mutated_records": 2396,
+     "flagged": {
+      "convention": 28,
+      "wrong": 2368
+     },
+     "missed": 0,
+     "missed_examples": [],
+     "other_records_changed": 0,
+     "other_examples": [],
+     "ok": true
+    },
+    "cgal": {
+     "checked": true,
+     "sidecar": "core.exact.jsonl",
+     "overlays": 8048,
+     "area_exact": 8048,
+     "same_point_set": 8048,
+     "ogc_valid": 8048,
+     "no_expected_answer": 0,
+     "failures": [],
+     "ok": true
+    }
+   },
+   "curated": {
+    "engine-control": {
+     "records": 899,
+     "verdicts": {
+      "correct": 899
+     },
+     "ok": true
+    },
+    "mutant": {
+     "cases": 131,
+     "mutated_fields": {
+      "overlay.difference": 3,
+      "overlay.intersection": 6,
+      "overlay.symdifference": 5,
+      "overlay.union": 5,
+      "predicates.contains": 7,
+      "predicates.covered_by": 7,
+      "predicates.covers": 7,
+      "predicates.crosses": 7,
+      "predicates.disjoint": 8,
+      "predicates.equals": 7,
+      "predicates.intersects": 8,
+      "predicates.overlaps": 8,
+      "predicates.touches": 7,
+      "predicates.within": 8
+     },
+     "mutated_records": 93,
+     "flagged": {
+      "wrong": 93
+     },
+     "missed": 0,
+     "missed_examples": [],
+     "other_records_changed": 0,
+     "other_examples": [],
+     "ok": true
+    },
+    "cgal": {
+     "checked": true,
+     "sidecar": "curated.exact.jsonl",
+     "overlays": 232,
+     "area_exact": 232,
+     "same_point_set": 232,
+     "ogc_valid": 232,
+     "no_expected_answer": 0,
+     "failures": [],
+     "ok": true
+    }
+   }
+  },
+  "ok": true
  },
  "libraries": {
   "boost-1.83": {
@@ -255,177 +358,205 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 34,
+     "headline_failures": 103,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
      "capabilities": {
       "relate": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
+       "graded": 69,
+       "failures": 22,
+       "failure_rate": 0.318841,
+       "correct": 47,
+       "wrong": 22,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 7,
          "failures": 5
+        },
+        "normal": {
+         "graded": 62,
+         "failures": 17
         }
        }
       },
       "predicates": {
-       "graded": 22,
-       "failures": 3,
-       "failure_rate": 0.136364,
-       "correct": 19,
-       "wrong": 3,
+       "graded": 69,
+       "failures": 18,
+       "failure_rate": 0.26087,
+       "correct": 51,
+       "wrong": 18,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 6
+        },
         "normal": {
-         "graded": 22,
-         "failures": 3
+         "graded": 62,
+         "failures": 12
         }
        }
       },
       "validity": {
-       "graded": 27,
-       "failures": 1,
-       "failure_rate": 0.037037,
-       "correct": 26,
-       "wrong": 1,
+       "graded": 118,
+       "failures": 8,
+       "failure_rate": 0.067797,
+       "correct": 110,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 7,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 7
+        },
         "normal": {
-         "graded": 27,
+         "graded": 111,
          "failures": 1
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
+       "graded": 59,
+       "failures": 8,
+       "failure_rate": 0.135593,
+       "correct": 51,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 1
+         "graded": 54,
+         "failures": 3
         }
        },
        "topological": {
         "invalid_output": 1,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 6,
-       "failure_rate": 0.272727,
-       "correct": 16,
-       "wrong": 6,
+       "graded": 59,
+       "failures": 14,
+       "failure_rate": 0.237288,
+       "correct": 45,
+       "wrong": 14,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 6
+         "graded": 54,
+         "failures": 9
         }
        },
        "topological": {
-        "invalid_output": 2,
+        "invalid_output": 4,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 1,
-        "missing_or_extra_parts": 1
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 6
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 59,
+       "failures": 13,
+       "failure_rate": 0.220339,
+       "correct": 46,
+       "wrong": 13,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 3
+        },
         "normal": {
-         "graded": 22,
-         "failures": 7
+         "graded": 54,
+         "failures": 10
         }
        },
        "topological": {
         "invalid_output": 1,
         "invalid_output_exact_point_set": 1,
         "invalid_output_within_rounding": 1,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 11,
-       "failure_rate": 0.5,
-       "correct": 11,
-       "wrong": 11,
+       "graded": 59,
+       "failures": 20,
+       "failure_rate": 0.338983,
+       "correct": 39,
+       "wrong": 20,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 11
+         "graded": 54,
+         "failures": 16
         }
        },
        "topological": {
-        "invalid_output": 6,
-        "invalid_output_exact_point_set": 1,
-        "invalid_output_within_rounding": 2,
-        "missing_or_extra_parts": 1
+        "invalid_output": 8,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 4,
+        "missing_or_extra_parts": 5
        }
       }
      }
@@ -648,177 +779,205 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 32,
+     "headline_failures": 106,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
      "capabilities": {
       "relate": {
-       "graded": 22,
-       "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 69,
+       "failures": 25,
+       "failure_rate": 0.362319,
+       "correct": 44,
+       "wrong": 25,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 7
+         "graded": 62,
+         "failures": 21
         }
        }
       },
       "predicates": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
+       "graded": 69,
+       "failures": 21,
+       "failure_rate": 0.304348,
+       "correct": 48,
+       "wrong": 21,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 7,
          "failures": 5
+        },
+        "normal": {
+         "graded": 62,
+         "failures": 16
         }
        }
       },
       "validity": {
-       "graded": 27,
-       "failures": 1,
-       "failure_rate": 0.037037,
-       "correct": 26,
-       "wrong": 1,
+       "graded": 118,
+       "failures": 8,
+       "failure_rate": 0.067797,
+       "correct": 110,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 7,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 7
+        },
         "normal": {
-         "graded": 27,
+         "graded": 111,
          "failures": 1
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
+       "graded": 59,
+       "failures": 9,
+       "failure_rate": 0.152542,
+       "correct": 50,
+       "wrong": 9,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 1
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
+       "graded": 59,
+       "failures": 15,
+       "failure_rate": 0.254237,
+       "correct": 44,
+       "wrong": 15,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 5,
          "failures": 5
+        },
+        "normal": {
+         "graded": 54,
+         "failures": 10
         }
        },
        "topological": {
-        "invalid_output": 1,
+        "invalid_output": 3,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 6,
-       "failure_rate": 0.272727,
-       "correct": 16,
-       "wrong": 6,
+       "graded": 59,
+       "failures": 12,
+       "failure_rate": 0.20339,
+       "correct": 47,
+       "wrong": 12,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 3
+        },
         "normal": {
-         "graded": 22,
-         "failures": 6
+         "graded": 54,
+         "failures": 9
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
+        "missing_or_extra_parts": 4
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 59,
+       "failures": 16,
+       "failure_rate": 0.271186,
+       "correct": 43,
+       "wrong": 16,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 7
+         "graded": 54,
+         "failures": 12
         }
        },
        "topological": {
-        "invalid_output": 2,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 5
        }
       }
      }
@@ -1041,177 +1200,205 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 32,
+     "headline_failures": 106,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
      "capabilities": {
       "relate": {
-       "graded": 22,
-       "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 69,
+       "failures": 25,
+       "failure_rate": 0.362319,
+       "correct": 44,
+       "wrong": 25,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 7
+         "graded": 62,
+         "failures": 21
         }
        }
       },
       "predicates": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
+       "graded": 69,
+       "failures": 21,
+       "failure_rate": 0.304348,
+       "correct": 48,
+       "wrong": 21,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 7,
          "failures": 5
+        },
+        "normal": {
+         "graded": 62,
+         "failures": 16
         }
        }
       },
       "validity": {
-       "graded": 27,
-       "failures": 1,
-       "failure_rate": 0.037037,
-       "correct": 26,
-       "wrong": 1,
+       "graded": 118,
+       "failures": 8,
+       "failure_rate": 0.067797,
+       "correct": 110,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 7,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 7
+        },
         "normal": {
-         "graded": 27,
+         "graded": 111,
          "failures": 1
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
+       "graded": 59,
+       "failures": 9,
+       "failure_rate": 0.152542,
+       "correct": 50,
+       "wrong": 9,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 1
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
+       "graded": 59,
+       "failures": 15,
+       "failure_rate": 0.254237,
+       "correct": 44,
+       "wrong": 15,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 5,
          "failures": 5
+        },
+        "normal": {
+         "graded": 54,
+         "failures": 10
         }
        },
        "topological": {
-        "invalid_output": 1,
+        "invalid_output": 3,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 6,
-       "failure_rate": 0.272727,
-       "correct": 16,
-       "wrong": 6,
+       "graded": 59,
+       "failures": 12,
+       "failure_rate": 0.20339,
+       "correct": 47,
+       "wrong": 12,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 3
+        },
         "normal": {
-         "graded": 22,
-         "failures": 6
+         "graded": 54,
+         "failures": 9
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
+        "missing_or_extra_parts": 4
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 59,
+       "failures": 16,
+       "failure_rate": 0.271186,
+       "correct": 43,
+       "wrong": 16,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 7
+         "graded": 54,
+         "failures": 12
         }
        },
        "topological": {
-        "invalid_output": 2,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 5
        }
       }
      }
@@ -1232,10 +1419,10 @@
       "run": 3400,
       "scored": 3400
      },
-     "headline_failures": 2100,
+     "headline_failures": 182,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -1302,10 +1489,10 @@
       },
       "overlay.intersection": {
        "graded": 2012,
-       "failures": 150,
-       "failure_rate": 0.074553,
-       "correct": 1862,
-       "wrong": 150,
+       "failures": 36,
+       "failure_rate": 0.017893,
+       "correct": 1976,
+       "wrong": 36,
        "error": 0,
        "convention": 0,
        "unsupported": 1188,
@@ -1320,22 +1507,22 @@
         },
         "normal": {
          "graded": 2009,
-         "failures": 149
+         "failures": 35
         }
        },
        "topological": {
-        "invalid_output": 150,
-        "invalid_output_exact_point_set": 32,
-        "invalid_output_within_rounding": 150,
+        "invalid_output": 36,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 36,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.union": {
        "graded": 2012,
-       "failures": 339,
-       "failure_rate": 0.168489,
-       "correct": 1673,
-       "wrong": 339,
+       "failures": 20,
+       "failure_rate": 0.00994,
+       "correct": 1992,
+       "wrong": 20,
        "error": 0,
        "convention": 0,
        "unsupported": 1188,
@@ -1350,22 +1537,22 @@
         },
         "normal": {
          "graded": 2009,
-         "failures": 339
+         "failures": 20
         }
        },
        "topological": {
-        "invalid_output": 339,
-        "invalid_output_exact_point_set": 274,
-        "invalid_output_within_rounding": 339,
+        "invalid_output": 20,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 20,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
        "graded": 2012,
-       "failures": 234,
-       "failure_rate": 0.116302,
-       "correct": 1778,
-       "wrong": 234,
+       "failures": 21,
+       "failure_rate": 0.010437,
+       "correct": 1991,
+       "wrong": 21,
        "error": 0,
        "convention": 0,
        "unsupported": 1188,
@@ -1380,22 +1567,22 @@
         },
         "normal": {
          "graded": 2009,
-         "failures": 234
+         "failures": 21
         }
        },
        "topological": {
-        "invalid_output": 234,
-        "invalid_output_exact_point_set": 111,
-        "invalid_output_within_rounding": 234,
+        "invalid_output": 21,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 21,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.symdifference": {
        "graded": 2012,
-       "failures": 1347,
-       "failure_rate": 0.669483,
-       "correct": 665,
-       "wrong": 1347,
+       "failures": 75,
+       "failure_rate": 0.037276,
+       "correct": 1937,
+       "wrong": 75,
        "error": 0,
        "convention": 0,
        "unsupported": 1188,
@@ -1406,17 +1593,17 @@
        "by_range": {
         "extreme": {
          "graded": 3,
-         "failures": 3
+         "failures": 1
         },
         "normal": {
          "graded": 2009,
-         "failures": 1344
+         "failures": 74
         }
        },
        "topological": {
-        "invalid_output": 1347,
-        "invalid_output_exact_point_set": 381,
-        "invalid_output_within_rounding": 1347,
+        "invalid_output": 75,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 75,
         "missing_or_extra_parts": 0
        }
       }
@@ -1425,14 +1612,14 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 25,
+     "headline_failures": 22,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
+     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -1442,154 +1629,178 @@
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
-       "not_reported": 22,
+       "unsupported": 66,
+       "not_reported": 59,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "predicates": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
+       "graded": 59,
+       "failures": 1,
+       "failure_rate": 0.016949,
+       "correct": 58,
        "wrong": 0,
-       "error": 0,
+       "error": 1,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 66,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 1
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 0
         }
        }
       },
       "validity": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
-       "error": 0,
+       "graded": 59,
+       "failures": 3,
+       "failure_rate": 0.050847,
+       "correct": 56,
+       "wrong": 2,
+       "error": 1,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 66,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 1
+        },
         "normal": {
-         "graded": 22,
-         "failures": 0
+         "graded": 54,
+         "failures": 2
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
-       "error": 0,
+       "graded": 59,
+       "failures": 5,
+       "failure_rate": 0.084746,
+       "correct": 54,
+       "wrong": 4,
+       "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 5,
          "failures": 1
+        },
+        "normal": {
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
-        "invalid_output": 1,
+        "invalid_output": 4,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 1,
+        "invalid_output_within_rounding": 4,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 3,
-       "failure_rate": 0.136364,
-       "correct": 19,
+       "graded": 59,
+       "failures": 4,
+       "failure_rate": 0.067797,
+       "correct": 55,
        "wrong": 3,
-       "error": 0,
+       "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 1
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 3
         }
        },
        "topological": {
         "invalid_output": 3,
-        "invalid_output_exact_point_set": 2,
+        "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 3,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 5,
-       "error": 0,
+       "graded": 59,
+       "failures": 3,
+       "failure_rate": 0.050847,
+       "correct": 56,
+       "wrong": 2,
+       "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 1
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
+         "failures": 2
+        }
+       },
+       "topological": {
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 2,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 59,
+       "failures": 6,
+       "failure_rate": 0.101695,
+       "correct": 53,
+       "wrong": 5,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 72,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 1
+        },
+        "normal": {
+         "graded": 54,
          "failures": 5
         }
        },
        "topological": {
         "invalid_output": 5,
-        "invalid_output_exact_point_set": 3,
+        "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 5,
-        "missing_or_extra_parts": 0
-       }
-      },
-      "overlay.symdifference": {
-       "graded": 22,
-       "failures": 16,
-       "failure_rate": 0.727273,
-       "correct": 6,
-       "wrong": 16,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 12,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 22,
-         "failures": 16
-        }
-       },
-       "topological": {
-        "invalid_output": 16,
-        "invalid_output_exact_point_set": 5,
-        "invalid_output_within_rounding": 16,
         "missing_or_extra_parts": 0
        }
       }
@@ -1775,11 +1986,11 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 13,
+     "headline_failures": 28,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
@@ -1792,29 +2003,29 @@
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
-       "not_reported": 22,
+       "unsupported": 73,
+       "not_reported": 52,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "predicates": {
-       "graded": 22,
+       "graded": 52,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 22,
+       "correct": 52,
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 73,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
         "normal": {
-         "graded": 22,
+         "graded": 52,
          "failures": 0
         }
        }
@@ -1827,29 +2038,29 @@
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
-       "not_reported": 22,
+       "unsupported": 73,
+       "not_reported": 52,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "overlay.intersection": {
-       "graded": 22,
+       "graded": 52,
        "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
+       "failure_rate": 0.019231,
+       "correct": 51,
        "wrong": 1,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 79,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
         "normal": {
-         "graded": 22,
+         "graded": 52,
          "failures": 1
         }
        },
@@ -1861,80 +2072,80 @@
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
+       "graded": 52,
+       "failures": 6,
+       "failure_rate": 0.115385,
+       "correct": 46,
+       "wrong": 6,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 79,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
         "normal": {
-         "graded": 22,
-         "failures": 1
+         "graded": 52,
+         "failures": 6
         }
        },
        "topological": {
-        "invalid_output": 0,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 4,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 4,
-       "failure_rate": 0.181818,
-       "correct": 18,
-       "wrong": 4,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 12,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 22,
-         "failures": 4
-        }
-       },
-       "topological": {
-        "invalid_output": 3,
-        "invalid_output_exact_point_set": 3,
-        "invalid_output_within_rounding": 3,
-        "missing_or_extra_parts": 0
-       }
-      },
-      "overlay.symdifference": {
-       "graded": 22,
+       "graded": 52,
        "failures": 7,
-       "failure_rate": 0.318182,
-       "correct": 15,
+       "failure_rate": 0.134615,
+       "correct": 45,
        "wrong": 7,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 79,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
         "normal": {
-         "graded": 22,
+         "graded": 52,
          "failures": 7
         }
        },
        "topological": {
         "invalid_output": 6,
-        "invalid_output_exact_point_set": 3,
-        "invalid_output_within_rounding": 3,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 6,
+        "missing_or_extra_parts": 0
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 52,
+       "failures": 14,
+       "failure_rate": 0.269231,
+       "correct": 38,
+       "wrong": 14,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 79,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "normal": {
+         "graded": 52,
+         "failures": 14
+        }
+       },
+       "topological": {
+        "invalid_output": 13,
+        "invalid_output_exact_point_set": 9,
+        "invalid_output_within_rounding": 10,
         "missing_or_extra_parts": 0
        }
       }
@@ -2158,9 +2369,9 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
      "headline_failures": 0,
      "timeouts": 0,
@@ -2168,10 +2379,10 @@
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 28,
+       "graded": 125,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 28,
+       "correct": 125,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2181,17 +2392,21 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "predicates": {
-       "graded": 28,
+       "graded": 125,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 28,
+       "correct": 125,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2201,17 +2416,21 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "validity": {
-       "graded": 28,
+       "graded": 125,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 28,
+       "correct": 125,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2221,17 +2440,21 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 34,
+       "graded": 131,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 34,
+       "correct": 131,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2241,8 +2464,12 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 34,
+         "graded": 124,
          "failures": 0
         }
        },
@@ -2254,10 +2481,10 @@
        }
       },
       "overlay.union": {
-       "graded": 34,
+       "graded": 131,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 34,
+       "correct": 131,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2267,8 +2494,12 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 34,
+         "graded": 124,
          "failures": 0
         }
        },
@@ -2280,10 +2511,10 @@
        }
       },
       "overlay.difference": {
-       "graded": 34,
+       "graded": 131,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 34,
+       "correct": 131,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2293,8 +2524,12 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 34,
+         "graded": 124,
          "failures": 0
         }
        },
@@ -2306,10 +2541,10 @@
        }
       },
       "overlay.symdifference": {
-       "graded": 34,
+       "graded": 131,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 34,
+       "correct": 131,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -2319,8 +2554,12 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 34,
+         "graded": 124,
          "failures": 0
         }
        },
@@ -2551,81 +2790,21 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 21,
+     "headline_failures": 154,
      "timeouts": 0,
-     "crashes": 0,
+     "crashes": 12,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
      "capabilities": {
       "relate": {
-       "graded": 28,
-       "failures": 4,
-       "failure_rate": 0.142857,
-       "correct": 24,
-       "wrong": 4,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 4
-        }
-       }
-      },
-      "predicates": {
-       "graded": 28,
-       "failures": 3,
-       "failure_rate": 0.107143,
-       "correct": 25,
-       "wrong": 3,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 3
-        }
-       }
-      },
-      "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 0
-        }
-       }
-      },
-      "overlay.intersection": {
-       "graded": 34,
-       "failures": 7,
-       "failure_rate": 0.205882,
-       "correct": 27,
-       "wrong": 0,
+       "graded": 125,
+       "failures": 57,
+       "failure_rate": 0.456,
+       "correct": 68,
+       "wrong": 50,
        "error": 7,
        "convention": 0,
        "unsupported": 0,
@@ -2634,25 +2813,101 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 7
+         "graded": 118,
+         "failures": 53
+        }
+       }
+      },
+      "predicates": {
+       "graded": 125,
+       "failures": 33,
+       "failure_rate": 0.264,
+       "correct": 92,
+       "wrong": 28,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 31
+        }
+       }
+      },
+      "validity": {
+       "graded": 125,
+       "failures": 2,
+       "failure_rate": 0.016,
+       "correct": 123,
+       "wrong": 1,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 131,
+       "failures": 22,
+       "failure_rate": 0.167939,
+       "correct": 109,
+       "wrong": 5,
+       "error": 17,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
+        "normal": {
+         "graded": 124,
+         "failures": 18
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 1
        }
       },
       "overlay.union": {
-       "graded": 34,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 34,
-       "wrong": 0,
-       "error": 0,
+       "graded": 131,
+       "failures": 5,
+       "failure_rate": 0.038168,
+       "correct": 126,
+       "wrong": 4,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -2660,25 +2915,29 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 0
+         "graded": 124,
+         "failures": 1
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.difference": {
-       "graded": 34,
-       "failures": 4,
-       "failure_rate": 0.117647,
-       "correct": 30,
-       "wrong": 0,
-       "error": 4,
+       "graded": 131,
+       "failures": 18,
+       "failure_rate": 0.137405,
+       "correct": 113,
+       "wrong": 8,
+       "error": 10,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -2686,25 +2945,29 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 34,
-         "failures": 4
+         "graded": 124,
+         "failures": 15
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.symdifference": {
-       "graded": 34,
-       "failures": 3,
-       "failure_rate": 0.088235,
-       "correct": 31,
-       "wrong": 3,
-       "error": 0,
+       "graded": 131,
+       "failures": 17,
+       "failure_rate": 0.129771,
+       "correct": 114,
+       "wrong": 16,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -2712,16 +2975,20 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 3
+         "graded": 124,
+         "failures": 13
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       }
      }
@@ -2944,81 +3211,21 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 21,
+     "headline_failures": 154,
      "timeouts": 0,
-     "crashes": 0,
+     "crashes": 12,
      "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3",
      "capabilities": {
       "relate": {
-       "graded": 28,
-       "failures": 4,
-       "failure_rate": 0.142857,
-       "correct": 24,
-       "wrong": 4,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 4
-        }
-       }
-      },
-      "predicates": {
-       "graded": 28,
-       "failures": 3,
-       "failure_rate": 0.107143,
-       "correct": 25,
-       "wrong": 3,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 3
-        }
-       }
-      },
-      "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 0
-        }
-       }
-      },
-      "overlay.intersection": {
-       "graded": 34,
-       "failures": 7,
-       "failure_rate": 0.205882,
-       "correct": 27,
-       "wrong": 0,
+       "graded": 125,
+       "failures": 57,
+       "failure_rate": 0.456,
+       "correct": 68,
+       "wrong": 50,
        "error": 7,
        "convention": 0,
        "unsupported": 0,
@@ -3027,25 +3234,101 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 7
+         "graded": 118,
+         "failures": 53
+        }
+       }
+      },
+      "predicates": {
+       "graded": 125,
+       "failures": 33,
+       "failure_rate": 0.264,
+       "correct": 92,
+       "wrong": 28,
+       "error": 5,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 31
+        }
+       }
+      },
+      "validity": {
+       "graded": 125,
+       "failures": 2,
+       "failure_rate": 0.016,
+       "correct": 123,
+       "wrong": 1,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 131,
+       "failures": 22,
+       "failure_rate": 0.167939,
+       "correct": 109,
+       "wrong": 5,
+       "error": 17,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
+        "normal": {
+         "graded": 124,
+         "failures": 18
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 1
        }
       },
       "overlay.union": {
-       "graded": 34,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 34,
-       "wrong": 0,
-       "error": 0,
+       "graded": 131,
+       "failures": 5,
+       "failure_rate": 0.038168,
+       "correct": 126,
+       "wrong": 4,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -3053,25 +3336,29 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 0
+         "graded": 124,
+         "failures": 1
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.difference": {
-       "graded": 34,
-       "failures": 4,
-       "failure_rate": 0.117647,
-       "correct": 30,
-       "wrong": 0,
-       "error": 4,
+       "graded": 131,
+       "failures": 18,
+       "failure_rate": 0.137405,
+       "correct": 113,
+       "wrong": 8,
+       "error": 10,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -3079,25 +3366,29 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 34,
-         "failures": 4
+         "graded": 124,
+         "failures": 15
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.symdifference": {
-       "graded": 34,
-       "failures": 3,
-       "failure_rate": 0.088235,
-       "correct": 31,
-       "wrong": 3,
-       "error": 0,
+       "graded": 131,
+       "failures": 17,
+       "failure_rate": 0.129771,
+       "correct": 114,
+       "wrong": 16,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -3105,16 +3396,20 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 34,
-         "failures": 3
+         "graded": 124,
+         "failures": 13
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       }
      }
@@ -3138,7 +3433,7 @@
      "headline_failures": 722,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 2934,
@@ -3337,80 +3632,68 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 5,
+     "headline_failures": 43,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
-       "graded": 22,
-       "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
-       "wrong": 1,
+       "graded": 69,
+       "failures": 8,
+       "failure_rate": 0.115942,
+       "correct": 61,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 1
+         "graded": 62,
+         "failures": 4
         }
        }
       },
       "predicates": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
+       "graded": 69,
+       "failures": 3,
+       "failure_rate": 0.043478,
+       "correct": 66,
+       "wrong": 3,
        "error": 0,
        "convention": 0,
-       "unsupported": 6,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 22,
+         "graded": 62,
          "failures": 0
         }
        }
       },
       "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 28,
-         "failures": 0
-        }
-       }
-      },
-      "overlay.intersection": {
-       "graded": 34,
+       "graded": 125,
        "failures": 4,
-       "failure_rate": 0.117647,
-       "correct": 30,
+       "failure_rate": 0.032,
+       "correct": 121,
        "wrong": 4,
        "error": 0,
        "convention": 0,
@@ -3420,86 +3703,126 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 34,
+        "extreme": {
+         "graded": 7,
          "failures": 4
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 0
+        }
+       }
+      },
+      "overlay.intersection": {
+       "graded": 131,
+       "failures": 15,
+       "failure_rate": 0.114504,
+       "correct": 116,
+       "wrong": 13,
+       "error": 2,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
+        "normal": {
+         "graded": 124,
+         "failures": 11
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       },
       "overlay.union": {
-       "graded": 29,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 29,
-       "wrong": 0,
+       "graded": 85,
+       "failures": 5,
+       "failure_rate": 0.058824,
+       "correct": 80,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
-       "unsupported": 5,
+       "unsupported": 46,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 29,
-         "failures": 0
+         "graded": 78,
+         "failures": 1
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       },
       "overlay.difference": {
-       "graded": 29,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 29,
-       "wrong": 0,
+       "graded": 85,
+       "failures": 4,
+       "failure_rate": 0.047059,
+       "correct": 81,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 5,
+       "unsupported": 46,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 29,
-         "failures": 0
+         "graded": 78,
+         "failures": 1
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.symdifference": {
-       "graded": 29,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 29,
-       "wrong": 0,
+       "graded": 85,
+       "failures": 4,
+       "failure_rate": 0.047059,
+       "correct": 81,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 5,
+       "unsupported": 46,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 29,
+         "graded": 78,
          "failures": 0
         }
        },
@@ -3507,7 +3830,7 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       }
      }
@@ -3730,22 +4053,22 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 7,
+     "headline_failures": 98,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 28,
-       "failures": 4,
-       "failure_rate": 0.142857,
-       "correct": 24,
-       "wrong": 4,
-       "error": 0,
+       "graded": 125,
+       "failures": 45,
+       "failure_rate": 0.36,
+       "correct": 80,
+       "wrong": 43,
+       "error": 2,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -3753,18 +4076,22 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 28,
+        "extreme": {
+         "graded": 7,
          "failures": 4
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 41
         }
        }
       },
       "predicates": {
-       "graded": 28,
-       "failures": 3,
-       "failure_rate": 0.107143,
-       "correct": 25,
-       "wrong": 3,
+       "graded": 125,
+       "failures": 28,
+       "failure_rate": 0.224,
+       "correct": 97,
+       "wrong": 28,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -3773,19 +4100,23 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
-         "failures": 3
+         "graded": 118,
+         "failures": 26
         }
        }
       },
       "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
+       "graded": 125,
+       "failures": 2,
+       "failure_rate": 0.016,
+       "correct": 123,
+       "wrong": 1,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -3793,28 +4124,36 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 23,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 23,
-       "wrong": 0,
+       "graded": 82,
+       "failures": 5,
+       "failure_rate": 0.060976,
+       "correct": 77,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 49,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 5
+        },
         "normal": {
-         "graded": 23,
+         "graded": 75,
          "failures": 0
         }
        },
@@ -3822,25 +4161,29 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
+       "graded": 75,
+       "failures": 7,
+       "failure_rate": 0.093333,
+       "correct": 68,
+       "wrong": 7,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 7
+        },
         "normal": {
-         "graded": 22,
+         "graded": 68,
          "failures": 0
         }
        },
@@ -3848,25 +4191,29 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.difference": {
-       "graded": 23,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 23,
-       "wrong": 0,
+       "graded": 77,
+       "failures": 5,
+       "failure_rate": 0.064935,
+       "correct": 72,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 54,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 5
+        },
         "normal": {
-         "graded": 23,
+         "graded": 70,
          "failures": 0
         }
        },
@@ -3874,25 +4221,29 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
+       "graded": 75,
+       "failures": 6,
+       "failure_rate": 0.08,
+       "correct": 69,
+       "wrong": 6,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 6
+        },
         "normal": {
-         "graded": 22,
+         "graded": 68,
          "failures": 0
         }
        },
@@ -3900,7 +4251,7 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 6
        }
       }
      }
@@ -4123,22 +4474,22 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 7,
+     "headline_failures": 100,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 28,
-       "failures": 4,
-       "failure_rate": 0.142857,
-       "correct": 24,
-       "wrong": 4,
-       "error": 0,
+       "graded": 125,
+       "failures": 54,
+       "failure_rate": 0.432,
+       "correct": 71,
+       "wrong": 52,
+       "error": 2,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -4146,18 +4497,22 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 28,
+        "extreme": {
+         "graded": 7,
          "failures": 4
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 50
         }
        }
       },
       "predicates": {
-       "graded": 28,
-       "failures": 3,
-       "failure_rate": 0.107143,
-       "correct": 25,
-       "wrong": 3,
+       "graded": 125,
+       "failures": 27,
+       "failure_rate": 0.216,
+       "correct": 98,
+       "wrong": 27,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -4166,19 +4521,23 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
-         "failures": 3
+         "graded": 118,
+         "failures": 25
         }
        }
       },
       "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
+       "graded": 125,
+       "failures": 2,
+       "failure_rate": 0.016,
+       "correct": 123,
+       "wrong": 1,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -4186,54 +4545,66 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 23,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 23,
-       "wrong": 0,
-       "error": 0,
+       "graded": 82,
+       "failures": 5,
+       "failure_rate": 0.060976,
+       "correct": 77,
+       "wrong": 4,
+       "error": 1,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 49,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 23,
-         "failures": 0
+         "graded": 75,
+         "failures": 1
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
-       "error": 0,
+       "graded": 75,
+       "failures": 4,
+       "failure_rate": 0.053333,
+       "correct": 71,
+       "wrong": 3,
+       "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
+         "graded": 68,
          "failures": 0
         }
        },
@@ -4241,26 +4612,30 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 1
        }
       },
       "overlay.difference": {
-       "graded": 23,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 23,
-       "wrong": 0,
-       "error": 0,
+       "graded": 77,
+       "failures": 4,
+       "failure_rate": 0.051948,
+       "correct": 73,
+       "wrong": 1,
+       "error": 3,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 54,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 23,
-         "failures": 0
+         "graded": 70,
+         "failures": 1
         }
        },
        "topological": {
@@ -4271,21 +4646,25 @@
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
-       "error": 0,
+       "graded": 75,
+       "failures": 4,
+       "failure_rate": 0.053333,
+       "correct": 71,
+       "wrong": 1,
+       "error": 3,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 56,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
+         "graded": 68,
          "failures": 0
         }
        },
@@ -4293,7 +4672,7 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 1
        }
       }
      }
@@ -4317,7 +4696,7 @@
      "headline_failures": 2306,
      "timeouts": 21,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -4489,14 +4868,14 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 40,
-     "timeouts": 6,
+     "headline_failures": 93,
+     "timeouts": 9,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -4507,7 +4886,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -4522,7 +4901,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -4537,113 +4916,129 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 4,
-       "error": 1,
+       "graded": 59,
+       "failures": 16,
+       "failure_rate": 0.271186,
+       "correct": 43,
+       "wrong": 14,
+       "error": 2,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 5
+         "graded": 54,
+         "failures": 12
         }
        },
        "topological": {
-        "invalid_output": 2,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 1,
-        "missing_or_extra_parts": 1
+        "invalid_output": 8,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 3,
+        "missing_or_extra_parts": 4
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 9,
-       "failure_rate": 0.409091,
-       "correct": 13,
-       "wrong": 8,
+       "graded": 59,
+       "failures": 22,
+       "failure_rate": 0.372881,
+       "correct": 37,
+       "wrong": 21,
        "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 9
+         "graded": 54,
+         "failures": 18
         }
        },
        "topological": {
-        "invalid_output": 6,
-        "invalid_output_exact_point_set": 2,
-        "invalid_output_within_rounding": 3,
+        "invalid_output": 16,
+        "invalid_output_exact_point_set": 5,
+        "invalid_output_within_rounding": 8,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 10,
-       "failure_rate": 0.454545,
-       "correct": 12,
-       "wrong": 9,
-       "error": 1,
+       "graded": 59,
+       "failures": 23,
+       "failure_rate": 0.389831,
+       "correct": 36,
+       "wrong": 21,
+       "error": 2,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 10
+         "graded": 54,
+         "failures": 18
         }
        },
        "topological": {
-        "invalid_output": 5,
-        "invalid_output_exact_point_set": 2,
-        "invalid_output_within_rounding": 4,
-        "missing_or_extra_parts": 0
+        "invalid_output": 14,
+        "invalid_output_exact_point_set": 4,
+        "invalid_output_within_rounding": 8,
+        "missing_or_extra_parts": 1
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 16,
-       "failure_rate": 0.727273,
-       "correct": 6,
-       "wrong": 13,
-       "error": 3,
+       "graded": 59,
+       "failures": 32,
+       "failure_rate": 0.542373,
+       "correct": 27,
+       "wrong": 28,
+       "error": 4,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 16
+         "graded": 54,
+         "failures": 27
         }
        },
        "topological": {
-        "invalid_output": 13,
-        "invalid_output_exact_point_set": 5,
-        "invalid_output_within_rounding": 12,
+        "invalid_output": 28,
+        "invalid_output_exact_point_set": 10,
+        "invalid_output_within_rounding": 22,
         "missing_or_extra_parts": 0
        }
       }
@@ -4867,20 +5262,20 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 24,
+     "headline_failures": 93,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 28,
+       "graded": 125,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 28,
+       "correct": 125,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -4890,18 +5285,22 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "predicates": {
-       "graded": 28,
-       "failures": 17,
-       "failure_rate": 0.607143,
-       "correct": 11,
-       "wrong": 17,
+       "graded": 125,
+       "failures": 74,
+       "failure_rate": 0.592,
+       "correct": 51,
+       "wrong": 74,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -4910,17 +5309,21 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 28,
-         "failures": 17
+         "graded": 118,
+         "failures": 71
         }
        }
       },
       "validity": {
-       "graded": 28,
+       "graded": 125,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 28,
+       "correct": 125,
        "wrong": 0,
        "error": 0,
        "convention": 0,
@@ -4930,18 +5333,22 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 34,
-       "failures": 1,
-       "failure_rate": 0.029412,
-       "correct": 33,
-       "wrong": 1,
+       "graded": 131,
+       "failures": 6,
+       "failure_rate": 0.045802,
+       "correct": 125,
+       "wrong": 6,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -4950,24 +5357,28 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 34,
+        "extreme": {
+         "graded": 7,
          "failures": 1
+        },
+        "normal": {
+         "graded": 124,
+         "failures": 5
         }
        },
        "topological": {
-        "invalid_output": 0,
+        "invalid_output": 1,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.union": {
-       "graded": 34,
-       "failures": 1,
-       "failure_rate": 0.029412,
-       "correct": 33,
-       "wrong": 1,
+       "graded": 131,
+       "failures": 5,
+       "failure_rate": 0.038168,
+       "correct": 126,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -4976,35 +5387,13 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 34,
+        "extreme": {
+         "graded": 7,
          "failures": 1
-        }
-       },
-       "topological": {
-        "invalid_output": 0,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 1
-       }
-      },
-      "overlay.difference": {
-       "graded": 34,
-       "failures": 1,
-       "failure_rate": 0.029412,
-       "correct": 33,
-       "wrong": 1,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 0,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
+        },
         "normal": {
-         "graded": 34,
-         "failures": 1
+         "graded": 124,
+         "failures": 4
         }
        },
        "topological": {
@@ -5014,12 +5403,12 @@
         "missing_or_extra_parts": 0
        }
       },
-      "overlay.symdifference": {
-       "graded": 34,
-       "failures": 4,
-       "failure_rate": 0.117647,
-       "correct": 30,
-       "wrong": 4,
+      "overlay.difference": {
+       "graded": 131,
+       "failures": 3,
+       "failure_rate": 0.022901,
+       "correct": 128,
+       "wrong": 3,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -5028,13 +5417,47 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 1
+        },
         "normal": {
-         "graded": 34,
-         "failures": 4
+         "graded": 124,
+         "failures": 2
         }
        },
        "topological": {
-        "invalid_output": 2,
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 1
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 131,
+       "failures": 5,
+       "failure_rate": 0.038168,
+       "correct": 126,
+       "wrong": 5,
+       "error": 0,
+       "convention": 0,
+       "unsupported": 0,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
+        "normal": {
+         "graded": 124,
+         "failures": 5
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
         "missing_or_extra_parts": 0
@@ -5061,7 +5484,7 @@
      "headline_failures": 1149,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -5233,14 +5656,14 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 15,
+     "headline_failures": 28,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -5251,7 +5674,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -5266,7 +5689,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -5281,81 +5704,93 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 2,
-       "failure_rate": 0.090909,
-       "correct": 20,
-       "wrong": 2,
+       "graded": 59,
+       "failures": 4,
+       "failure_rate": 0.067797,
+       "correct": 55,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 2
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
-        "invalid_output": 0,
+        "invalid_output": 2,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
+        "invalid_output_within_rounding": 2,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 2,
-       "failure_rate": 0.090909,
-       "correct": 20,
-       "wrong": 2,
+       "graded": 59,
+       "failures": 5,
+       "failure_rate": 0.084746,
+       "correct": 54,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 2
+         "graded": 54,
+         "failures": 5
         }
        },
        "topological": {
-        "invalid_output": 1,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 1,
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 4,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 3,
-       "failure_rate": 0.136364,
-       "correct": 19,
-       "wrong": 3,
+       "graded": 59,
+       "failures": 4,
+       "failure_rate": 0.067797,
+       "correct": 55,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 3
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
@@ -5366,28 +5801,32 @@
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 8,
-       "failure_rate": 0.363636,
-       "correct": 14,
-       "wrong": 8,
-       "error": 0,
+       "graded": 59,
+       "failures": 15,
+       "failure_rate": 0.254237,
+       "correct": 44,
+       "wrong": 14,
+       "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 8
+         "graded": 54,
+         "failures": 15
         }
        },
        "topological": {
-        "invalid_output": 8,
-        "invalid_output_exact_point_set": 1,
-        "invalid_output_within_rounding": 8,
+        "invalid_output": 14,
+        "invalid_output_exact_point_set": 3,
+        "invalid_output_within_rounding": 14,
         "missing_or_extra_parts": 0
        }
       }
@@ -5412,7 +5851,7 @@
      "headline_failures": 753,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -5584,14 +6023,14 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 14,
+     "headline_failures": 36,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -5602,7 +6041,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -5617,7 +6056,7 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
@@ -5632,28 +6071,32 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 2,
-       "failure_rate": 0.090909,
-       "correct": 20,
-       "wrong": 0,
+       "graded": 59,
+       "failures": 7,
+       "failure_rate": 0.118644,
+       "correct": 52,
+       "wrong": 5,
        "error": 2,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 2
         }
        },
@@ -5661,85 +6104,97 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 3,
-       "failure_rate": 0.136364,
-       "correct": 19,
-       "wrong": 1,
+       "graded": 59,
+       "failures": 10,
+       "failure_rate": 0.169492,
+       "correct": 49,
+       "wrong": 8,
        "error": 2,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 5
+        },
         "normal": {
-         "graded": 22,
-         "failures": 3
+         "graded": 54,
+         "failures": 5
         }
        },
        "topological": {
-        "invalid_output": 1,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "invalid_output": 2,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 1,
+        "missing_or_extra_parts": 5
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 4,
-       "failure_rate": 0.181818,
-       "correct": 18,
-       "wrong": 2,
+       "graded": 59,
+       "failures": 8,
+       "failure_rate": 0.135593,
+       "correct": 51,
+       "wrong": 6,
        "error": 2,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 3
+        },
         "normal": {
-         "graded": 22,
-         "failures": 4
+         "graded": 54,
+         "failures": 5
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 3
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 5,
-       "failure_rate": 0.227273,
-       "correct": 17,
-       "wrong": 4,
+       "graded": 59,
+       "failures": 11,
+       "failure_rate": 0.186441,
+       "correct": 48,
+       "wrong": 10,
        "error": 1,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 4
+        },
         "normal": {
-         "graded": 22,
-         "failures": 5
+         "graded": 54,
+         "failures": 7
         }
        },
        "topological": {
-        "invalid_output": 4,
-        "invalid_output_exact_point_set": 1,
-        "invalid_output_within_rounding": 4,
-        "missing_or_extra_parts": 0
+        "invalid_output": 5,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 5,
+        "missing_or_extra_parts": 4
        }
       }
      }
@@ -5962,61 +6417,69 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 5,
+     "headline_failures": 31,
      "timeouts": 0,
      "crashes": 0,
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 27,
-       "failures": 4,
-       "failure_rate": 0.148148,
-       "correct": 23,
-       "wrong": 4,
+       "graded": 118,
+       "failures": 28,
+       "failure_rate": 0.237288,
+       "correct": 90,
+       "wrong": 28,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 7,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 27,
+        "extreme": {
+         "graded": 7,
          "failures": 4
+        },
+        "normal": {
+         "graded": 111,
+         "failures": 24
         }
        }
       },
       "predicates": {
-       "graded": 27,
+       "graded": 118,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 27,
-       "wrong": 0,
+       "correct": 100,
+       "wrong": 18,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 7,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
-       "derived": 0,
+       "derived": 18,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 0
+        },
         "normal": {
-         "graded": 27,
+         "graded": 111,
          "failures": 0
         }
        }
       },
       "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
+       "graded": 125,
+       "failures": 1,
+       "failure_rate": 0.008,
+       "correct": 124,
+       "wrong": 1,
        "error": 0,
        "convention": 0,
        "unsupported": 0,
@@ -6025,28 +6488,36 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 1
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
+       "graded": 59,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 22,
+       "correct": 59,
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 0
         }
        },
@@ -6058,21 +6529,25 @@
        }
       },
       "overlay.union": {
-       "graded": 22,
+       "graded": 59,
        "failures": 1,
-       "failure_rate": 0.045455,
-       "correct": 21,
+       "failure_rate": 0.016949,
+       "correct": 58,
        "wrong": 1,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 1
         }
        },
@@ -6084,22 +6559,26 @@
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 22,
-       "wrong": 0,
+       "graded": 59,
+       "failures": 1,
+       "failure_rate": 0.016949,
+       "correct": 58,
+       "wrong": 1,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 22,
+        "extreme": {
+         "graded": 5,
          "failures": 0
+        },
+        "normal": {
+         "graded": 54,
+         "failures": 1
         }
        },
        "topological": {
@@ -6110,21 +6589,25 @@
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
+       "graded": 59,
        "failures": 0,
        "failure_rate": 0.0,
-       "correct": 22,
+       "correct": 59,
        "wrong": 0,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
+         "graded": 54,
          "failures": 0
         }
        },
@@ -6355,22 +6838,22 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 10,
+     "headline_failures": 132,
      "timeouts": 0,
-     "crashes": 0,
+     "crashes": 12,
      "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77",
      "capabilities": {
       "relate": {
-       "graded": 28,
-       "failures": 4,
-       "failure_rate": 0.142857,
-       "correct": 24,
-       "wrong": 4,
-       "error": 0,
+       "graded": 125,
+       "failures": 57,
+       "failure_rate": 0.456,
+       "correct": 68,
+       "wrong": 50,
+       "error": 7,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -6378,19 +6861,23 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
-        "normal": {
-         "graded": 28,
+        "extreme": {
+         "graded": 7,
          "failures": 4
+        },
+        "normal": {
+         "graded": 118,
+         "failures": 53
         }
        }
       },
       "predicates": {
-       "graded": 28,
-       "failures": 3,
-       "failure_rate": 0.107143,
-       "correct": 25,
-       "wrong": 3,
-       "error": 0,
+       "graded": 125,
+       "failures": 33,
+       "failure_rate": 0.264,
+       "correct": 92,
+       "wrong": 28,
+       "error": 5,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -6398,19 +6885,23 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
-         "failures": 3
+         "graded": 118,
+         "failures": 31
         }
        }
       },
       "validity": {
-       "graded": 28,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 28,
-       "wrong": 0,
-       "error": 0,
+       "graded": 125,
+       "failures": 2,
+       "failure_rate": 0.016,
+       "correct": 123,
+       "wrong": 1,
+       "error": 1,
        "convention": 0,
        "unsupported": 0,
        "not_reported": 0,
@@ -6418,80 +6909,126 @@
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 2
+        },
         "normal": {
-         "graded": 28,
+         "graded": 118,
          "failures": 0
         }
        }
       },
       "overlay.intersection": {
-       "graded": 23,
-       "failures": 1,
-       "failure_rate": 0.043478,
-       "correct": 22,
-       "wrong": 0,
-       "error": 1,
+       "graded": 83,
+       "failures": 16,
+       "failure_rate": 0.192771,
+       "correct": 67,
+       "wrong": 6,
+       "error": 10,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 48,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 23,
-         "failures": 1
+         "graded": 76,
+         "failures": 12
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.union": {
-       "graded": 23,
-       "failures": 1,
-       "failure_rate": 0.043478,
-       "correct": 22,
-       "wrong": 1,
-       "error": 0,
+       "graded": 83,
+       "failures": 8,
+       "failure_rate": 0.096386,
+       "correct": 75,
+       "wrong": 7,
+       "error": 1,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 48,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 23,
-         "failures": 1
+         "graded": 76,
+         "failures": 4
         }
        },
        "topological": {
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 2
        }
       },
       "overlay.difference": {
-       "graded": 23,
-       "failures": 1,
-       "failure_rate": 0.043478,
-       "correct": 22,
-       "wrong": 0,
-       "error": 1,
+       "graded": 83,
+       "failures": 11,
+       "failure_rate": 0.13253,
+       "correct": 72,
+       "wrong": 4,
+       "error": 7,
        "convention": 0,
-       "unsupported": 11,
+       "unsupported": 48,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 3
+        },
         "normal": {
-         "graded": 23,
+         "graded": 76,
+         "failures": 8
+        }
+       },
+       "topological": {
+        "invalid_output": 0,
+        "invalid_output_exact_point_set": 0,
+        "invalid_output_within_rounding": 0,
+        "missing_or_extra_parts": 3
+       }
+      },
+      "overlay.symdifference": {
+       "graded": 83,
+       "failures": 5,
+       "failure_rate": 0.060241,
+       "correct": 78,
+       "wrong": 4,
+       "error": 1,
+       "convention": 0,
+       "unsupported": 48,
+       "not_reported": 0,
+       "engine_skipped": 0,
+       "engine_error": 0,
+       "derived": 0,
+       "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
+        "normal": {
+         "graded": 76,
          "failures": 1
         }
        },
@@ -6499,33 +7036,7 @@
         "invalid_output": 0,
         "invalid_output_exact_point_set": 0,
         "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
-       }
-      },
-      "overlay.symdifference": {
-       "graded": 23,
-       "failures": 0,
-       "failure_rate": 0.0,
-       "correct": 23,
-       "wrong": 0,
-       "error": 0,
-       "convention": 0,
-       "unsupported": 11,
-       "not_reported": 0,
-       "engine_skipped": 0,
-       "engine_error": 0,
-       "derived": 0,
-       "by_range": {
-        "normal": {
-         "graded": 23,
-         "failures": 0
-        }
-       },
-       "topological": {
-        "invalid_output": 0,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
-        "missing_or_extra_parts": 0
+        "missing_or_extra_parts": 4
        }
       }
      }
@@ -6549,7 +7060,7 @@
      "headline_failures": 2846,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77+dirty",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -6739,14 +7250,14 @@
     "curated": {
      "date": "2026-09-26",
      "cases": {
-      "total": 34,
-      "run": 34,
-      "scored": 34
+      "total": 131,
+      "run": 131,
+      "scored": 131
      },
-     "headline_failures": 29,
+     "headline_failures": 73,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "e9234fb2992f4a514a80835da165d813b953ad77+dirty",
+     "adapter_git_sha": "e529fd3f7bb6a754bafbc6b2e42dee2aa032b4a4",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -6757,121 +7268,141 @@
        "error": 0,
        "convention": 0,
        "unsupported": 0,
-       "not_reported": 28,
+       "not_reported": 125,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {}
       },
       "predicates": {
-       "graded": 27,
-       "failures": 16,
-       "failure_rate": 0.592593,
-       "correct": 11,
-       "wrong": 16,
-       "error": 0,
+       "graded": 107,
+       "failures": 46,
+       "failure_rate": 0.429907,
+       "correct": 61,
+       "wrong": 45,
+       "error": 1,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 18,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 5
+        },
         "normal": {
-         "graded": 27,
-         "failures": 16
+         "graded": 100,
+         "failures": 41
         }
        }
       },
       "validity": {
-       "graded": 27,
-       "failures": 2,
-       "failure_rate": 0.074074,
-       "correct": 25,
-       "wrong": 2,
+       "graded": 120,
+       "failures": 8,
+       "failure_rate": 0.066667,
+       "correct": 112,
+       "wrong": 8,
        "error": 0,
        "convention": 0,
-       "unsupported": 1,
+       "unsupported": 5,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 7,
+         "failures": 4
+        },
         "normal": {
-         "graded": 27,
-         "failures": 2
+         "graded": 113,
+         "failures": 4
         }
        }
       },
       "overlay.intersection": {
-       "graded": 22,
-       "failures": 2,
-       "failure_rate": 0.090909,
-       "correct": 20,
-       "wrong": 2,
+       "graded": 59,
+       "failures": 4,
+       "failure_rate": 0.067797,
+       "correct": 55,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 2
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
-        "invalid_output": 0,
+        "invalid_output": 2,
         "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 0,
+        "invalid_output_within_rounding": 2,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.union": {
-       "graded": 22,
-       "failures": 2,
-       "failure_rate": 0.090909,
-       "correct": 20,
-       "wrong": 2,
+       "graded": 59,
+       "failures": 5,
+       "failure_rate": 0.084746,
+       "correct": 54,
+       "wrong": 5,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 2
+         "graded": 54,
+         "failures": 5
         }
        },
        "topological": {
-        "invalid_output": 1,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 1,
+        "invalid_output": 4,
+        "invalid_output_exact_point_set": 1,
+        "invalid_output_within_rounding": 4,
         "missing_or_extra_parts": 0
        }
       },
       "overlay.difference": {
-       "graded": 22,
-       "failures": 3,
-       "failure_rate": 0.136364,
-       "correct": 19,
-       "wrong": 3,
+       "graded": 59,
+       "failures": 4,
+       "failure_rate": 0.067797,
+       "correct": 55,
+       "wrong": 4,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 0,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 3
+         "graded": 54,
+         "failures": 4
         }
        },
        "topological": {
@@ -6882,28 +7413,32 @@
        }
       },
       "overlay.symdifference": {
-       "graded": 22,
-       "failures": 4,
-       "failure_rate": 0.181818,
-       "correct": 15,
-       "wrong": 7,
+       "graded": 59,
+       "failures": 6,
+       "failure_rate": 0.101695,
+       "correct": 50,
+       "wrong": 9,
        "error": 0,
        "convention": 0,
-       "unsupported": 12,
+       "unsupported": 72,
        "not_reported": 0,
        "engine_skipped": 0,
        "engine_error": 0,
        "derived": 3,
        "by_range": {
+        "extreme": {
+         "graded": 5,
+         "failures": 0
+        },
         "normal": {
-         "graded": 22,
-         "failures": 4
+         "graded": 54,
+         "failures": 6
         }
        },
        "topological": {
-        "invalid_output": 4,
-        "invalid_output_exact_point_set": 0,
-        "invalid_output_within_rounding": 4,
+        "invalid_output": 6,
+        "invalid_output_exact_point_set": 2,
+        "invalid_output_within_rounding": 6,
         "missing_or_extra_parts": 0
        }
       }

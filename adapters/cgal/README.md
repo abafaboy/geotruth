@@ -44,7 +44,7 @@ Only Polygon and MultiPolygon operands are in CGAL's contract here: every field 
 
 | field | how |
 |---|---|
-| `overlay.intersection` … `overlay.symdifference` | `CGAL::Polygon_set_2<Epeck>`: `intersection`, `join`, `difference` (A − B), `symmetric_difference`. The **regularized areal** overlay (no lines, no points; faces merged); a result is a Polygon, a MultiPolygon, or `POLYGON EMPTY`, shells counter-clockwise and holes clockwise as CGAL returns them |
+| `overlay.intersection` … `overlay.symdifference` | `CGAL::Polygon_set_2<Epeck>`: `intersection`, `join`, `difference` (A − B), `symmetric_difference`. The **regularized areal** overlay (no lines, no points; faces merged); a result is a Polygon, a MultiPolygon, or `POLYGON EMPTY`, in OGC form (see "Output polygons" below), shells counter-clockwise and holes clockwise |
 | `valid_a`, `valid_b` | see "Validity" |
 | `predicates.*` | derived, exactly, for Polygon/MultiPolygon pairs (see below) |
 | `relate` | `null`: CGAL has no DE-9IM |
@@ -61,6 +61,24 @@ polygons only. A shell or hole that is not a simple polygon is outside CGAL's do
 preconditions, and the overlays and predicates of that case are `"unsupported"`. A
 MultiPolygon is the `join` of its polygons. Non-finite ordinates: `valid_*` is `false`
 (OGC: invalid coordinate) and every other field `"unsupported"`.
+
+**Output polygons are in OGC form.** CGAL's own `polygons_with_holes()` follows CGAL's model
+of a polygon with holes, not OGC's: an outer boundary may be *relatively simple* (touch
+itself at a vertex) and a hole may touch the outer boundary at vertices. The symmetric
+difference of two overlapping polygons, for example, comes back as one polygon whose hole
+(A ∩ B) touches the shell at two or more points, which OGC calls a disconnected interior. So
+the adapter reads the polygons off the result's arrangement (`Polygon_set_2::arrangement()`)
+instead: every face in the set is open and connected, so its closure is one OGC polygon. The
+face's outer boundary walk and each inner boundary walk are split into simple rings at every
+vertex the walk passes more than once; the one counter-clockwise ring of the outer walk is
+the shell, and every other ring is a hole (touching the shell or another hole at single
+points at most). The point set is the same; only the rings change. The adapter checks what
+this relies on and fails the operation otherwise (never seen): no edge of the result has the
+set on both sides or on neither, every face has exactly one counter-clockwise outer ring, and
+every other ring is clockwise. Before this conversion (up to 2026-09-26), 1997 of the 8048
+exact overlay results of the core tier were OGC-invalid for this reason alone; after it, all
+8048 are OGC-valid (checked in exact arithmetic with `geotruth.validity`), with the same exact
+areas and point sets as before.
 
 **Output doubles are computed by the adapter, correctly rounded.** Each exact coordinate is
 read from the kernel's exact number type (`CGAL::exact(FT)`, printed and read back into a

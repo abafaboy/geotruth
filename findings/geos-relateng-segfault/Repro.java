@@ -48,6 +48,10 @@ public class Repro {
       System.out.println("  RelateNG.relate(A,B)      = " + m + (m.equals(c[3]) ? "   ok" : "   <-- WRONG"));
       System.out.println("  RelateNG.relate(B,A)      = " + run(() -> RelateNG.relate(b, a)));
       System.out.println("  RelateNG intersects(A,B)  = " + run(() -> RelateNG.relate(a, b, RelatePredicate.intersects())));
+      // JTS's default Geometry.relate (RelateOp, unless run with -Djts.relate=ng) rejects
+      // GeometryCollection arguments; the default intersects has its own code path
+      System.out.println("  default a.relate(b)       = " + run(() -> a.relate(b)));
+      System.out.println("  default a.intersects(b)   = " + run(() -> a.intersects(b)));
     }
   }
 }

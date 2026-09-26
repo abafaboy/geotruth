@@ -419,11 +419,11 @@ def index_page(ctx: SiteContext) -> Page:
     )
     notes = (
         '<ul class="notes">'
-        "<li><strong>The corpus is adversarial by design.</strong> Its cases sit on or within "
-        "a few ulps of a degeneracy: vertices on edges, nearly collinear edges, parts touching "
-        "at a point, coordinates as small as 1e-270 or as large as 1e270. The rates below say "
-        "how a library handles such inputs. <strong>They are not real-world failure rates."
-        "</strong></li>"
+        "<li><strong>The corpus is adversarial by design.</strong> Most of its cases sit on or "
+        "within a few ulps of a degeneracy: vertices on edges, nearly collinear edges, parts "
+        "touching at a point, coordinates as small as 1e-270 or as large as 1e270. The rates "
+        "below say how a library handles such inputs. <strong>They are not real-world "
+        "failure rates.</strong></li>"
         "<li><strong>There is no single ranking.</strong> Libraries promise different things "
         "(exact predicates, a snapping grid, polygon-only clipping), are graded against their "
         "own documented precision, and many do not offer every capability. Rows are in "

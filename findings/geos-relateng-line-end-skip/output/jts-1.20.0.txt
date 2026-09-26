@@ -3,7 +3,13 @@ JTS 1.20.0
 case 1                         RelateNG.relate = FF0FFF1F2 WRONG  Geometry.relate (RelateOp) = FF0FFF102  exact FF0FFF102
 case 1, B's elements swapped   RelateNG.relate = FF0FFF102 ok     Geometry.relate (RelateOp) = FF0FFF102  exact FF0FFF102
 case 1, operands swapped       RelateNG.relate = FF1FFF0F2 WRONG  Geometry.relate (RelateOp) = FF1FF00F2  exact FF1FF00F2
+case 1, degenerate closed elem RelateNG.relate = FF0FFF1F2 WRONG  Geometry.relate (RelateOp) = FF0FFF102  exact FF0FFF102
 case 2                         RelateNG.relate = 1F20011F2 WRONG  Geometry.relate (RelateOp) = 1F2001102  exact 1F2001102
+case 2, operands swapped       RelateNG.relate = 101F0F212 WRONG  Geometry.relate (RelateOp) = 101F00212  exact 101F00212
 case 3 (JTS #1175)             RelateNG.relate = FF1FF01F2 WRONG  Geometry.relate (RelateOp) = FF1FF0102  exact FF1FF0102
-case 4 (GC, computeAreaVertex) RelateNG.relate = FF2FFF102 WRONG  Geometry.relate (RelateOp) = (n/a: GC)  exact FF2FF1102
-case 4, squares swapped        RelateNG.relate = FF2FF1102 ok     Geometry.relate (RelateOp) = (n/a: GC)  exact FF2FF1102
+case 4 (GC, computeAreaVertex) RelateNG.relate = FF2FFF102 WRONG  Geometry.relate (RelateOp) = IllegalArgumentException  exact FF2FF1102
+case 4, squares swapped        RelateNG.relate = FF2FF1102 ok     Geometry.relate (RelateOp) = IllegalArgumentException  exact FF2FF1102
+case 4, operands swapped       RelateNG.relate = FF1FF02F2 WRONG  Geometry.relate (RelateOp) = IllegalArgumentException  exact FF1FF0212
+case 5 (GC, nested squares)    RelateNG.relate = FF2FFF102 WRONG  Geometry.relate (RelateOp) = IllegalArgumentException  exact FF2FF1102
+case 5, squares swapped        RelateNG.relate = FF2FF1102 ok     Geometry.relate (RelateOp) = IllegalArgumentException  exact FF2FF1102
+case 5, operands swapped       RelateNG.relate = FF1FF02F2 WRONG  Geometry.relate (RelateOp) = IllegalArgumentException  exact FF1FF0212

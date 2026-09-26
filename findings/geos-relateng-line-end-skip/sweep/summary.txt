@@ -26,6 +26,12 @@ gc-3     3.15.0          {'agree': 2928, 'other BE:1->F': 22, 'lost-end EB': 11,
 gc-3     main            {'agree': 2928, 'other BE:1->F': 22, 'lost-end EB': 11, 'other BE:1->F,EB:0->F': 1, 'other EB:1->F': 22, 'other IB:F->1,IE:F->2,BE:F->1': 5, 'lost-end BE': 9, 'other IB:F->1': 2}
 gc-3     main+P1+P3      {'agree': 2993, 'other IB:F->1,IE:F->2,BE:F->1': 5, 'other IB:F->1': 2}
 gc-3     main+P1+P3+X    {'agree': 3000}
+gc-3     JTS 1.20.0      {'agree': 2935, 'other BE:1->F': 22, 'lost-end EB': 11, 'other BE:1->F,EB:0->F': 1, 'other EB:1->F': 22, 'lost-end BE': 9}
+gc-3     JTS master      {'agree': 2948, 'other BE:1->F': 23, 'other EB:1->F': 22, 'other IB:F->1,IE:F->2,BE:F->1': 5, 'other IB:F->1': 2}
+#   (JTS rows: RelateNG.relate on jts-core 1.20.0 and on master 3ea61f8, which has #1200. The 65 skip-class cases of
+#    GEOS main are 45 cases with a computeAreaVertex loss (22 BE, 22 EB, and 1 case that also loses a line-end EB) and
+#    20 cases with only a computeLineEnds loss (11 EB + 9 BE). JTS master still has exactly the 45 (23 BE + 22 EB);
+#    the rest of its disagreements are the GH-1201 / jts#1099 class.)
 
 # Classes: lost-end = computeLineEnds skip; gc-3 'BE:1->F' / 'EB:1->F' = computeAreaVertex skip;
 #   ring-2 'BE:F->1' = covered-ring (GH-1201); ring-2 'EI:F->1' and gc-3 'IB/IE/BE' = ring-touch / gc-overlap with the

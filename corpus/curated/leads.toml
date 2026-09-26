@@ -1,9 +1,14 @@
-# Curated leads: documented candidate bugs that have no findings/ directory yet.
+# Curated leads: documented candidate bugs, as they were recorded before triage.
 #
 # The curated tier (corpus/cases/curated.jsonl, built by `geotruth corpus build --tier
 # curated`) holds the minimal case of every finding in findings/registry.toml, and the cases
 # below. A lead is NOT a confirmed bug (DESIGN §0.4): every lead here has status
 # "unreviewed" until a person triages it and it moves to findings/registry.toml.
+#
+# Leads that triage has since turned into findings stay here unchanged, so that the curated
+# tier keeps their original cases next to the finding's minimal ones; the finding's registry
+# entry names the lead in `supersedes_lead`, and the registry lists as [[lead]] only the
+# leads that no finding supersedes.
 #
 # Keys of a [[lead]] (as in findings/registry.toml where they overlap):
 #   id, library (adapter target ids), lib, signature, fields, status, upstream_issue,

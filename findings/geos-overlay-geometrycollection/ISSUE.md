@@ -29,8 +29,8 @@ Upstream heads checked with `git ls-remote` on 2026-09-26 07:28 UTC: they have n
 | GEOS 3.15.0 (latest release) | d0228513abb0c29c185443cf2bfb06c9281024b5 | wrong | wrong | assertion | wrong | exception |
 | GEOS 3.14.1 | Shapely 2.2.0rc1 wheel | wrong | wrong | assertion | wrong | exception |
 | GEOS 3.13.1 | Shapely 2.1.2 wheel | wrong | wrong | assertion | wrong | exception |
-| GEOS 3.13.0 | d7957246c588aa9c690efe67924fd70e741a06ab (built from the tag) | mixed-GC cases wrong (1c, 1d); simple-GC cases right (1a, 1b) | wrong | no assertion (3d gives `GEOMETRYCOLLECTION EMPTY`, same point set) | wrong | exception |
-| GEOS 3.11.4 | Shapely 2.0.7 wheel | right | right | right | right | right |
+| GEOS 3.13.0 | d7957246c588aa9c690efe67924fd70e741a06ab (built from the tag) | mixed-GC cases wrong (1c, 1d); simple-GC cases right (1a, 1b, 1e) | wrong | no assertion (3d gives `GEOMETRYCOLLECTION EMPTY`, same point set) | wrong (4a `GEOMETRYCOLLECTION EMPTY`, 4b `POINT (6 0)`) | exception |
+| GEOS 3.11.4 | Shapely 2.0.7 wheel | right | right | right (3d gives `LINESTRING Z EMPTY`, same point set) | right | right |
 | GEOS main + prototype_fix.diff | | right | right | right | wrong | exception |
 | JTS master / 1.20.0 | 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd / 6e95fe82 | `Geometry.symDifference/difference` throw IllegalArgumentException ("Operation does not support GeometryCollection arguments", as documented); `OverlayNGRobust` answers the simple-GC cases correctly and rejects mixed GCs ("Overlay input is mixed-dimension") | | | | |
 
@@ -38,9 +38,12 @@ The 3.15 branch head (86a4af48) has no change to `HeuristicOverlay.cpp` after 3.
 3.12 and 3.13 carry the same code (backports of #1229: 364ece73 in 3.12.3, b3844c03 in 3.13.1).
 
 History (full clone, `git log --follow src/geom/HeuristicOverlay.cpp`):
-- GEOS 3.11 and earlier: GC operands were handled by the old overlay engine; every case here is right on 3.11.4.
+- GEOS 3.11 and earlier: GC operands were handled by the old overlay engine; every case here is right on 3.11.4 (3d as `LINESTRING Z EMPTY`, the same point set).
+- #716 "Add OverlayNG support for simple GeometryCollection inputs" (3.12.0, NEWS GH-716; fixes #696): OverlayNG proper accepts simple GCs, which is the route the `*Prec_r` controls take.
 - c37391cf "Overlay with mixed dimension (#923)", GEOS 3.12.0 (NEWS: "Support mixed GeometryCollection in overlay ops (GH-797)"): adds `StructuredCollection`, with D1, D2 and D4 from the start.
-- b6c1b594 "Fix overlay heuristic for GeometryCollections with empty elements (#1229)", 3.14.0, backported to 3.12.3 and 3.13.1: routes *every* GC with a polygonal element to `StructuredCollection` (so simple, homogeneous GCs such as `GC(POLYGON)` or `GC(POLYGON EMPTY)` now hit D1), and adds the typed empty result whose dimension is initialised to `Dimension::DONTCARE` (D3). It also fixed the TopologyExceptions for GCs with overlapping polygons (libgeos/geos#948): the scan shows 1356 TopologyExceptions on 3.13.0 and none on main.
+- b6c1b594 "Fix overlay heuristic for GeometryCollections with empty elements (#1229)", 3.14.0, backported to 3.12.3 and 3.13.1: routes *every* GC with a polygonal element to `StructuredCollection` (so simple, homogeneous GCs such as `GC(POLYGON)` or `GC(POLYGON EMPTY)` now hit D1), and adds the typed empty result whose dimension is initialised to `Dimension::DONTCARE` (D3). It also fixed the TopologyExceptions for GCs with overlapping polygons: the scan shows 1356 TopologyExceptions on 3.13.0 and none on main. The input of libgeos/geos#948 (not part of the scan) behaves the same way: it throws on 3.11.4 and 3.13.0 and gives the correct polygon on 3.13.1, 3.14.1, 3.15.0 and main (certified with `geotruth overlay --certify`), but #948 is still open upstream.
+
+"Regression" therefore has a limited scope. It is accurate for 1a, 1b, 1e and D3 (right on 3.13.0, wrong since #1229 in 3.14.0, 3.13.1 and 3.12.3), and for every defect relative to 3.11.4. It does not mean that GC overlay on main is worse overall than on 3.13.0: in the scan, 4270 of 7872 results on main are exact or the same point set, against 3217 on 3.13.0.
 
 ## 2. The documented contract
 
@@ -63,8 +66,8 @@ What the public overlay functions promise, from the GEOS main sources:
   polygons are deliberately accepted, cf. #948).
 - `include/geos/geom/Geometry.h:722,733,772,783` (C++ `Geometry::intersection`, `Union`,
   `difference`, `symDifference`): "@throws util::IllegalArgumentException if either input is a
-  non-empty GeometryCollection". This is the JTS javadoc; it has been stale since 3.12 (the
-  functions accept such inputs and return a result).
+  non-empty GeometryCollection". This is the JTS javadoc; it is stale (the functions accept
+  such inputs and return a result, on 3.11.4 as well as since 3.12).
 - `tests/unit/geom/HeuristicOverlayTest.cpp:63-71`: for mixed-dimension GCs "the result of the
   overlay might be a matter of interpretation ... The implementation just tries to generate a
   visually defensible, simplified answer." The tests that follow (tests 4-6) all expect the exact
@@ -75,7 +78,7 @@ What the public overlay functions promise, from the GEOS main sources:
 Classification of the cases (the `in_overlayng_input_contract` field of cases.jsonl):
 
 1. **Inside even OverlayNG's own requirements** (every GC is simple: homogeneous, flattens to a
-   valid Multi-geometry): cases 1a, 1b, 3a, 3b, 3c. GEOS's own OverlayNG gives the right
+   valid Multi-geometry): cases 1a, 1b, 1e, 3a, 3b, 3c. GEOS's own OverlayNG gives the right
    answer (`GEOS*Prec_r(..., 0)`, which calls `OverlayNGRobust` directly, and JTS
    `OverlayNGRobust.overlay`); the public functions return a wrong geometry or assert. These
    are bugs by any reading; they are also regressions (right on 3.13.0 and 3.11.4).
@@ -136,19 +139,30 @@ parts covered by the *result*, which cannot repair either. The result is not eve
 | 1b | `GEOMETRYCOLLECTION (POLYGON EMPTY)` | `POINT (1 1)` | `POINT EMPTY` | `POINT (1 1)` |
 | 1c | `POINT (1 0)` | `GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))` | `POINT (1 0)` | `GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))` |
 | 1d | `GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))` | `POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))` | `LINESTRING (0 1, 2 1)` | `POLYGON EMPTY` |
+| 1e | `GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))` | `LINESTRING (1 1, 6 6)` | `POLYGON ((0 0, 0 4, 4 0, 0 0))` | `GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 2 2, 0 4, 0 0)), LINESTRING (2 2, 6 6))` |
 
 Hand checks: (3 3) is outside the triangle x + y <= 4 (3 + 3 = 6); `GC(POLYGON EMPTY)` has no
 points, so A xor B = B; (1 0) lies on (0 0)-(2 0), so A - B is empty and B - A is B minus one
 point, whose closure is B; in 1d both operands are the same point set (the line runs from
 boundary to boundary through the interior, GEOSEquals = 1), so the symmetric difference is
-empty. In 1c GEOS returns exactly the part that must be removed and drops everything that
-must remain.
+empty; in 1e the line starts inside the triangle at (1 1) and leaves it at (2 2) on the edge
+x + y = 4, so the part (2 2)-(6 6) must remain. In 1c GEOS returns exactly the part that must
+be removed and drops everything that must remain.
 
-Why the simple-GC cases 1a and 1b reach this code: `isHandledByOverlayNG`
+1e was added after the independent review, which pointed it out as the most everyday form of
+D1 (a GC holding one polygon, xor a line). It is right on 3.11.4, 3.13.0 and with the prototype
+fix, wrong on 3.13.1, 3.14.1, 3.15.0 and main, and `GEOSSymDifferencePrec_r(A, B, 0)` and JTS
+`OverlayNGRobust` answer it correctly. The review also found, and we re-checked (geosop on main
+and 3.15.0, Shapely with GEOS 3.13.1 and 3.14.1), that the same GC xor
+`MULTIPOINT ((3 3), (1 1))` drops (3 3), and that
+`GC(POLYGON ((0 0, 4 0, 0 4, 0 0)), POLYGON ((10 0, 12 0, 12 2, 10 0)))` xor `POINT (3 3)`
+drops the point; GEOS 3.11.4 answers both correctly. These two are not in repro.c.
+
+Why the simple-GC cases 1a, 1b and 1e reach this code: `isHandledByOverlayNG`
 (`HeuristicOverlay.cpp:118-126`) sends every GC whose `getDimension()` is 2 to
 `StructuredCollection`, and `GeometryCollection::getDimension()` counts empty elements
 (`GC(POLYGON EMPTY)` has dimension 2). `isCombinable` (line 74) does not short-circuit
-because the envelopes intersect (1a) or one operand has no non-empty element (1b).
+because the envelopes intersect (1a, 1e) or one operand has no non-empty element (1b).
 
 ### 3.2 D2: difference ignores B's lines when removing A's points
 
@@ -227,7 +241,8 @@ overlap is found on the original segments; the GC path loses a whole segment of 
 weakness of the GC path, lower priority; it is also what remains of the scan after the
 prototype fix (section 4). The remedy is structural (overlay the operands' elements without
 pre-noding them, as OverlayNG itself does for non-simple MultiLineStrings), not a one-line fix.
-Right on 3.11.4, wrong on 3.13.0 and later (3.12.x was not run; the code dates from #923, 3.12.0).
+Right on 3.11.4, wrong on 3.13.0 (4a gives `GEOMETRYCOLLECTION EMPTY`, 4b `POINT (6 0)`) and
+later (3.12.x was not run; the code dates from #923, 3.12.0).
 
 ### 3.5 D5 (minor): nested `GEOMETRYCOLLECTION EMPTY`
 
@@ -238,7 +253,8 @@ homogeneous and goes to OverlayNG. OverlayNG's `EdgeNodingBuilder::addGeometryCo
 `getDimension()` with the collection's, and the empty GC's is -1: IllegalArgumentException
 "Overlay input is mixed-dimension". With `POINT EMPTY` instead of `GEOMETRYCOLLECTION EMPTY`
 (case 5a') `isMixedDimension` is true, the GC goes to `StructuredCollection`, and the answer is
-right. A clear error, not a wrong answer: at most a request for consistency.
+right. A clear error, not a wrong answer: at most a request for consistency. The same error
+occurs on 3.13.0; 3.11.4 answers `POINT (0.5 0.5)`.
 
 ### 3.6 Not claimed
 
@@ -294,22 +310,40 @@ empty geometry error", "difference GeometryCollection point on line not removed"
 dimension collection". shapely/shapely: "symmetric difference GeometryCollection wrong result
 missing geometry", "AssertionFailedException Should never reach here overlay empty geometry
 collection". locationtech/jts: "OverlayNG GeometryCollection support non-homogeneous". Web:
-the assertion message; PostGIS trac for ST_SymDifference with GCs.
+the assertion message.
 
-No report of D1, D2, D4 or D5 was found. Related:
+Not searched: PostGIS trac. The environment's egress proxy refuses connections to
+trac.osgeo.org (checked again while applying the review; the independent review hit the same
+block), so a trac ticket about ST_SymDifference / ST_Difference / ST_Intersection with GCs
+cannot be ruled out. FINAL.md says so.
+
+No GitHub report of D1, D2, D4 or D5 was found, and no GEOS report of D3. Related:
 
 - libgeos/geos#797 (closed): mixed-GC difference threw after the old overlay engine was removed;
   fixed by #923 (introduced `StructuredCollection`).
-- libgeos/geos#923 (PR, merged 2023-06-14): "Overlay with mixed dimension", the origin of D1, D2, D4.
-- libgeos/geos#1224 (closed) / #1229 (PR, merged 2025-01-17): empty elements in GC overlay; the
-  origin of D3 and of routing simple polygonal GCs (1a, 1b) into `StructuredCollection`.
-- libgeos/geos#948 (open): difference with a GC of overlapping polygons threw a
-  TopologyException on 3.12.0; no longer reproduces on main (#1229 unions the polygons first).
-- libgeos/geos#1023 / PR #1050 (closed): the 3.9-branch counterpart of #797.
+- libgeos/geos#923 (PR, merged 2023-06-14): "Overlay with mixed dimension", the origin of D1, D2,
+  D4. ("Support mixed GeometryCollection in overlay ops (GH-797)" is the NEWS wording for it,
+  not the PR title.)
+- libgeos/geos#1224 (closed) / #1229 (PR, merged 2025-01-17, backported to 3.12.3 and 3.13.1):
+  empty elements in GC overlay; the origin of D3 and of routing simple polygonal GCs (1a, 1b,
+  1e) into `StructuredCollection`.
+- libgeos/geos#948 (still open): difference with a GC of overlapping polygons threw a
+  TopologyException (reported in August 2023). Its input still throws on 3.13.0 but gives the
+  correct polygon on 3.13.1 and later, including main (#1229 unions the polygons first). The
+  issue itself has not been closed; FINAL.md suggests that it may be possible to close it.
+- libgeos/geos#696 (closed) / PR #716 (3.12.0): OverlayNG support for simple GC inputs (a
+  union with `GC(MULTIPOINT)` lost a point); the reason the `*Prec_r` controls handle 1a, 1b
+  and 1e.
+- libgeos/geos#1023 / PR #1050 (closed): a 3.9.5 regression where a mixed-GC difference threw
+  IllegalArgumentException, fixed on the 3.9 branch; the 3.9-branch counterpart of #797.
+- libgeos/geos#1059 (closed): intersection of a polygon with a GC of four adjacent squares comes
+  out as one polygon; a representation question, different.
 - libgeos/geos#1316 (closed): difference of a line and a point; different (not GC).
 - duckdb/duckdb-spatial#803 (closed): downstream report of D3; not forwarded to GEOS as far as
   the page shows.
 - locationtech/jts#667 (open): proposal that OverlayNG accept heterogeneous GCs; context only.
+- locationtech/jts#833 (open, type-proposal, 2022): "GeometryCollection difference", a request
+  that `Geometry.difference` support non-empty GCs; context only, not a duplicate.
 
 ## 6. Relation to other findings
 
@@ -332,5 +366,11 @@ predicate findings: this is the overlay code path, and no relate call is involve
 - `output_lead_cases.txt`: the lead's cases (task text, leads.toml) on main, 3.15.0 and the fix.
 - `scan.py`, `scan_overlay_batch.c`, `output_scan.txt`: the differential scan.
 - `prototype_fix.diff`, `prototype_fix_minimal.diff`: prototype fixes (not upstream).
-- `FINAL.md`: the report drafted for libgeos/geos. `finding.toml`: registry entry.
+- `FINAL.md`: the report drafted for libgeos/geos; it inlines `prototype_fix.diff` verbatim
+  (it applies to ae9cdd98 with `git apply`). `output_final_snippet.txt`: its inline C program
+  run on main, 3.15.0 and the fix. `finding.toml`: registry entry.
 - `run.sh`: builds and runs everything.
+
+Case 1e (and its line in every per-case output file; not in output_geosop.txt,
+output_lead_cases.txt or output_scan.txt, which do not cover it) was added while applying the
+independent review's corrections; the other cases and outputs are unchanged.

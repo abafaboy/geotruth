@@ -18,6 +18,12 @@ case 1c symdifference
   Geometry.symdifference: IllegalArgumentException: Operation does not support GeometryCollection arguments
   OverlayNGRobust.overlay: IllegalArgumentException: Overlay input is mixed-dimension
 
+case 1e symdifference
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = LINESTRING (1 1, 6 6)
+  Geometry.symdifference: IllegalArgumentException: Operation does not support GeometryCollection arguments
+  OverlayNGRobust.overlay: GEOMETRYCOLLECTION (POLYGON ((4 0, 0 0, 0 4, 2 2, 4 0)), LINESTRING (2 2, 6 6))
+
 case 2a difference
   A = POINT (1 0)
   B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))

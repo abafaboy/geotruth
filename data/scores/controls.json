@@ -1,0 +1,103 @@
+{
+ "format": "geotruth-controls/1",
+ "tiers": {
+  "core": {
+   "engine-control": {
+    "records": 22600,
+    "verdicts": {
+     "correct": 22600
+    },
+    "ok": true
+   },
+   "mutant": {
+    "cases": 3400,
+    "mutated_fields": {
+     "overlay.difference": 127,
+     "overlay.intersection": 93,
+     "overlay.symdifference": 144,
+     "overlay.union": 149,
+     "predicates.contains": 188,
+     "predicates.covered_by": 188,
+     "predicates.covers": 188,
+     "predicates.crosses": 188,
+     "predicates.disjoint": 188,
+     "predicates.equals": 188,
+     "predicates.intersects": 189,
+     "predicates.overlaps": 189,
+     "predicates.touches": 188,
+     "predicates.within": 189
+    },
+    "mutated_records": 2396,
+    "flagged": {
+     "convention": 28,
+     "wrong": 2368
+    },
+    "missed": 0,
+    "missed_examples": [],
+    "other_records_changed": 0,
+    "other_examples": [],
+    "ok": true
+   },
+   "cgal": {
+    "checked": true,
+    "sidecar": "core.exact.jsonl",
+    "overlays": 8048,
+    "area_exact": 8048,
+    "same_point_set": 8048,
+    "ogc_valid": 8048,
+    "no_expected_answer": 0,
+    "failures": [],
+    "ok": true
+   }
+  },
+  "curated": {
+   "engine-control": {
+    "records": 899,
+    "verdicts": {
+     "correct": 899
+    },
+    "ok": true
+   },
+   "mutant": {
+    "cases": 131,
+    "mutated_fields": {
+     "overlay.difference": 3,
+     "overlay.intersection": 6,
+     "overlay.symdifference": 5,
+     "overlay.union": 5,
+     "predicates.contains": 7,
+     "predicates.covered_by": 7,
+     "predicates.covers": 7,
+     "predicates.crosses": 7,
+     "predicates.disjoint": 8,
+     "predicates.equals": 7,
+     "predicates.intersects": 8,
+     "predicates.overlaps": 8,
+     "predicates.touches": 7,
+     "predicates.within": 8
+    },
+    "mutated_records": 93,
+    "flagged": {
+     "wrong": 93
+    },
+    "missed": 0,
+    "missed_examples": [],
+    "other_records_changed": 0,
+    "other_examples": [],
+    "ok": true
+   },
+   "cgal": {
+    "checked": true,
+    "sidecar": "curated.exact.jsonl",
+    "overlays": 232,
+    "area_exact": 232,
+    "same_point_set": 232,
+    "ogc_valid": 232,
+    "no_expected_answer": 0,
+    "failures": [],
+    "ok": true
+   }
+  }
+ },
+ "ok": true
+}

@@ -2,14 +2,14 @@
 
 ## Summary
 
-GH-1201 ported JTS #1099 to make prepared RelateNG cache A's noder in area/line cases. It changed `TopologyComputer::isSelfNodingRequired()` from `A.isSelfNodingRequired() || B.isSelfNodingRequired()` to `A.isSelfNodingRequired() || B.hasAreaAndLine()`. The change was backported to the 3.13 branch, so it is in 3.13.1 and later. When A is polygonal, a MultiLineString, a self-touching LineString, or a GeometryCollection of polygons as B is now intersected only against A's segments, never against itself. Nodes where B meets itself on A's boundary, or where A's own rings touch, then lack node sections, and the edges there get the wrong side labels. The results:
+GH-1201 ported locationtech/jts#1099 to make prepared RelateNG cache A's noder in area/line cases. It changed `TopologyComputer::isSelfNodingRequired()` from `A.isSelfNodingRequired() || B.isSelfNodingRequired()` to `A.isSelfNodingRequired() || B.hasAreaAndLine()`. The change was backported to the 3.13 branch, so it is in 3.13.1 and later. When A is polygonal, a MultiLineString, a self-touching LineString, or a GeometryCollection of polygons as B is now intersected only against A's segments, never against itself. Nodes where B meets itself on A's boundary, or where A's own rings touch, then lack node sections, and the edges there get the wrong side labels. The results:
 
 - **relate matrix.** `relate(polygon, lines)` reports Boundary(A) ∩ Exterior(B) = 1 when the lines cover the polygon's boundary. Swapping the operands gives the correct transposed matrix.
 - **named predicates.** `contains`/`touches` are wrong for a polygon whose hole touches its shell, tested against the shell edge. `covers` is wrong for a MultiPolygon whose parts touch, tested against the touched edge. `within` is wrong for a polygon inside the union of a GeometryCollection of overlapping polygons.
 
 GEOS 3.13.0 returns the correct answer for every case below. JTS master has the same change and the same results. JTS 1.20.0 predates the change and is correct.
 
-## Minimal reproduction
+## Reproduction
 
 All inputs are valid (`GEOSisValid` = 1). `repro.c` uses only the C API (`cc repro.c $(geos-config --cflags) $(geos-config --clibs)`). Output on `main`:
 
@@ -44,7 +44,7 @@ The expected answers can be checked by hand:
 | **3.13.0** (d7957246, built from source): before GH-1201 | **correct** |
 | 3.11.4 (Shapely 2.0.7 wheel, RelateOp) | correct on 1-5. Case 6 throws `TopologyException` (old RelateOp and GCs) |
 
-JTS: master 3ea61f8 is wrong on 1-6. 1.20.0 (released before #1099) is correct on 1-6.
+JTS: master 3ea61f8 is wrong on 1-6. 1.20.0 (released before locationtech/jts#1099) is correct on 1-6.
 
 ## Analysis
 
@@ -64,7 +64,9 @@ Line numbers are for `main` ae9cdd9.
 **An experiment.** I restored the old condition by also returning true when `geomB.isSelfNodingRequired()` (see `experiment-self-node-linear-b.diff`). This fixes all six cases. It also fixes every disagreement of these kinds in two random sweeps checked against exact answers: 725 of 3000 polygon-vs-lines cases, and 7 of 3000 GC cases. Nothing else changes. GEOS's XML tests (171) and the RelateNG unit tests (155) still pass with it. It would undo the prepared-mode speed-up of GH-1201, though, so I am not proposing it as the fix. Two alternatives:
 
 - Self-node only B, adding B×B intersections, when B requires it, while still querying A's cached index.
-- Restrict the fast path to B inputs that cannot meet themselves. A single simple LineString is enough for the matrix: a single LineString B with a self-touch, as in case 3, already fails.
+- Restrict the fast path to B inputs that cannot meet themselves, such as a single simple LineString. A single LineString is not enough: one with a self-touch, as in case 3, already fails.
+
+Neither alternative on its own fixes cases 4 and 5. There B is a simple LineString, and the missing section is at A's own ring touch, which 3.13.0 handled only because full noding also noded A against itself. Those two cases also need the ring-touch fix (see Related issues).
 
 For `contains`/`covers`/`intersects`-style predicates that only need part of the matrix, a narrower rule may be enough. But `relate` itself and the patterns in cases 4-6 need the nodes.
 

@@ -1,4 +1,4 @@
-# GEOS main ae9cdd9 + patch/port-jts-1200.diff + patch/area-vertex-skip.diff
+# GEOS main ae9cdd9 + patch/port-jts-1200.diff, then patch/area-vertex-skip.diff (applied in this order)
 ## ctest -R '^xml-' (all XML tests)
 100% tests passed, 0 tests failed out of 171
 

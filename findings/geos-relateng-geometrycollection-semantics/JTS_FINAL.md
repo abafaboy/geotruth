@@ -7,11 +7,20 @@ the same code and the same results; each defect is reported there separately. Th
 together here, but each section stands alone and can become its own issue.
 
 Versions: JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd and 1.20.0 (6e95fe82) are both
-wrong. Both use `RelateNG.relate(a, b)` and `RelateNG.relate(a, b, RelatePredicate.x())`. JTS's
-default `Geometry.relate` (RelateOp) rejects collections.
+wrong, through `RelateNG.relate(a, b)`, `RelateNG.relate(a, b, RelatePredicate.x())` and the
+prepared `RelateNG.prepare(a)`. The two versions give the same results on every case below except
+one, noted in section 3.
+
+RelateNG is not JTS's default (`GeometryRelate.RELATE_NG_DEFAULT = false`), so these defects are
+reached through the `RelateNG` API or with `-Djts.relate=ng`. With the default, `Geometry.relate`
+(and `crosses`, which calls it) rejects collections (IllegalArgumentException), and the other named
+predicates use RelateOp, which throws TopologyException ("side location conflict") for the
+overlapping collections of sections 2 and 3.
 
 Repro: `Repro.java` (public API only). It prints the matrix both ways, the named predicates, and
-`RelateNG.relate(a.union(), b)` for comparison.
+`RelateNG.relate(a.union(), b)` for comparison. The union gives the expected matrix in sections 2
+and 3. It does not help in section 1: the union of a polygon and a separate point is still a mixed
+collection, and in the line example the collection is B.
 
 ## 1. A Point element of a mixed collection invents exterior entries
 
@@ -74,10 +83,10 @@ Fix (tested):
 - give `AdjacentEdgeLocator` sections their polygon and ring index, so that one polygon's rings go
   through `PolygonNodeConverter`.
 
-On its own this change unmasks defect 3 and the area-vertex skip (next paragraph and below). It
-should land together with the fix for 3.
+On its own this change unmasks the first-vertex form of defect 3 and the area-vertex skip in
+`computeAreaVertex` (reported separately), so it should land together with the fix for 3.
 
-## 3. Union boundary not formed by input rings is never evaluated
+## 3. Union boundary made of pieces of several rings is never evaluated
 
 ```
 A = GEOMETRYCOLLECTION (POLYGON ((0 0, 3 0, 3 1, 0 1, 0 0)), POLYGON ((0 2, 3 2, 3 3, 0 3, 0 2)),
@@ -89,17 +98,20 @@ RelateNG.relate(A.union(), B) = 2FF11F2F2
 
 A is a 3x3 frame with a 1x1 hole, made of four overlapping strips.
 
-`RelateNG.computeAreaVertex(ring)` (506-516) tests only the ring's first vertex, as its TODO at
-line 507 notes. `TopologyComputer.evaluateNodes` (485-493) evaluates only nodes with A/B
-interaction. So two parts of the union boundary are never seen:
+`RelateNG.computeAreaVertex(ring)` (506-516) tests only the ring's first vertex.
+`TopologyComputer.evaluateNodes` (485-493) evaluates only nodes with A/B interaction. So two parts
+of the union boundary are never seen:
 
 - a boundary component made of pieces of several rings, like the hole here, whose corners are
-  crossings of the collection's own polygons;
-- a ring whose first vertex lies inside the union.
+  crossings of the collection's own polygons. No ring vertex lies on it, so choosing a different
+  vertex per ring would not reach it;
+- a ring whose first vertex lies inside the union. The TODO at line 507 ("use extremal (highest)
+  point to ensure one is on boundary of polygon cluster") already anticipates this. A concrete
+  case: `GEOMETRYCOLLECTION (POLYGON ((1 1, 0 0, 2 0, 1 1)), POLYGON ((1 1, 2 0, 2 2, 0 2, 0 0,
+  1 1)))` against `LINESTRING (5 5, 6 6)` gives `FF2FFF102`; the expected matrix is `FF2FF1102`.
 
-For example, `GEOMETRYCOLLECTION (POLYGON ((1 1, 0 0, 2 0, 1 1)), POLYGON ((1 1, 2 0, 2 2, 0 2,
-0 0, 1 1)))` against `LINESTRING (5 5, 6 6)` gives `FF2FFF102`; the expected matrix is
-`FF2FF1102`.
+With the arguments swapped, `RelateNG.relate(B, A)` for the frame gives `212F11FF2` on master and
+`2FFF1FFF2` on 1.20.0; the expected matrix is `212F1FFF2`.
 
 Fix (tested):
 
@@ -115,15 +127,28 @@ With the collection as the second argument, the fix also needs B to be self-node
 - relateng JUnit: 154/154, the same as unpatched.
 - XML relate suites with `-Djts.relate=ng`: 1135/1136, with the same pre-existing failure in
   TestRobustRelateFloat as unpatched.
-- `Repro.java`: the only wrong cases left are the frame with the collection as B (needs the #1099
-  revert) and the #1099 regression case itself.
+- `Repro.java`: the only wrong cases left are the two frames (strips and L-shapes) with the
+  collection as B (they need B to be self-noded again, see above) and the #1099 self-noding case itself (reported separately).
 
-In GEOS the port passes the full ctest (535/535). Over 33,719 generated cases it corrects 1001
-answers and changes no correct one.
+The equivalent GEOS patches pass the full GEOS ctest (535/535). Over 29,719 generated cases they
+correct 1001 answers and change no correct one.
 
 No existing JTS issue or PR covers these (searched: "RelateNG GeometryCollection",
-"AdjacentEdgeLocator", "GeometryCollection overlapping polygons predicate"; related: #1069,
-fixed, covered elements in mixed GCs; #784 and #833, overlay).
+"AdjacentEdgeLocator", "GeometryCollection overlapping polygons predicate"). Related and checked:
+
+- #1069 ("Fix RelateNG for Line Ends in mixed-dim GCs", for libgeos/geos#1148): Point and Line
+  elements *covered* by the collection's polygon. Section 1 is about uncovered elements; the
+  libgeos/geos#1148 cases are correct on master.
+- #1052, #1055 (the RelateNG API), #1073 (`jts.relate=ng`), #1089 and #1090 (EMPTY semantics):
+  none covers these cases.
+- #1099 (prepared A/L caching): the self-noding change mentioned in section 3, reported
+  separately.
+- #1175, fixed by #1200: the known-exterior skip in `computeLineEnds`. The same skip in
+  `computeAreaVertex` is reported separately.
+- #784 and #833: overlay with overlapping collections, not relate.
+- libgeos/geos#1060 lists the pre-RelateNG GeometryCollection predicate issues in GEOS. Of these,
+  libgeos/geos#981, libgeos/geos#982, libgeos/geos#1022, libgeos/geos#1027 and libgeos/geos#1033
+  give the expected answers on GEOS main.
 
 ---
 Found by differential testing against an exact rational oracle (geotruth: https://github.com/abafaboy/geotruth).

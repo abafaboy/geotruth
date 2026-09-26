@@ -235,9 +235,11 @@ def summarize_tier(tier: str, tdir: Path, target_id: str) -> dict[str, Any]:
             "op_timeout_s": stats.get("op_timeout_s"),
             "budget_s": stats.get("budget_s"),
             "lib_reported": run.get("lib"),
-            "version_command": (run.get("options") or {}).get("version_command"),
+            "library_version": run.get("library_version"),
+            "library_commit": run.get("library_commit"),
+            # run.json's "compiler" is left out: it is parsed from the manifest's toolchain
+            # string, which this file carries verbatim at the top ("toolchain")
             "adapter": run.get("adapter"),
-            "compiler": run.get("compiler"),
         },
         "versions": {k: v for k, v in (scorer.get("versions") or {}).items() if k != "lib"},
         "exact_backends": scorer.get("exact_backends"),
@@ -420,6 +422,9 @@ def main(argv: list[str] | None = None) -> int:
             "last_finished": max(finished) if finished else None,
         },
         "tiers": tier_info,
+        # the checks of the three controls (controls.py): engine-control has no failure, every
+        # fault planted in mutant is caught, CGAL's exact overlays equal the expected answers
+        "controls": _read_json(args.out / "controls.json"),
         "libraries": libraries,
     }
     (args.out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")

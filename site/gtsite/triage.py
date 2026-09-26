@@ -7,7 +7,11 @@ entry when
 - the entry's ``library`` names the cluster's target,
 - the entry lists no ``families``, or lists the cluster's family, and
 - the entry lists no ``fields``, or one of them belongs to the cluster's capability
-  (v1 field names such as ``area_inter`` are translated to v2 paths).
+  (v1 field names such as ``area_inter`` are translated to v2 paths), and
+- for a predicates cluster, when the entry names predicates (``predicates.touches``), the
+  cluster's signature names at least one of them: an entry about ``touches`` is no
+  candidate explanation for a cluster of wrong ``overlaps`` answers. Error clusters, whose
+  signature names no predicate, are not narrowed this way.
 
 An entry that lists neither families nor fields (the ``[[lead]]`` entries, which only
 register a documented candidate by its signature) is never matched automatically: it would
@@ -59,6 +63,26 @@ def libraries(entry: dict[str, Any]) -> list[str]:
     return []
 
 
+def signature_predicates(signature: str) -> set[str]:
+    """The predicates a predicates cluster's signature names (``predicates:touches,overlaps|x``)."""
+    head = signature.split("|", 1)[0]
+    cap, _, names = head.partition(":")
+    if cap != "predicates":
+        return set()
+    return {n for n in names.split(",") if n and n != "error"}
+
+
+def entry_predicates(entry: dict[str, Any]) -> set[str]:
+    """The predicates an entry's ``fields`` name (v1 names translated)."""
+    v1 = _v1_to_v2()
+    out = set()
+    for f in entry.get("fields") or []:
+        path = v1.get(f, f)
+        if path.startswith("predicates."):
+            out.add(path.split(".", 1)[1])
+    return out
+
+
 def matches(cluster: Cluster, entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out = []
     for e in entries:
@@ -72,6 +96,10 @@ def matches(cluster: Cluster, entries: list[dict[str, Any]]) -> list[dict[str, A
             continue
         if fields and cluster.capability not in {capability_of_field(f) for f in fields}:
             continue
+        if cluster.capability == "predicates":
+            wanted, named = entry_predicates(e), signature_predicates(cluster.signature)
+            if wanted and named and not wanted & named:
+                continue
         out.append(e)
     return out
 

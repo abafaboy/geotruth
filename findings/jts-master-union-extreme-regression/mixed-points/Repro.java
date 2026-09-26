@@ -5,8 +5,10 @@
 //
 // Public API only.
 //   javac -cp jts-core.jar -d out Repro.java && java -cp jts-core.jar:out Repro
+//   java -Djts.overlay=ng -cp jts-core.jar:out Repro   (section 5 then also covers Geometry.union)
 import org.locationtech.jts.JTSVersion;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
@@ -25,7 +27,21 @@ public class Repro {
     }
   }
 
+  interface Op { Geometry run(); }
+
+  static String call(Op op) {
+    try {
+      return op.run().toText();
+    } catch (RuntimeException e) {
+      return "threw " + e.getClass().getName();
+    }
+  }
+
   public static void main(String[] args) throws Exception {
+    if (args.length > 0 && args[0].equals("entry-points")) {
+      entryPoints();
+      return;
+    }
     System.out.println("JTS " + JTSVersion.CURRENT_VERSION);
     WKTReader r = new WKTReader();
     PrecisionModel grid1 = new PrecisionModel(1.0);
@@ -70,5 +86,24 @@ public class Repro {
       }
       System.out.println("  OverlayNGRobust.overlay(A, P, " + NAMES[op] + ") " + res);
     }
+
+    entryPoints();
+  }
+
+  // Other ways to reach the same code: geometries from a GeometryFactory with a fixed
+  // PrecisionModel, OverlayNGRobust, Geometry.union / symDifference (these go through OverlayNG
+  // only with -Djts.overlay=ng), and an empty point operand.
+  static void entryPoints() throws Exception {
+    PrecisionModel grid1 = new PrecisionModel(1.0);
+    WKTReader r = new WKTReader(new GeometryFactory(grid1));
+    Geometry a = r.read("MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((3 0, 5 0, 5 0.4, 3 0)))");
+    Geometry p = r.read("POINT (7 7)");
+    Geometry e = r.read("POINT EMPTY");
+    System.out.println("\n5. Other entry points (A and P from a GeometryFactory with PrecisionModel(1); jts.overlay="
+        + System.getProperty("jts.overlay") + ")");
+    System.out.println("  OverlayNGRobust.overlay(A, P, UNION) = " + call(() -> OverlayNGRobust.overlay(a, p, OverlayNG.UNION)));
+    System.out.println("  OverlayNG.overlay(A, POINT EMPTY, UNION, pm) = " + call(() -> OverlayNG.overlay(a, e, OverlayNG.UNION, grid1)));
+    System.out.println("  A.union(P) = " + call(() -> a.union(p)));
+    System.out.println("  A.symDifference(P) = " + call(() -> a.symDifference(p)));
   }
 }

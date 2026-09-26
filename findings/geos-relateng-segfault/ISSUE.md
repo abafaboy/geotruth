@@ -13,19 +13,37 @@ are two independent crash sites:
    `getSize() == 0`, the loop bound `ring->getSize() - 1` underflows to `SIZE_MAX`
    (`src/operation/relateng/AdjacentEdgeLocator.cpp:67`), and `getAt(0)` reads out of bounds
    (line 68). This path is reached whenever a located point lies on the boundaries of two or
-   more polygonal elements of the GC, and it crashes **`intersects`, `within`, `touches`,
-   `contains`, `covers`, `relate`, `relatePattern` and the prepared predicates**.
+   more polygonal elements of the GC.
+   - The full-matrix entry points crash for every operand tried: `relate`, `relate` with a
+     boundary node rule, and prepared relate.
+   - `relatePattern` crashes unless it can decide first. For example, the disjoint pattern in
+     the (B,A) order returns false for the line and polygon operands.
+   - A named predicate crashes only if it reaches that point before it can decide. So the set
+     depends on the operand (`output_entrypoints_geos-main-ae9cdd9.txt`).
+   - For the point of case 1, the crashing predicates are `intersects`, `disjoint`, `touches`,
+     `crosses`, `within`, `coveredBy`, `contains(B,A)`, `covers(B,A)` and the corresponding
+     prepared predicates (in at least one argument order). `equals` and `overlaps` return
+     without crashing.
 2. **Null `LinearBoundary` in `TopologyComputer::initExteriorEmpty`** (GEOS: SIGSEGV; JTS:
    `NullPointerException`). `RelateGeometry`'s dimension is `Geometry::getDimension()`, which
    counts empty elements, so `GC(POINT, LINESTRING EMPTY)` gets dimension L. Its point locator
    builds a `LinearBoundary` only for non-empty lines, so `lineBoundary` stays null. Against an
    empty operand, `initExteriorEmpty` switches on that dimension (`TopologyComputer.cpp:95`)
    and calls `hasBoundary()` (line 101), which dereferences the null pointer
-   (`RelatePointLocator.cpp:70`). Only the full `relate` reaches this path.
+   (`RelatePointLocator.cpp:70`).
+   - Every full-matrix entry point reaches this path: `GEOSRelate`,
+     `GEOSRelateBoundaryNodeRule` and `GEOSPreparedRelate`.
+   - `GEOSRelatePattern` and `GEOSPreparedRelatePattern` also reach it when the empty operand
+     does not decide the pattern early, e.g. `*********`, the disjoint pattern `FF*FF****` or
+     `FF0FFFFF2` (and Shapely's `relate_pattern`).
+   - Only the named predicates, and a pattern such as `T********`, return early for an empty
+     operand and do not crash.
 
-The same declared-vs-real dimension mix-up also gives a **wrong matrix without a crash**
-(case 3 below, GEOS and JTS). This is the `EMPTY_ELEMENT_DIMENSION` family pinned in
-`tests/crosscheck/test_relate_dual.py`, and the same root cause as crash 2.
+The same declared-vs-real dimension mix-up in RelateNG also gives a **wrong matrix without a
+crash** (case 3 below, GEOS and JTS RelateNG). This is the `EMPTY_ELEMENT_DIMENSION` family
+pinned in `tests/crosscheck/test_relate_dual.py`. In RelateNG it has the same root cause as
+crash 2. It is not a RelateNG regression: GEOS 3.11.4's RelateOp gives the same wrong
+matrices, through different code.
 
 A 5-line prototype fix, in GEOS and JTS, removes all crashes and wrong answers of this family.
 It passes GEOS's full ctest suite (535/535) and JTS's RelateNG unit tests (154/154), and it
@@ -35,13 +53,14 @@ changes no other answer in a 25,000-case differential run (see "Prototype fix").
 
 | item | result |
 |---|---|
-| Upstream heads (`git ls-remote`, 2026-09-26) | unchanged: GEOS main `ae9cdd98b` (2026-09-21), tag 3.15.0 `d0228513a`; JTS master `3ea61f8` (2026-09-23), tag 1.20.0 `6e95fe82`. |
-| GEOS main `ae9cdd98b` | crash 1 and crash 2 reproduce (C API `output_geos-main-ae9cdd9.txt`, `geosop` `output_geosop.txt`). Case 3 is wrong. |
-| GEOS 3.15.0 `d0228513a` (latest release) | identical to main (`output_geos-3.15.0.txt`, `output_geosop.txt`). |
-| GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) | crash 1, crash 2, case 3 wrong (`output_shapely-2.2.0rc1_geos-3.14.1.txt`). |
-| GEOS 3.13.1 (Shapely 2.1.2 wheel) | crash 1, crash 2, case 3 wrong (`output_shapely-2.1.2_geos-3.13.1.txt`). |
-| GEOS 3.11.4 (Shapely 2.0.7 wheel, old RelateOp) | **no crash**. Case 1 is correct. Case 2 raises `IllegalArgumentException: Operation not supported by GeometryCollection`. Case 3 is already wrong (`output_shapely-2.0.7_geos-3.11.4.txt`). So both crashes are regressions that came with RelateNG (GEOS 3.13). Case 3 is older. |
-| JTS master `3ea61f8` and 1.20.0 (RelateNG) | case 1 **correct** (`0FFFFF212`): Java's `int` bound `ring.length - 1 = -1` skips the empty ring. Case 2: **`NullPointerException`** at `RelatePointLocator.java:99`, called from `TopologyComputer.initExteriorEmpty` (`TopologyComputer.java:92`). Case 3 is wrong, the same as GEOS (`output_jts-*.txt`). JTS's default `Geometry.relate` (RelateOp) rejects GC arguments, so JTS users only hit this with `RelateNG` or `-Djts.relate=ng`. |
+| Upstream heads (`git ls-remote`, 2026-09-26) | unchanged: GEOS main `ae9cdd98b` (2026-09-21), tag 3.15.0 `d0228513a`; JTS master `3ea61f8` (2026-09-23), tag 1.20.0 `6e95fe82`. The GEOS 3.15 maintenance branch (head `86a4af48`) has 6 commits after the 3.15.0 tag. Their source changes are in `operation/grid`, `noding/NodableArcString` and `operation/split`, and none is under `relateng` or `geom`, so a 3.15.1 cut from it now would still have both crashes. |
+| GEOS main `ae9cdd98b` | crash 1 and crash 2 reproduce (C API `output_geos-main-ae9cdd9.txt`, `geosop` `output_geosop.txt`). Case 3 is wrong. Every relate / pattern / named / prepared entry point, both argument orders, with EMPTY-free controls: `output_entrypoints_geos-main-ae9cdd9.txt` (`entrypoints.c`). |
+| GEOS 3.15.0 `d0228513a` (latest release) | identical to main (`output_geos-3.15.0.txt`, `output_entrypoints_geos-3.15.0.txt`, `output_geosop.txt`). |
+| GEOS 3.14.1 (Shapely 2.2.0rc1 wheel) | crash 1, crash 2 (`relate` and `relate_pattern(..., "FF*FF****")`), case 3 wrong (`output_shapely-2.2.0rc1_geos-3.14.1.txt`). |
+| GEOS 3.13.1 (Shapely 2.1.2 wheel) | crash 1, crash 2 (`relate` and `relate_pattern(..., "FF*FF****")`), case 3 wrong (`output_shapely-2.1.2_geos-3.13.1.txt`). |
+| GEOS 3.12.x and 3.13.0 | not run. |
+| GEOS 3.11.4 (Shapely 2.0.7 wheel, old RelateOp) | **no crash**. Case 1 is correct. Case 2 raises `IllegalArgumentException: Operation not supported by GeometryCollection`, the known RelateOp limitation for GC arguments (libgeos/geos#983, open). Case 3 and the lead's case are already wrong, with the same matrices (`output_shapely-2.0.7_geos-3.11.4.txt`). So crash 1 is a regression from a correct answer to a SIGSEGV, crash 2 a regression from an exception to a SIGSEGV, both from RelateNG (GEOS 3.13; 3.13.1 is the oldest build tested). Case 3 is not a regression. |
+| JTS master `3ea61f8` and 1.20.0 (RelateNG) | case 1 **correct** (`0FFFFF212`): Java's `int` bound `ring.length - 1 = -1` skips the empty ring. Case 2: **`NullPointerException`** at `RelatePointLocator.java:99`, called from `TopologyComputer.initExteriorEmpty` (`TopologyComputer.java:92`). Case 3 is wrong, the same as GEOS (`output_jts-*.txt`). JTS users only hit this through the `RelateNG` API or with `-Djts.relate=ng`. JTS's default `Geometry.relate` (RelateOp) throws `IllegalArgumentException: Operation does not support GeometryCollection arguments` on all three cases, and the default `intersects` returns the correct true / false / false (`output_jts-*.txt`, "default" lines). |
 | Validity | all operands: `GEOSisValid` true, JTS `IsValidOp` true, geotruth `validity.is_valid` true (`output_exact_check.txt`). No coordinates beyond small integers. |
 | Exact answers | `geotruth.relate` (arrangement route, strict) and `relate_witness` (independent witness route) agree on all 10 cases in `cases.jsonl`. A third, independent check: GEOS itself on the same point sets with the EMPTY element removed gives the exact matrix in every case (`output_exact_check.txt`). JTS gives the exact answer for case 1. |
 | Debug backtraces | `output_backtrace_debug_geos-main-ae9cdd9.txt`, from a `-O0 -g3` build with assertions on. Crash 1 trips `CoordinateSequence::getAt`'s bounds assertion (`i*stride() < m_vect.size()`) with `ring->getSize() == 0` and `getSize() - 1 == 18446744073709551615`. Crash 2 has `lineBoundary == nullptr`, `lines.size() == 0`, `points.size() == 1`, `dimNonEmpty == 1`. |
@@ -67,8 +86,20 @@ Variants that also crash (`output_variants_crash1_shapely-2.1.2_geos-3.13.1.txt`
 - the `POLYGON EMPTY` in any position;
 - the `POLYGON EMPTY` nested in a sub-GC;
 - the `POLYGON EMPTY` as an `EMPTY` part of a MultiPolygon element;
-- a `LINESTRING (1 1, 3 1)` or `POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))` operand instead of the point;
-- two triangles sharing only a vertex, with the point at that vertex.
+- a `LINESTRING (1 1, 3 1)` or `POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))` operand instead of the
+  point. `relate` still crashes, but a different set of named predicates does
+  (`output_entrypoints_geos-main-ae9cdd9.txt`):
+  - `intersects` returns true for both without crashing;
+  - `within` and `touches` crash for both;
+  - `crosses` crashes for the line, and `overlaps` for the polygon;
+  - `contains(B,A)`, `covers(B,A)` and `coveredBy(A,B)` crash for both, and `disjoint` for
+    the polygon only;
+- the point at a vertex of the shared edge: `POINT (0 0)` vs two triangles that share the edge
+  (0 0)-(0 1) (the variants file);
+- the point at the only shared vertex of two triangles: `POINT (0 0)` vs
+  `GEOMETRYCOLLECTION (POLYGON ((0 0, 1 0, 1 1, 0 0)), POLYGON ((0 0, -1 0, -1 -1, 0 0)),
+  POLYGON EMPTY)` gives SIGSEGV for `relate` and `intersects` with `geosop` on main and 3.15.0,
+  and `F0FFFF212` (exact) with the prototype fix.
 
 A `MULTIPOLYGON EMPTY` element does not crash (it has no Polygon children). Neither does a
 point on only one polygon boundary (`numBdy == 1`, so `AdjacentEdgeLocator` is not used).
@@ -86,11 +117,19 @@ IE = 0. A has no boundary (a point, and the empty line has no endpoints), so BE 
 nothing, so EI = EB = F, and EE = 2. `relate(POINT (0 0), POINT EMPTY)` gives this in GEOS
 (control 2c). It also crashes with `MULTILINESTRING EMPTY`, a nested `GEOMETRYCOLLECTION
 (LINESTRING EMPTY)`, a MultiPoint instead of the point, B = `POLYGON EMPTY` or
-`GEOMETRYCOLLECTION EMPTY`, and with the operands swapped. The named predicates do not crash
-here. RelateNG decides them early for an empty operand. Only `GEOSRelate` /
-`Geometry::relate` (and so `shapely.relate`) reaches the crash.
+`GEOMETRYCOLLECTION EMPTY`, and with the operands swapped.
 
-**Case 3: wrong matrix, same cause as case 2 (GEOS and JTS; not a crash; not a regression)**
+The named predicates do not crash here, because RelateNG decides them early for an empty
+operand. Every entry point that needs the full matrix does crash
+(`output_entrypoints_geos-main-ae9cdd9.txt`):
+- `GEOSRelate`, `GEOSRelateBoundaryNodeRule` and `GEOSPreparedRelate`;
+- `GEOSRelatePattern` and `GEOSPreparedRelatePattern` with a pattern the empty operand does
+  not decide early, e.g. `*********`, `FF*FF****` or `FF0FFFFF2`. `T********` returns false
+  without crashing, which is why `repro.c`'s original `T********` call did not show it.
+
+So `shapely.relate` and `shapely.relate_pattern` crash as well.
+
+**Case 3: wrong matrix; in RelateNG the same cause as case 2 (GEOS and JTS RelateNG; not a crash; not a regression)**
 
 ```
 A = GEOMETRYCOLLECTION (LINESTRING (0 0, 1 0), POLYGON EMPTY)
@@ -105,6 +144,10 @@ point in its exterior. Also `GC(POINT (0 0), POLYGON EMPTY)` vs `POINT EMPTY`: G
 `FF2FF1FF2`, exact `FF0FFFFF2`. Named predicates are unaffected (`output_variants_crash2_case3_*.txt`; checked: `crosses`,
 `overlaps`, `touches` on line/line and multipoint/multipoint variants). They dispatch on
 `getDimensionReal()`.
+
+GEOS 3.11.4's old RelateOp gives the same wrong matrices for both examples (`FF2FF10F2`, and
+`FFFFFF212` for the lead's case), through different code. So "same cause as case 2" holds only
+for RelateNG (GEOS 3.13+ and JTS RelateNG), and case 3 is not a RelateNG regression.
 
 ### Root cause (file:line on GEOS main `ae9cdd98b`)
 
@@ -164,7 +207,8 @@ bugs. No documented limit applies (small integers).
   - "RelateNG segfault crash empty polygon GeometryCollection";
   - "AdjacentEdgeLocator crash";
   - "relate segmentation fault GEOMETRYCOLLECTION LINESTRING EMPTY LinearBoundary hasBoundary null";
-  - "RelateNG" (all 4: #1060, #1147, #1148, #1149, all closed regressions in DE-9IM values);
+  - "RelateNG" (4 results: #1060, the Relate issue summary, and #1147, #1148, #1149, closed
+    regressions in DE-9IM values);
   - "crash intersects contains GeometryCollection with empty polygon";
   - "GeometryCollection getDimension empty element dimension relate wrong matrix";
   - "GEOSRelate crash GeometryCollection containing empty LineString".
@@ -174,7 +218,9 @@ bugs. No documented limit applies (small integers).
   - **#1406** (closed, PR #1410: `GeometryNoder` crashes on a GC with an empty polygon; the fix touched only `src/noding`);
   - **#1002** (closed: PointOnSurface crash on a collection with an empty linestring);
   - **#1060** (the Relate issue summary: lists #1011, and no crash);
-  - #983 (old RelateOp with GCs).
+  - **#983** (open): the old RelateOp's `IllegalArgumentException` for GC arguments. That is
+    what GEOS 3.11.4 raises for case 2, so for crash 2 the RelateNG regression is "exception
+    to SIGSEGV", not "correct to SIGSEGV". FINAL.md cites it.
 - **libgeos/geos PRs/commits:** "RelateNG empty" matches no PRs. The only matching commit is
   `face0894` ("Fix RelateNG IM for empty-nonempty cases", a port of JTS #1090), which touched
   `addPointOnGeometry` and `addLineEndOnGeometry` but not these paths.
@@ -190,6 +236,15 @@ bugs. No documented limit applies (small integers).
   GEOS #1406, a different operation).
 - **Web search:** nothing on RelateNG crashes with empty GC elements. PostGIS #5580 is
   ST_3DIntersects in PostGIS's own code.
+- **Independent skeptic review (2026-09-26)** repeated the searches with its own queries and
+  found no duplicate either:
+  - GEOS issues and PRs, including everything created since 2026-06/08;
+  - JTS issues and open PRs, and it read #1090 and #1175;
+  - Shapely and the web.
+
+  A Nominatim/PostGIS ST_Intersects GC segfault from 2020 predates RelateNG. GEOS's OSS-Fuzz
+  targets (`tests/fuzz/fuzz_geo_ops.c`, `fuzz_geo2.c`) never call relate or a predicate, so
+  a hidden OSS-Fuzz duplicate is unlikely. PostGIS trac could not be reached.
 
 ### Prototype fix (`prototype_fix.diff`, `jts_prototype_fix.diff`)
 
@@ -220,11 +275,17 @@ The same change also treats a zero-length line as a point there, which is what R
 documents. A first attempt that changed `RelateGeometry::getDimension()` instead broke JTS's
 `RelateGeometryTest.testDimension`, which pins the declared dimension, so it was dropped.
 
-Results (`output_prototype_tests.txt`):
+Results (`output_prototype_tests.txt`). The patched GEOS build is a copy of the main
+`ae9cdd98b` source tree, committed locally as a snapshot ("base", `12d720e`) with only the two
+patched files changed. Its `src/` is identical file for file to main apart from those two
+files, so it is "main `ae9cdd98b` + `prototype_fix.diff`".
 - GEOS patched: `ctest` 535/535 (171 XML suites plus 364 unit tests, including all 10
   `relateng` groups).
 - The repro gives the exact answers for all six cases
   (`output_prototype_fix_geos-main-ae9cdd9+prototype_fix.txt`).
+- Every entry point in `entrypoints.c` (4 inputs x 28 entry points x both argument orders)
+  gives the same answer as on the EMPTY-free control, with no crash
+  (`output_entrypoints_geos-main-ae9cdd9+prototype_fix.txt`).
 - Differential run over the 25,000 generated cases (both argument orders), unpatched main vs
   patched:
   - crashes go from 13 to 0;
@@ -257,11 +318,19 @@ Results (`output_prototype_tests.txt`):
   `cases.jsonl`). This finding subsumes the lead (`supersedes_lead` in `finding.toml`).
 - The lead `relateng-gc-polygon-with-exterior-point` has no EMPTY element and is a different
   defect. The prototype fix does not change its answer (`2F2F110F2` before and after).
+- `geos-relateng-geometrycollection-semantics` (triaged separately):
+  - Its D1 fix also corrects case 3, by a different route. This finding's `getDimensionReal`
+    change is still needed for the crashes.
+  - Its D2 patch changes `AdjacentEdgeLocator` next to the lines this fix touches, so
+    whichever lands second needs a rebase.
 
 ### Caveats
 
-- GEOS 3.13.0 itself was not run. 3.13.1 is the oldest RelateNG build tested. 3.11.4
-  (pre-RelateNG) does not crash.
+- GEOS 3.13.0 itself was not run, and neither was 3.12.x. 3.13.1 is the oldest RelateNG build
+  tested. 3.11.4 (pre-RelateNG) does not crash: case 1 is correct, and case 2 raises
+  `IllegalArgumentException` (#983).
+- Which named predicates crash depends on the operand. See
+  `output_entrypoints_geos-main-ae9cdd9.txt` rather than a fixed list.
 - PostGIS was not tested. Any GEOS client that passes such a GC to a predicate is exposed. In
   Shapely, `shapely.intersects(point, gc)` kills the interpreter.
 - The lead's original "8 crashes" list is not in the repo. This triage regenerated the crash
@@ -274,8 +343,9 @@ Results (`output_prototype_tests.txt`):
 | `FINAL.md` | maintainer-ready GEOS report |
 | `JTS_FINAL.md` | short JTS report (the NPE and case 3) |
 | `repro.c` | public C API only. Each call is fork-isolated, with a control per case. Build: `cc -std=c11 repro.c $(geos-config --cflags) $(geos-config --clibs)` |
-| `repro.py` | Shapely, subprocess-isolated |
-| `Repro.java` | JTS RelateNG (public API) |
+| `entrypoints.c`, `output_entrypoints_*.txt` | every relate / pattern / named / prepared C API entry point on the crash inputs (point, line and polygon operand for crash 1; crash 2), both argument orders, each next to its EMPTY-free control; main, 3.15.0 and main + prototype fix |
+| `repro.py` | Shapely, subprocess-isolated (includes `relate_pattern` with the disjoint pattern) |
+| `Repro.java` | JTS RelateNG (public API), plus JTS's default `Geometry.relate` / `intersects` |
 | `run.sh` | builds and runs all of the above (`GEOS_CONFIG=`, `JTS_JAR=`) |
 | `cases.jsonl` | the minimal cases and variants (plus the `relateng-empty-operand-type-dimension` lead case), as v2 typed-JSON case records with the WKT in `a_wkt`/`b_wkt` and a note |
 | `probe_variants.py`, `output_variants_*.txt` | variants and entry points, each call in a fresh interpreter (Shapely 2.1.2) |

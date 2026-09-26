@@ -24,7 +24,12 @@ CASES = [
 CHILD = r"""
 import sys, shapely
 a, b, op = shapely.from_wkt(sys.argv[1]), shapely.from_wkt(sys.argv[2]), sys.argv[3]
-print(shapely.relate(a, b) if op == "relate" else getattr(shapely, op)(a, b))
+if op == "relate":
+    print(shapely.relate(a, b))
+elif op == "relate_pattern":  # the disjoint pattern; an empty operand does not decide it early
+    print(shapely.relate_pattern(a, b, "FF*FF****"))
+else:
+    print(getattr(shapely, op)(a, b))
 """
 
 
@@ -43,11 +48,12 @@ for name, a, b, expected in CASES:
     print(f"\ncase {name}\n  A = {a}\n  B = {b}")
     print(f"  is_valid(A) = {shapely.is_valid(ga)}, is_valid(B) = {shapely.is_valid(gb)}")
     print(f"  expected relate(A, B) = {expected}")
-    for op in ("relate", "intersects", "within", "touches"):
+    for op in ("relate", "relate_pattern", "intersects", "within", "touches"):
         got = call(a, b, op)
         mark = ""
         if got.startswith("CRASH"):
             mark = "   <-- CRASH"
         elif op == "relate":
             mark = "   ok" if got == expected else "   <-- WRONG"
-        print(f"  {op + '(A, B)':16s} {got}{mark}")
+        label = "relate_pattern(A, B, 'FF*FF****')" if op == "relate_pattern" else op + "(A, B)"
+        print(f"  {label:16s} {got}{mark}")

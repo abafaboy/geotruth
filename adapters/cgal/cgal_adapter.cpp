@@ -11,7 +11,9 @@
 // Contract v2 (typed operands or "ops"; --v2 also for legacy lines), per-operation fork
 // isolation from ../geos_main/adapter_v2.hpp:
 //   overlay.<op>   Polygon_set_2 intersection / join / difference (A - B) /
-//                  symmetric_difference; vertices written as correctly rounded doubles
+//                  symmetric_difference, its polygons in OGC form (one per face of the
+//                  result's arrangement, boundary walks split into simple rings at repeated
+//                  vertices; see ogc_polygons); vertices written as correctly rounded doubles
 //                  (round-half-even from the exact rational, subnormals included; never
 //                  CGAL::to_double, which does not promise round-to-nearest). With --exact,
 //                  a side-car line per case carries the EXACT result: every ordinate as a
@@ -64,7 +66,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <list>
+#include <map>
 #include <optional>
 #include <sstream>
 
@@ -262,24 +264,97 @@ void ring_json(const Polygon &pg, std::string &rj, std::string &ej, size_t &nv)
     ej += ']';
 }
 
+using Arr = PSet::Arrangement_2;
+
+// A closed boundary walk of the result's arrangement, split into simple rings at every
+// vertex it passes more than once (a pinch); each ring is a CGAL polygon in walk order.
+void split_ccb(Arr::Ccb_halfedge_const_circulator first, std::vector<Polygon> &out)
+{
+    std::vector<Arr::Vertex_const_handle> walk;
+    std::map<const void *, size_t> at; // vertex -> its index in walk
+    auto emit = [&](size_t from) {
+        std::vector<Point> pts;
+        for (size_t i = from; i < walk.size(); i++)
+            pts.push_back(walk[i]->point());
+        out.emplace_back(pts.begin(), pts.end());
+    };
+    auto c = first;
+    do {
+        Arr::Vertex_const_handle v = c->source();
+        auto it = at.find(&*v);
+        if (it == at.end()) {
+            at.emplace(&*v, walk.size());
+            walk.push_back(v);
+        } else { // back at v: the walk since v is a ring of its own
+            size_t i = it->second;
+            emit(i);
+            for (size_t j = i + 1; j < walk.size(); j++)
+                at.erase(&*walk[j]);
+            walk.resize(i + 1);
+        }
+    } while (++c != first);
+    emit(0);
+}
+
+// The regularized result as OGC polygons. CGAL's polygons_with_holes() follows CGAL's model,
+// not OGC's: an outer boundary may be "relatively simple" (touch itself at a vertex) and a
+// hole may touch the outer boundary at vertices, so the XOR of two overlapping polygons comes
+// back as ONE polygon whose hole (A ∩ B) touches its shell at two or more points, which OGC
+// calls a disconnected interior. The OGC form of the same point set is read off the result's
+// arrangement instead: every face in the set is open and connected, so its closure is one OGC
+// polygon. Its outer boundary walk (counter-clockwise: CGAL keeps a halfedge's face on its
+// left) and each inner boundary walk (clockwise) are split into simple rings at repeated
+// vertices. The one counter-clockwise ring of the outer walk is the shell; every other ring
+// is a hole, touching the shell or another hole at single points at most.
+std::vector<std::vector<Polygon>> ogc_polygons(const PSet &s)
+{
+    const Arr &arr = s.arrangement();
+    for (auto e = arr.edges_begin(); e != arr.edges_end(); ++e)
+        if (e->face()->contained() == e->twin()->face()->contained())
+            throw std::runtime_error("the result has a redundant edge (both sides alike)");
+    std::vector<std::vector<Polygon>> out;
+    for (auto f = arr.faces_begin(); f != arr.faces_end(); ++f) {
+        if (!f->contained())
+            continue;
+        if (f->is_unbounded())
+            throw std::runtime_error("unbounded overlay result");
+        std::vector<Polygon> outer, holes;
+        split_ccb(f->outer_ccb(), outer);
+        for (auto h = f->inner_ccbs_begin(); h != f->inner_ccbs_end(); ++h)
+            split_ccb(*h, holes);
+        std::vector<Polygon> rings;
+        for (const Polygon &r : outer)
+            if (CGAL::sign(r.area()) == CGAL::POSITIVE)
+                rings.push_back(r);
+            else
+                holes.push_back(r);
+        if (rings.size() != 1)
+            throw std::runtime_error("a face of the result has " + std::to_string(rings.size()) +
+                                     " counter-clockwise outer rings");
+        for (const Polygon &r : holes) {
+            if (CGAL::sign(r.area()) != CGAL::NEGATIVE)
+                throw std::runtime_error("a hole of the result is not clockwise");
+            rings.push_back(r);
+        }
+        out.push_back(std::move(rings));
+    }
+    return out;
+}
+
 Written write_set(const PSet &s)
 {
-    std::list<PWH> pwhs;
-    s.polygons_with_holes(std::back_inserter(pwhs));
     std::vector<std::string> rparts, eparts;
     FT area(0);
     size_t nv = 0;
-    for (const PWH &p : pwhs) {
-        if (p.is_unbounded())
-            throw std::runtime_error("unbounded overlay result");
+    for (const std::vector<Polygon> &rings : ogc_polygons(s)) {
         std::string rj = "[", ej = "[";
-        ring_json(p.outer_boundary(), rj, ej, nv);
-        area += p.outer_boundary().area();
-        for (auto h = p.holes_begin(); h != p.holes_end(); ++h) {
-            rj += ", ";
-            ej += ", ";
-            ring_json(*h, rj, ej, nv);
-            area += h->area(); // holes are clockwise: negative
+        for (size_t i = 0; i < rings.size(); i++) {
+            if (i) {
+                rj += ", ";
+                ej += ", ";
+            }
+            ring_json(rings[i], rj, ej, nv);
+            area += rings[i].area(); // the shell is counter-clockwise, holes clockwise (negative)
         }
         rparts.push_back(rj + "]");
         eparts.push_back(ej + "]");

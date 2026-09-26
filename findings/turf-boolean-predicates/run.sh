@@ -6,7 +6,7 @@
 set -e
 cd "$(dirname "$0")"
 node repro.mjs
-node extra.mjs                         # MultiPolygon branches, the two lead cases, the #2454 sub-case
+node extra.mjs                         # MultiPolygon branches (incl. L598/L753), holes, the two lead cases, the #2454 sub-case
 node crosscheck.mjs cases.jsonl        # Turf's own booleanValid / booleanIntersects / intersect, and JSTS
 # Exact answers (geotruth, from the repository root), both relate routes:
 #   PYTHONPATH=src python3 -m geotruth relate --dual --id turf-touches-identical-triangles \

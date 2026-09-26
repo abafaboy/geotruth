@@ -1,0 +1,65 @@
+# geotruth relate --dual (arrangement route + witness-point route), 2026-09-26
+## MP/MP adjacent unit squares
+A = MULTIPOLYGON (((0 0, 1 0, 1 1, 0 1, 0 0)))
+B = MULTIPOLYGON (((1 0, 2 0, 2 1, 1 1, 1 0)))
+relate: FF2F11212
+  touches     true
+  overlaps    false
+  contains    false
+witness route: FF2F11212 agrees
+## P/MP 2nd part shares edge x = 1
+A = POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))
+B = MULTIPOLYGON (((10 10, 11 10, 11 11, 10 11, 10 10)), ((1 0, 2 0, 2 1, 1 1, 1 0)))
+relate: FF2F11212
+  touches     true
+  overlaps    false
+  contains    false
+witness route: FF2F11212 agrees
+## #2454 sub-case, and the P/P booleanTouches pair: [0,2]^2 and [0,1]^2
+A = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+B = POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))
+relate: 212F11FF2
+  touches     false
+  overlaps    false
+  contains    true
+witness route: 212F11FF2 agrees
+## P/MP triangle inside [0,4]^2 with its vertex (2,0) on the edge (as Polygons: same matrix)
+A = POLYGON ((2 0, 3 2, 1 2, 2 0))
+B = MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0)))
+relate: 2FF10F212
+  touches     false
+  overlaps    false
+  contains    false
+witness route: 2FF10F212 agrees
+## P/MP [0,1]^2 and [0,4]^2
+A = POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))
+B = MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0)))
+relate: 2FF11F212
+  touches     false
+  overlaps    false
+  contains    false
+witness route: 2FF11F212 agrees
+## MP/MP [0,1]^2 and [0,4]^2
+A = MULTIPOLYGON (((0 0, 1 0, 1 1, 0 1, 0 0)))
+B = MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0)))
+relate: 2FF11F212
+  touches     false
+  overlaps    false
+  contains    false
+witness route: 2FF11F212 agrees
+## MP/MP triangle with a hole inside [0,8]^2, vertex (4,0) on its edge (B as a Polygon: same matrix)
+A = MULTIPOLYGON (((4 0, 6 4, 2 4, 4 0), (4 2, 4 3, 5 3, 4 2)))
+B = MULTIPOLYGON (((0 0, 8 0, 8 8, 0 8, 0 0)))
+relate: 2FF10F212
+  touches     false
+  overlaps    false
+  contains    false
+witness route: 2FF10F212 agrees
+## case 5 with the donut as a one-part MultiPolygon
+A = MULTIPOLYGON (((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 3, 3 3, 3 1, 1 1)))
+B = POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))
+relate: FF2F11212
+  touches     true
+  overlaps    false
+  contains    false
+witness route: FF2F11212 agrees

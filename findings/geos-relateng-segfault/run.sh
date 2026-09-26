@@ -18,6 +18,11 @@ cc -std=c11 -O1 -o "$OUT/repro" repro.c $($GEOS_CONFIG --cflags) $($GEOS_CONFIG 
    -Wl,-rpath,"$($GEOS_CONFIG --prefix)/lib"
 "$OUT/repro"
 
+# every relate / pattern / named / prepared entry point, with EMPTY-free controls
+cc -std=c11 -O1 -o "$OUT/entrypoints" entrypoints.c $($GEOS_CONFIG --cflags) $($GEOS_CONFIG --clibs) \
+   -Wl,-rpath,"$($GEOS_CONFIG --prefix)/lib"
+"$OUT/entrypoints"
+
 # the same with the geosop CLI (each line ends in "Segmentation fault", exit status 139)
 GEOSOP="$($GEOS_CONFIG --prefix)/bin/geosop"
 if [ -x "$GEOSOP" ]; then

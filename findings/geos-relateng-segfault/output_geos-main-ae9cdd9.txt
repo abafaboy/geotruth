@@ -12,6 +12,7 @@ case 1  point on the shared edge of two squares, GC has a POLYGON EMPTY
   GEOSWithin(A,B)                        CRASH (signal 11, Segmentation fault)   <-- CRASH
   GEOSTouches(A,B)                       CRASH (signal 11, Segmentation fault)   <-- CRASH
   GEOSRelatePattern(A,B,"T********")     CRASH (signal 11, Segmentation fault)   <-- CRASH
+  GEOSRelatePattern(A,B,"FF*FF****")     CRASH (signal 11, Segmentation fault)   <-- CRASH
   GEOSPreparedCovers(prep B, A)          CRASH (signal 11, Segmentation fault)   <-- CRASH
 
 case 1c control: same GC without the POLYGON EMPTY
@@ -26,6 +27,7 @@ case 1c control: same GC without the POLYGON EMPTY
   GEOSWithin(A,B)                        true
   GEOSTouches(A,B)                       false
   GEOSRelatePattern(A,B,"T********")     true
+  GEOSRelatePattern(A,B,"FF*FF****")     false
   GEOSPreparedCovers(prep B, A)          true
 
 case 2  GC(point, LINESTRING EMPTY) vs POINT EMPTY
@@ -40,6 +42,7 @@ case 2  GC(point, LINESTRING EMPTY) vs POINT EMPTY
   GEOSWithin(A,B)                        false
   GEOSTouches(A,B)                       false
   GEOSRelatePattern(A,B,"T********")     false
+  GEOSRelatePattern(A,B,"FF*FF****")     CRASH (signal 11, Segmentation fault)   <-- CRASH
   GEOSPreparedCovers(prep B, A)          false
 
 case 2c control: the point alone
@@ -54,6 +57,7 @@ case 2c control: the point alone
   GEOSWithin(A,B)                        false
   GEOSTouches(A,B)                       false
   GEOSRelatePattern(A,B,"T********")     false
+  GEOSRelatePattern(A,B,"FF*FF****")     true
   GEOSPreparedCovers(prep B, A)          false
 
 case 3  GC(line, POLYGON EMPTY) vs a disjoint point (no crash, wrong matrix)
@@ -68,6 +72,7 @@ case 3  GC(line, POLYGON EMPTY) vs a disjoint point (no crash, wrong matrix)
   GEOSWithin(A,B)                        false
   GEOSTouches(A,B)                       false
   GEOSRelatePattern(A,B,"T********")     false
+  GEOSRelatePattern(A,B,"FF*FF****")     true
   GEOSPreparedCovers(prep B, A)          false
 
 case 3c control: the line alone
@@ -82,4 +87,5 @@ case 3c control: the line alone
   GEOSWithin(A,B)                        false
   GEOSTouches(A,B)                       false
   GEOSRelatePattern(A,B,"T********")     false
+  GEOSRelatePattern(A,B,"FF*FF****")     true
   GEOSPreparedCovers(prep B, A)          false

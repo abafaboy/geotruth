@@ -15,6 +15,7 @@ public class Repro {
         {"1a", "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))", "POINT (3 3)", "symdifference"},
         {"1b", "GEOMETRYCOLLECTION (POLYGON EMPTY)", "POINT (1 1)", "symdifference"},
         {"1c", "POINT (1 0)", "GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))", "symdifference"},
+        {"1e", "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))", "LINESTRING (1 1, 6 6)", "symdifference"},
         {"2a", "POINT (1 0)", "GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))", "difference"},
         {"3a", "GEOMETRYCOLLECTION (POLYGON EMPTY)", "POINT (1 1)", "intersection"},
         {"3b", "POINT EMPTY", "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))", "intersection"},

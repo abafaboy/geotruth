@@ -1,4 +1,4 @@
-# each prototype patch alone on GEOS main ae9cdd9, then all three, over the 6 sweep families (33,719 cases);
+# each prototype patch alone on GEOS main ae9cdd9, then all three, over the 6 sweep families (29,719 cases);
 # GEOSRelate(A,B) and GEOSRelate(B,A) against the exact matrix (geotruth arrangement route)
 # fixed = wrong on main, exact with the patch; broken = exact on main, wrong with the patch
 # class = which single-fix experiment build (on top of the other findings' fixes) corrects the case:

@@ -9,15 +9,24 @@ GeometryCollection handling. Two further classes were already covered by other f
 |---|---|---|
 | `mixed-gc` (test_witness_vs_geos.py), lead `relateng-gc-polygon-with-exterior-point` | **D1**: point-local exterior inferences in `TopologyComputer` assume a homogeneous geometry | **new bug** |
 | `gc-adjacent-edge` / `GEOS_POINT_LOCATION` (test_relate_dual.py) | **D2**: `RelateNode::addEdges` mislabels sectors when area sections of *overlapping* GC polygons meet at a node; `AdjacentEdgeLocator` (point location) and node evaluation both use it | **new bug** |
-| found during this triage | **D3**: a piece of the union's boundary that is no input ring (a hole made by overlapping polygons), or rings whose tested vertex lies inside the union, are never evaluated | **new bug** |
+| found during this triage | **D3**: a piece of the union's boundary that is no input ring (a hole made by overlapping polygons), or rings whose tested vertex lies inside the union, are never evaluated. The second form is what the `computeAreaVertex` TODO anticipates; the first is not covered by it | **new bug** (the first-vertex form: a known TODO, made concrete) |
 | `gc-overlapping-polygons` (the lead's first example, GC as operand B) | the GH-1201 self-noding regression (3.13.1) | already `geos-relateng-line-end-skip/covered-ring` |
 | `empty-element-dimension` | declared dimension of an EMPTY element | already `geos-relateng-segfault` (case 3); D1's fix also corrects it |
 
 All three new bugs are present in GEOS `main` and 3.15.0, and in every RelateNG release back to
-3.13.0. JTS master and 1.20.0 have them too: RelateNG is a JTS port, and JTS master gives the same
-matrix as GEOS main on all 22 cases. The inputs are valid. The documentation promises the answers
-the exact engine gives: *"GeometryCollection inputs containing mixed types and overlapping polygons
-are supported, using union semantics"* (GEOS `RelateNG.h:64-65`, JTS `RelateNG.java:50-51`). JTS
+3.13.0. JTS master and 1.20.0 have them too, because RelateNG is a JTS port:
+
+- JTS master gives the same matrices as GEOS main on all 22 cases, in both argument orders.
+- JTS 1.20.0 gives the same `relate(A, B)` on 21 of the 22 cases and the same `relate(B, A)` on 20.
+  It differs in two places, and in both it matches GEOS 3.13.0, which predates GH-1201 (the port
+  of JTS #1099): `known-gc-overlap-as-b` is exact, and `relate(square, frame)` gives `2FFF1FFF2`
+  instead of main's `212F11FF2` (both wrong; exact `212F1FFF2`).
+- In JTS, RelateNG is not the default (`GeometryRelate.RELATE_NG_DEFAULT = false`). JTS users meet
+  these bugs only through the `RelateNG` API or `-Djts.relate=ng` (section 9).
+
+The inputs are valid. The documentation promises the answers the exact engine gives:
+*"GeometryCollection inputs containing mixed types and overlapping polygons are supported, using
+union semantics"* (GEOS `RelateNG.h:64-65`, JTS `RelateNG.java:50-51`). JTS
 `relateng/package-info.java:76-86` spells this out: *"The element geometries may overlap in any
 combination"*, and *"GeometryCollections are evaluated as if they were replaced by the topological
 union of their elements"*. No upstream report of any of the three was found. Nothing has been
@@ -35,7 +44,9 @@ The named predicates are affected, not only the matrix:
 In each case GEOS contradicts itself:
 
 - **D1:** without the far point `contains` is true. For the line form, GEOS's own
-  `difference(A, B)` is the whole ring.
+  `difference(A, B)` is the whole ring. (`GEOSUnaryUnion(A)` does not help for D1: in the polygon
+  cases the union of a polygon and a separate point is still a mixed GC, and `relate` on it gives
+  the same wrong matrix.)
 - **D2 and D3:** `GEOSRelate(GEOSUnaryUnion(A), B)` gives the exact answer.
 - **D3:** GEOS's own point locator puts the frame's centre outside the frame.
 
@@ -49,7 +60,7 @@ The JTS report is `JTS_FINAL.md`, with one section per bug.
 
 A prototype fix, one patch per bug, passes GEOS's ctest (535/535) and JTS's RelateNG JUnit
 (154/154) and XML relate suites, with the same single pre-existing failure. It corrects 1001 of the
-1419 wrong answers in a 33,719-case differential run and turns no correct answer wrong (section 6).
+1419 wrong answers in a 29,719-case differential run and turns no correct answer wrong (section 6).
 The remaining 418 wrong answers are the classes of the other findings and the known inexact-node
 class. Patch 2 must not land without patch 3: on its own it unmasks an older skip bug in 10 cases.
 
@@ -106,8 +117,8 @@ The outputs are in `output/`. Run everything with `GEOS_CONFIG=... JTS_JAR=... .
 
 "exception" means GEOS 3.11.4's RelateOp threw a TopologyException: side location conflict. Its
 GeometryGraph does not support overlapping GC polygons. The "d3" frame cases are also wrong in
-reverse order: `relate(square, frame)` gives `212F11FF2` on main and `2FFF1FFF2` on 3.13.0; the
-exact matrix is `212F1FFF2`.
+reverse order: `relate(square, frame)` gives `212F11FF2` on main (and JTS master) and `2FFF1FFF2`
+on 3.13.0 (and JTS 1.20.0); the exact matrix is `212F1FFF2`.
 
 Named predicates that are wrong on GEOS main and 3.15.0 (identical), unprepared and prepared (see
 `output/geos-main-ae9cdd9.txt`):
@@ -123,7 +134,9 @@ Named predicates that are wrong on GEOS main and 3.15.0 (identical), unprepared 
 | d2-reflex-line | contains, covers: false / true; crosses: true / false |
 | d3-frame-equals, d3-frame-two-l-shapes | equals, contains, covers: true / false |
 
-The remaining cases are wrong in the matrix only.
+The remaining cases are wrong in the matrix only. In `d1-ring-within-point` GEOS also reports
+`crosses` = true alongside `within` = true; the exact `crosses` is true as well, so it is not a
+wrong predicate.
 
 ## 2. The three bugs
 
@@ -237,7 +250,7 @@ Two callers are affected:
 Both parts are needed. With only the first, a hole section seen as a shell makes the far side of
 a polygon corner interior. One sweep case (`mix-1` #2740) shows this.
 
-### D3: parts of the union boundary that belong to no input ring are never evaluated
+### D3: parts of the union boundary made of pieces of several rings are never evaluated
 
 **Minimal case.** A is four overlapping strips forming a 3x3 square frame with a 1x1 hole, and B
 is the full square:
@@ -269,15 +282,18 @@ area 8 against 9 (`output/exact_check.txt`).
 **Root cause.** RelateNG learns about the parts of an areal geometry away from the other
 geometry's edges from one vertex per ring. `RelateNG::computeAreaVertex(ring)` (RelateNG.cpp:619-630
 [RelateNG.java:506-516]) tests only `ring->getCoordinate()`. Its TODO at line 621 [507] says *"use
-extremal (highest) point to ensure one is on boundary of polygon cluster"*.
+extremal (highest) point to ensure one is on boundary of polygon cluster"*, so the maintainers
+already anticipated that the tested vertex may not be on the union boundary.
 
-That is enough for a Polygon, whose rings are its boundary. For overlapping GC polygons the union's
-boundary is made of pieces of several rings. Two things go wrong:
+That is enough for a Polygon, whose rings are its boundary. For overlapping (or adjacent) GC
+polygons the union's boundary is made of pieces of several rings. Two things go wrong:
 
 1. A ring's first vertex can be interior to the union (`d3-no-boundary-vertex`). Then nothing is
-   learnt about its boundary.
+   learnt about its boundary. This is the situation the TODO describes; this finding adds a
+   concrete case where it gives a wrong matrix, not an unanticipated mechanism.
 2. A union boundary component, such as the frame's hole, can consist only of ring pieces joined at
-   points where polygons of the same GC cross. It then contains no tested vertex at all.
+   points where polygons of the same GC cross. It then contains no ring vertex at all, so the
+   TODO's extremal-point choice (or any other choice of one vertex per ring) would not reach it.
 
 Those crossing points are computed: self-noding intersects A's edges with each other, and
 `TopologyComputer::addIntersection` (233-245) stores their sections. But `evaluateNodes` (533-543
@@ -306,7 +322,8 @@ computed. The GH-1201 regression is reported separately in
   the independent witness-point route (`relate_witness`) agree with the stored matrix
   (`output/exact_check.txt`, from `exact_check.py`).
 - **Independent checks** (`exact_check.py`, `repro.*`):
-  - D2 and D3: GEOS's and JTS's own union of A's elements gives the exact matrix.
+  - D2 and D3: GEOS's and JTS's own union of A's elements gives the exact matrix. (Not for D1:
+    there the union is still a mixed GC and gives the same wrong matrix.)
   - D2: exact probing around the vertex.
   - D3: the audited `oracle.py` and `indep.py` evaluate the frame's union against the square.
   - D1: hand derivations. The polygon element alone gives `212FF1FF2`, and the far point only adds
@@ -330,12 +347,14 @@ semantics. The GEOS and JTS test suites exercise exactly this area:
 - `AdjacentEdgeLocatorTest` covers adjacent polygons.
 
 None of these tests has an uncovered Point element next to a polygon, overlapping sections at a
-vertex, or a union hole. The code comments show the authors knew about the gaps:
+vertex, or a union hole. The code comments show the authors considered mixed and overlapping GCs in
+this code, and one of them anticipates part of D3:
 
 - "NOTE: this assumes the line end is NOT also in an Area of a mixed-dim GC" (TopologyComputer.cpp:402)
 - "For GCs, the vertex may be either on boundary or in interior (i.e. of overlapping or adjacent
   polygons)" (TopologyComputer.cpp:419-423)
-- the TODO in `computeAreaVertex`
+- the TODO in `computeAreaVertex`, which anticipates D3's first-vertex form (not the union-hole
+  form)
 
 Before RelateNG (GEOS 3.11.4), D1's point cases were correct. D2 and D3 threw TopologyException
 there. Overlapping GCs were unsupported then, so D2 and D3 are not regressions; D1 is a behaviour
@@ -391,7 +410,7 @@ JTS port is `jts_prototype_fix.diff`.
     (9 cases) or D3's no-boundary-vertex form (1 case) loses BE.
   - So **patch 2 must land with patch 3** (or at least with 3 (a) and the line-end-skip finding's
     area-vertex fix). The three together turn no exact answer wrong.
-- **Differential run over the 33,719 cases** (`output/prototype_differential.txt`):
+- **Differential run over the 29,719 cases** (`output/prototype_differential.txt`):
   - 1001 answers become exact;
   - **no answer that was exact becomes wrong**;
   - 20 of the 1001 are also fixed by the other findings' fixes. D3's boundary-vertex scan removes
@@ -441,20 +460,32 @@ JTS port is `jts_prototype_fix.diff`.
     exact; the point is on the GC boundary.
   - **#982** (open): within(POINT, GC(POINT, LINESTRING)) depends on element order. Both orders now
     give `F0FFFF102`, which is correct under union semantics: the point is the line's boundary.
-  - **#983** (open): RelateOp throws for GCs. RelateNG replaced it.
+  - **#983** (open): "RelateOp fails for disjoint inputs with GeometryCollection". RelateNG
+    replaced RelateOp.
   - **#1033** (closed): contains(polygon, GC of points and a line) is now exact.
   - **#1011** (closed): the empty-element dimension, see `geos-relateng-segfault`.
-  - **#1027** (open): covers after mutating POLYGON to MULTIPOLYGON, pre-RelateNG; see
+  - **#1027** (open): covers after mutating POLYGON to MULTIPOLYGON, pre-RelateNG. main gives
+    covers = true, as expected (the case is in `RelateNGRobustnessTest`); see also
     `geos-multipolygon-touching-parts-predicates`.
 
   #1022, #981 and #982 might be closable. That observation is not part of this report.
-- **GEOS #1148 / JTS #1069** (closed, 3.13.0): "Fix RelateNG for Line Ends in mixed-dim GCs". The
-  line-end fix for *covered* elements added the "skip line ends in a GC area" logic. The #1148 cases
-  (a GC whose Point or Line elements are covered by its polygon) are exact on main. D1 is the
-  *uncovered* element case, which that fix did not touch.
+- **GEOS #1148** ("RelateNG Equals regression", closed), fixed for 3.13.0 by the port of **JTS
+  PR #1069** ("Fix RelateNG for Line Ends in mixed-dim GCs", merged 2024-08-22). The line-end fix
+  for *covered* elements added the "skip line ends in a GC area" logic. The #1148 cases (a GC whose
+  Point or Line elements are covered by its polygon) are exact on main. D1 is the *uncovered*
+  element case, which that fix did not touch.
+- **GEOS #1147** ("RelateNG DE9IM regression", LineString vs MultiPolygon) and **#1149**
+  ("RelateNG boundaryNode DE9IM regression", boundary node rule), both closed: other RelateNG
+  regressions, not GCs.
+- **GEOS #1275** (closed): prepared and non-prepared `relate` pattern results differ. Here prepared
+  and non-prepared give the same wrong answer.
 - **GEOS #948 and JTS #784, #833**: overlay (difference, union) with overlapping GC polygons. That
   is OverlayNG, not RelateNG.
 - **GEOS PR #1201 / JTS PR #1099**: the self-noding change, see the covered-ring finding.
+- **JTS PRs #1052, #1055** (the RelateNG API), **#1073** (`jts.relate=ng`), **#1089** and
+  **#1090** (EMPTY semantics): none touches these cases.
+- **JTS #1175 / PR #1200**, ported to NetTopologySuite (**NTS #862**): the line-end known-exterior
+  skip, which is `geos-relateng-line-end-skip`, a different finding.
 
 ## 8. Relation to other findings and leads
 
@@ -494,8 +525,13 @@ JTS port is `jts_prototype_fix.diff`.
   envelope intersection would still be missed. No such case occurred in the sweeps.
 - The prototype shows where the bugs are. It is not a tuned implementation (see the cost in
   section 6).
-- PostGIS was not run. Every GEOS client that passes such GCs to predicates is exposed, and so are
-  JTS users of `RelateNG`, or of `-Djts.relate=ng` (JTS's default `Geometry.relate` rejects GCs).
+- PostGIS was not run. Every GEOS client that passes such GCs to predicates is exposed.
+- In JTS, RelateNG is opt-in (`GeometryRelate.RELATE_NG_DEFAULT = false`), so only users of the
+  `RelateNG` API or of `-Djts.relate=ng` are exposed. With the default, `Geometry.relate` (and
+  `Geometry.crosses`, which calls it) throws IllegalArgumentException for GC arguments, and the
+  other named predicates go through RelateOp, which throws TopologyException ("side location
+  conflict") on the D2 and D3 cases and gives the expected `contains`/`covers`/`within`/`coveredBy`
+  on the D1 cases (checked on JTS master and 1.20.0).
 
 ## Files
 

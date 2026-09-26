@@ -2,19 +2,31 @@
 
 ### Summary
 
-Since GEOS 3.13, `relate` and the predicates crash with SIGSEGV when a GeometryCollection
-operand contains an empty element. The inputs are valid: `GEOSisValid` returns true. There
-are two separate crash sites:
+Since RelateNG (GEOS 3.13), `relate` and several predicates can crash with SIGSEGV when a
+GeometryCollection operand contains an empty element. The inputs are valid: `GEOSisValid`
+returns true. There are two separate crash sites:
 
-1. A `POLYGON EMPTY` inside a GC, plus a point located on the boundaries of two of the GC's
-   polygons. This crashes `GEOSIntersects`, `GEOSWithin`, `GEOSTouches`, `GEOSContains`,
-   `GEOSRelate`, `GEOSRelatePattern` and the prepared predicates, in
-   `AdjacentEdgeLocator::addSections`.
-2. A `LINESTRING EMPTY` in a GC whose other elements are points, related to an empty
-   geometry. This crashes `GEOSRelate`, in `LinearBoundary::hasBoundary` called on a null
-   pointer.
+1. **A `POLYGON EMPTY` inside a GC, plus a point located on the boundaries of two of the GC's
+   polygons.** This crashes in `AdjacentEdgeLocator::addSections`. For the point in case 1
+   below:
+   - every relate and pattern entry point crashes (`GEOSRelate`, `GEOSRelatePattern`,
+     `GEOSRelateBoundaryNodeRule`, `GEOSPreparedRelate`, `GEOSPreparedRelatePattern`);
+   - so does each named predicate that reaches that point before it can decide:
+     `GEOSIntersects`, `GEOSDisjoint`, `GEOSTouches`, `GEOSCrosses`, `GEOSWithin`,
+     `GEOSCoveredBy`, `GEOSContains(B,A)`, `GEOSCovers(B,A)`, and the corresponding prepared
+     predicates in at least one argument order;
+   - `GEOSEquals` and `GEOSOverlaps` return without crashing.
+2. **A `LINESTRING EMPTY` in a GC whose other elements are points, related to an empty
+   geometry.** This crashes in `LinearBoundary::hasBoundary`, called on a null pointer.
+   - It hits `GEOSRelate`, `GEOSRelateBoundaryNodeRule` and `GEOSPreparedRelate`.
+   - It also hits `GEOSRelatePattern` and `GEOSPreparedRelatePattern` when the empty operand
+     does not decide the pattern early, e.g. `*********`, the disjoint pattern `FF*FF****`, or
+     `FF0FFFFF2`.
+   - The named predicates, and a pattern such as `T********`, return early for an empty
+     operand and do not crash.
 
-GEOS 3.11.4 (RelateOp) does not crash on either input.
+GEOS 3.11.4 (RelateOp) does not crash on either input. Case 1 is correct there, and case 2
+raises `IllegalArgumentException` (RelateOp's GeometryCollection limitation, #983).
 
 ### Minimal reproduction
 
@@ -32,23 +44,42 @@ Segmentation fault                 # expected: FF0FFFFF2
 
 Without the empty element, both inputs give the expected answers (`0FFFFF212` and
 `FF0FFFFF2`). An empty element adds no points, so the matrix should not change. The exact
-answers were also checked with an exact rational DE-9IM engine (two independent routes). A C
-program that uses only the public API is attached (`repro.c`: every call is fork-isolated, and
-each case has an EMPTY-free control). The same crashes happen through Shapely 2.1.2
-(`shapely.intersects(a, b)` kills the interpreter).
+answers were also checked with an exact rational DE-9IM engine (two independent routes).
 
-| | expected | GEOS main / 3.15.0 / 3.14.1 / 3.13.1 |
+Two C programs that use only the public API are attached. In both, every call is
+fork-isolated and each case has an EMPTY-free control:
+- `repro.c` runs the cases below;
+- `entrypoints.c` calls every relate, pattern, named-predicate and prepared-predicate entry
+  point, in both argument orders.
+
+The same crashes happen through Shapely 2.1.2 (`shapely.intersects(a, b)` kills the
+interpreter).
+
+| | expected | GEOS main, 3.15.0 |
 |---|---|---|
 | case 1 `GEOSRelate(A,B)` | `0FFFFF212` | SIGSEGV |
-| case 1 `GEOSIntersects`, `GEOSWithin`, `GEOSTouches`, `GEOSContains(B,A)`, `GEOSRelatePattern`, `GEOSPreparedCovers(prep B, A)` | true, true, false, true, true, true | SIGSEGV |
+| case 1 `GEOSIntersects`, `GEOSWithin`, `GEOSTouches`, `GEOSContains(B,A)`, `GEOSRelatePattern(A,B,"FF*FF****")`, `GEOSPreparedCovers(prep B, A)` | true, true, false, true, false, true | SIGSEGV |
 | case 2 `GEOSRelate(A,B)` and `(B,A)` | `FF0FFFFF2`, `FFFFFF0F2` | SIGSEGV |
+| case 2 `GEOSRelatePattern(A,B,"FF*FF****")` | true | SIGSEGV |
 
-The crash 1 trigger is general. It crashes with the empty polygon in any position, nested in a
-sub-collection, or as an `EMPTY` part of a MultiPolygon element (`MULTIPOLYGON (((...)),
-EMPTY)`). It crashes with a line or polygon operand instead of the point (e.g.
-`LINESTRING (1 1, 3 1)` or `POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))`, which both cross the shared
-edge). It also crashes with two polygons that share only a vertex. It needs a located point on
-two or more polygon boundaries of the GC.
+GEOS 3.14.1 and 3.13.1 (Shapely 2.2.0rc1 and 2.1.2 wheels) crash in the same way for
+`relate` and `relate_pattern(a, b, "FF*FF****")` in both cases, and for `intersects`, `within`
+and `touches` in case 1.
+
+The crash 1 trigger is general. It needs a located point on two or more polygon boundaries of
+the GC. It crashes with the empty polygon:
+- in any position;
+- nested in a sub-collection;
+- as an `EMPTY` part of a MultiPolygon element (`MULTIPOLYGON (((...)), EMPTY)`).
+
+It also crashes when the two polygons share only a vertex and the point is that vertex.
+
+A line or polygon operand that crosses the shared edge (e.g. `LINESTRING (1 1, 3 1)` or
+`POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))`) still crashes `GEOSRelate`, but the set of crashing
+predicates changes, for example:
+- `GEOSIntersects` returns true for both, without crashing;
+- `GEOSWithin` and `GEOSTouches` crash for both;
+- `GEOSCrosses` crashes for the line, and `GEOSOverlaps` crashes for the polygon.
 
 ### Cause
 
@@ -68,19 +99,27 @@ With `getSize() == 0`, the bound is `SIZE_MAX`. A debug build stops at
 `ring->getSize() = 0`). A release build segfaults. JTS's loop (`int i < ring.length - 1`)
 runs zero times, so JTS gives the right answer here.
 
-**2. Declared vs real dimension in `TopologyComputer` (also in JTS).** `RelateGeometry::
-getDimension()` is `Geometry::getDimension()` (`RelateGeometry.cpp:59`). For a GC this also
-counts empty elements, so `GC(POINT, LINESTRING EMPTY)` has dimension 1. By design,
-`getDimensionReal()` (`RelateGeometry.cpp:160`) does not count them: JTS's
-`RelateGeometryTest.testDimension` expects 2 and 1 for `GC(POLYGON EMPTY, LINESTRING,
-POINT)`. The locator only extracts non-empty elements, so `lineBoundary` is never created
+**2. Declared vs real dimension in `TopologyComputer` (also in JTS).**
+
+`RelateGeometry` has two dimensions:
+- `RelateGeometry::getDimension()` is `Geometry::getDimension()` (`RelateGeometry.cpp:59`).
+  For a GC this also counts empty elements, so `GC(POINT, LINESTRING EMPTY)` has dimension 1.
+- `getDimensionReal()` (`RelateGeometry.cpp:160`) does not count them. This is by design: JTS's
+  `RelateGeometryTest.testDimension` expects 2 and 1 for `GC(POLYGON EMPTY, LINESTRING,
+  POINT)`.
+
+The locator only extracts non-empty elements, so `lineBoundary` is never created
 (`RelatePointLocator.cpp:56-58`). `RelateNG::evaluate` and `initExteriorDims` dispatch on the
-real dimension. But `TopologyComputer::initExteriorEmpty` switches on
-`TopologyComputer::getDimension()`, which returns the declared one (`TopologyComputer.cpp:95`,
-`:125-128`). It takes the `Dimension::L` branch and calls `hasBoundary()` (`:101`), which
-calls `RelatePointLocator::hasBoundary()`, which runs `lineBoundary->hasBoundary()` on
-`nullptr` (`RelatePointLocator.cpp:70`). In JTS the same input throws `NullPointerException`
-(`RelatePointLocator.java:99`).
+real dimension.
+
+`TopologyComputer::initExteriorEmpty` instead switches on `TopologyComputer::getDimension()`,
+which returns the declared dimension (`TopologyComputer.cpp:95`, `:125-128`). The crash path
+is:
+1. `initExteriorEmpty` takes the `Dimension::L` branch and calls `hasBoundary()` (`:101`);
+2. that calls `RelatePointLocator::hasBoundary()`;
+3. which runs `lineBoundary->hasBoundary()` on `nullptr` (`RelatePointLocator.cpp:70`).
+
+In JTS the same input throws `NullPointerException` (`RelatePointLocator.java:99`).
 
 The same `TopologyComputer::getDimension()` is also the fallback dimension for a point in the
 target's exterior (`RelateNG.cpp:507, 564, 571, 627`). So, without a crash, an empty polygon
@@ -98,8 +137,12 @@ geosop -a 'POINT EMPTY' -b 'GEOMETRYCOLLECTION (POLYGON EMPTY, LINESTRING (0 0, 
 FFFFFF212                          # expected FFFFFF102
 ```
 
-This is the matrix-level remainder of #1011: the predicates themselves already use the real
-dimension. It is older than RelateNG (3.11.4 gives the same two wrong matrices), and JTS RelateNG gives them too.
+This part is not a RelateNG regression:
+- GEOS 3.11.4's RelateOp gives the same two wrong matrices, through different code.
+- JTS RelateNG gives them too.
+- In RelateNG they come from the declared dimension described above.
+- The named predicates already use the real dimension, so this is only the matrix-level side
+  of the empty-element dimension question in #1011.
 
 ### Suggested fix
 
@@ -115,9 +158,11 @@ dimension. It is older than RelateNG (3.11.4 gives the same two wrong matrices),
 +            return;
          const LinearRing* shell = poly->getExteriorRing();
          addRing(shell, true);
+         for (std::size_t i = 0; i < poly->getNumInteriorRing(); i++) {
 --- a/src/operation/relateng/TopologyComputer.cpp
 +++ b/src/operation/relateng/TopologyComputer.cpp
-@@ -124,7 +124,9 @@ int
+@@ -124,7 +124,9 @@ TopologyComputer::isAreaArea() const
+ int
  TopologyComputer::getDimension(bool isA) const
  {
 -    return getGeometry(isA).getDimension();
@@ -125,41 +170,64 @@ dimension. It is older than RelateNG (3.11.4 gives the same two wrong matrices),
 +    //-- also counts its EMPTY elements
 +    return getGeometry(isA).getDimensionReal();
  }
+ 
+ 
 ```
 
 With this patch on main `ae9cdd98b`:
-- all cases above give the expected answers;
-- `ctest` passes 535/535 (including all `relateng` unit groups and the XML suites);
-- a differential run of 25,000 generated relate cases (both argument orders) changes only
+- All cases above give the expected answers. Every entry point in `entrypoints.c` gives the
+  same answer as on the EMPTY-free control.
+- `ctest` passes 535/535 (including all `relateng` unit groups and the XML suites).
+- A differential run of 25,000 generated relate cases (both argument orders) changes only
   cases with EMPTY elements. It removes all 13 crashes, and it fixes 150 wrong matrices of the
   kind above (they differ only in IE/BE/EI/EB entries).
-- no previously correct answer changes.
+- No previously correct answer changes.
 
 `getDimensionReal()` is `False` for an empty target. That value never reaches a dimension
 switch, because a point is always exterior to an empty target and the `add*` methods return
 before switching. For zero-length lines the change also makes these paths use P, which is
-what `RelateNG.h:66` documents. Moving `lineBoundary->hasBoundary()` behind a null check
-would stop crash 2 but would give `IE = 1` instead of 0, so the dimension change is the real
-fix. The same two hunks applied to JTS pass its relateng JUnit tests (154/154) and give an
-unchanged XML relate result (`-Djts.relate=ng`).
+what `RelateNG.h:66` documents.
+
+Moving `lineBoundary->hasBoundary()` behind a null check would stop crash 2. But it would give
+`IE = 1` instead of 0, so the dimension change is the real fix.
+
+The same two hunks applied to JTS pass its relateng JUnit tests (154/154). The XML relate
+result (`-Djts.relate=ng`) is unchanged.
 
 ### Versions
 
-- Crash: GEOS main `ae9cdd98b` (2026-09-21), 3.15.0 (`d0228513a`), 3.14.1 (Shapely 2.2.0rc1
-  wheel), 3.13.1 (Shapely 2.1.2 wheel).
-- No crash: 3.11.4 (Shapely 2.0.7 wheel, RelateOp). Case 1 is correct there, and case 2
-  raises `IllegalArgumentException`.
-- JTS master `3ea61f8` and 1.20.0 (RelateNG): case 1 correct, case 2
-  `NullPointerException`, both wrong-matrix examples wrong.
+- **Crash:**
+  - GEOS main `ae9cdd98b` (2026-09-21);
+  - 3.15.0 (`d0228513a`);
+  - 3.14.1 (Shapely 2.2.0rc1 wheel);
+  - 3.13.1 (Shapely 2.1.2 wheel).
+
+  The 3.15 branch (head `86a4af48`) has no change under `relateng` since 3.15.0. 3.12.x and
+  3.13.0 were not run.
+- **No crash:** 3.11.4 (Shapely 2.0.7 wheel, RelateOp). Case 1 is correct there, and case 2
+  raises `IllegalArgumentException` (#983). So crash 1 replaced a correct answer, and crash 2
+  replaced an exception.
+- **JTS** master `3ea61f8` and 1.20.0, RelateNG (the `RelateNG` API, or `-Djts.relate=ng`):
+  - case 1 is correct;
+  - case 2 throws `NullPointerException`;
+  - both wrong-matrix examples are wrong.
+
+  JTS's default `Geometry.relate` rejects GeometryCollection arguments. The JTS side is being
+  reported to locationtech/jts separately.
 - Linux x86_64, GCC 13, Release build. Debug backtraces are from a `-O0 -g3` build of main.
 
 ### Related
 
 - #1011 (closed): `covers` wrong for a line against a GC with `POLYGON EMPTY`. The same
   empty-element dimension problem. RelateNG's predicate dispatch now uses the real dimension,
-  and `TestRelateGC.xml` has an equivalent case, but `TopologyComputer` does not.
+  and `TestRelateGC.xml` has an equivalent case, but `TopologyComputer` still uses the
+  declared one.
+- #983 (open): RelateOp's `IllegalArgumentException` for GeometryCollection arguments. That is
+  what 3.11.4 raises for case 2.
 - #1406 (closed, PR #1410) and shapely/shapely#2425: `GeometryNoder::node` segfault on a GC
   with an empty polygon. The same class of bug in a different operation.
 - #1002 (closed): PointOnSurface crash on a collection with an empty LineString.
+- `face0894` ("Fix RelateNG IM for empty-nonempty cases", a port of locationtech/jts#1090)
+  changed `addPointOnGeometry` and `addLineEndOnGeometry`, not the paths above.
 
 Found by differential testing against an exact rational oracle (geotruth: https://github.com/abafaboy/geotruth).

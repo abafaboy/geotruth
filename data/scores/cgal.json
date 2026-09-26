@@ -13,6 +13,7 @@
   "overlay: CGAL::Polygon_set_2 (Boolean_set_operations_2) on polygons with holes: the regularized areal overlay only",
   "rings are rebuilt for CGAL: closing point and repeated consecutive points dropped, shells turned counter-clockwise and holes clockwise by the exact signed area (CGAL requires this orientation; it does not change the point set)",
   "a MultiPolygon operand is the join of its polygons (Polygon_set_2::join); a polygon whose holes touch its shell or each other (OGC-valid, a CGAL precondition violation for Polygon_with_holes_2) enters as its shell minus its holes, the same point set",
+  "output polygons in OGC form, read off the result's arrangement (one polygon per face in the set, boundary walks split into simple rings at repeated vertices), not CGAL's polygons_with_holes(), whose outer boundaries may touch themselves and whose holes may touch the outer boundary at vertices; the same point set",
   "output doubles: the double nearest to each exact rational coordinate (ties to even, subnormals included), computed by the adapter with GMP; not CGAL::to_double",
   "--exact FILE writes the exact results (every ordinate as canonical \"n/d\", the exact area, the vertex count) to a side-car line per case"
  ],
@@ -28,31 +29,27 @@
   "core": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T08:23:51Z",
-    "finished": "2026-09-26T08:24:05Z",
-    "elapsed_s": 14.461,
+    "started": "2026-09-26T09:22:35Z",
+    "finished": "2026-09-26T09:22:50Z",
+    "elapsed_s": 15.561,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
     "budget_s": 3600.0,
     "lib_reported": "cgal@5.6",
-    "version_command": null,
+    "library_version": "5.6 (Ubuntu 24.04 libcgal-dev 5.6-1build3)",
+    "library_commit": null,
     "adapter": {
      "name": "cgal",
-     "manifest_sha256": "5a2b60a6b9f3f5053845647a42cb66d18b72e9348fd1e7dc5d644ffc28ab1344",
-     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
-    },
-    "compiler": {
-     "name": "g++ 13.3 (Ubuntu",
-     "version": "24.04)",
-     "flags": "-std=c++17 -O2 -g0 -frounding-math, CGAL assertions and preconditions on (no NDEBUG), GMP 6.3, MPFR 4.2"
+     "manifest_sha256": "2a4283cda4891e6e663be87df1b0d540079ce9741228c9bb16e2fe4c0c4d2be8",
+     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
     }
    },
    "versions": {
     "corpus": "2.0.0",
     "expected": "2",
     "engine": "0.1.0",
-    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
+    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
    },
    "exact_backends": {
     "route": "auto",
@@ -74,7 +71,7 @@
     "id_mismatches": 0,
     "budget_exhausted": false
    },
-   "headline_failures": 2100,
+   "headline_failures": 182,
    "capabilities": {
     "relate": {
      "correct": 0,
@@ -140,8 +137,8 @@
      }
     },
     "overlay.intersection": {
-     "correct": 1862,
-     "wrong": 150,
+     "correct": 1976,
+     "wrong": 36,
      "error": 0,
      "convention": 0,
      "unsupported": 1188,
@@ -150,8 +147,8 @@
      "engine_error": 0,
      "derived": 0,
      "graded": 2012,
-     "failures": 150,
-     "failure_rate": 0.074553,
+     "failures": 36,
+     "failure_rate": 0.017893,
      "by_range": {
       "extreme": {
        "graded": 3,
@@ -159,32 +156,31 @@
       },
       "normal": {
        "graded": 2009,
-       "failures": 149
+       "failures": 35
       }
      },
      "overlay_tiers": {
-      "exact": 998,
-      "rounding": 864,
+      "exact": 1030,
+      "rounding": 946,
       "budget": 0,
       "gross": 0,
-      "topological": 150,
+      "topological": 36,
       "exception": 0
      },
      "topological": {
-      "invalid_output": 150,
-      "invalid_output_exact_point_set": 32,
-      "invalid_output_within_rounding": 150,
+      "invalid_output": 36,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 36,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "ring_self_intersection": 114,
-      "too_few_points": 33,
-      "self_intersection": 3
+      "too_few_points": 34,
+      "self_intersection": 2
      }
     },
     "overlay.union": {
-     "correct": 1673,
-     "wrong": 339,
+     "correct": 1992,
+     "wrong": 20,
      "error": 0,
      "convention": 0,
      "unsupported": 1188,
@@ -193,8 +189,8 @@
      "engine_error": 0,
      "derived": 0,
      "graded": 2012,
-     "failures": 339,
-     "failure_rate": 0.168489,
+     "failures": 20,
+     "failure_rate": 0.00994,
      "by_range": {
       "extreme": {
        "graded": 3,
@@ -202,33 +198,32 @@
       },
       "normal": {
        "graded": 2009,
-       "failures": 339
+       "failures": 20
       }
      },
      "overlay_tiers": {
-      "exact": 756,
-      "rounding": 917,
+      "exact": 1030,
+      "rounding": 962,
       "budget": 0,
       "gross": 0,
-      "topological": 339,
+      "topological": 20,
       "exception": 0
      },
      "topological": {
-      "invalid_output": 339,
-      "invalid_output_exact_point_set": 274,
-      "invalid_output_within_rounding": 339,
+      "invalid_output": 20,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 20,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "ring_self_intersection": 297,
-      "disconnected_interior": 27,
       "too_few_points": 9,
-      "self_intersection": 6
+      "ring_self_intersection": 6,
+      "self_intersection": 5
      }
     },
     "overlay.difference": {
-     "correct": 1778,
-     "wrong": 234,
+     "correct": 1991,
+     "wrong": 21,
      "error": 0,
      "convention": 0,
      "unsupported": 1188,
@@ -237,8 +232,8 @@
      "engine_error": 0,
      "derived": 0,
      "graded": 2012,
-     "failures": 234,
-     "failure_rate": 0.116302,
+     "failures": 21,
+     "failure_rate": 0.010437,
      "by_range": {
       "extreme": {
        "graded": 3,
@@ -246,33 +241,32 @@
       },
       "normal": {
        "graded": 2009,
-       "failures": 234
+       "failures": 21
       }
      },
      "overlay_tiers": {
-      "exact": 919,
-      "rounding": 859,
+      "exact": 1030,
+      "rounding": 961,
       "budget": 0,
       "gross": 0,
-      "topological": 234,
+      "topological": 21,
       "exception": 0
      },
      "topological": {
-      "invalid_output": 234,
-      "invalid_output_exact_point_set": 111,
-      "invalid_output_within_rounding": 234,
+      "invalid_output": 21,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 21,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "ring_self_intersection": 196,
-      "disconnected_interior": 20,
-      "too_few_points": 14,
-      "self_intersection": 4
+      "too_few_points": 16,
+      "self_intersection": 4,
+      "ring_self_intersection": 1
      }
     },
     "overlay.symdifference": {
-     "correct": 665,
-     "wrong": 1347,
+     "correct": 1937,
+     "wrong": 75,
      "error": 0,
      "convention": 0,
      "unsupported": 1188,
@@ -281,103 +275,80 @@
      "engine_error": 0,
      "derived": 0,
      "graded": 2012,
-     "failures": 1347,
-     "failure_rate": 0.669483,
+     "failures": 75,
+     "failure_rate": 0.037276,
      "by_range": {
       "extreme": {
        "graded": 3,
-       "failures": 3
+       "failures": 1
       },
       "normal": {
        "graded": 2009,
-       "failures": 1344
+       "failures": 74
       }
      },
      "overlay_tiers": {
-      "exact": 649,
-      "rounding": 16,
+      "exact": 1030,
+      "rounding": 907,
       "budget": 0,
       "gross": 0,
-      "topological": 1347,
+      "topological": 75,
       "exception": 0
      },
      "topological": {
-      "invalid_output": 1347,
-      "invalid_output_exact_point_set": 381,
-      "invalid_output_within_rounding": 1347,
+      "invalid_output": 75,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 75,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "disconnected_interior": 886,
-      "ring_self_intersection": 387,
-      "too_few_points": 42,
-      "self_intersection": 32
+      "self_intersection": 44,
+      "too_few_points": 29,
+      "ring_self_intersection": 2
      }
     }
    },
    "families": {
     "hole-contact": {
-     "overlay.difference": {
-      "graded": 200,
-      "failures": 8
-     },
      "overlay.intersection": {
       "graded": 200,
-      "failures": 22
+      "failures": 6
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 101
+      "failures": 11
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 12
+      "failures": 7
      },
      "validity": {
       "graded": 200,
       "failures": 26
      }
     },
-    "int-grid": {
-     "overlay.difference": {
-      "graded": 200,
-      "failures": 34
-     },
-     "overlay.intersection": {
-      "graded": 200,
-      "failures": 19
-     },
-     "overlay.symdifference": {
-      "graded": 200,
-      "failures": 127
-     },
-     "overlay.union": {
-      "graded": 200,
-      "failures": 30
-     }
-    },
     "multi-touch": {
      "overlay.difference": {
       "graded": 200,
-      "failures": 99
+      "failures": 2
      },
      "overlay.intersection": {
       "graded": 200,
-      "failures": 68
+      "failures": 1
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 145
+      "failures": 3
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 117
+      "failures": 2
      }
     },
     "near-collinear": {
      "overlay.difference": {
       "graded": 200,
-      "failures": 16
+      "failures": 3
      },
      "overlay.intersection": {
       "graded": 200,
@@ -385,29 +356,29 @@
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 149
+      "failures": 9
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 15
+      "failures": 3
      }
     },
     "scaled": {
      "overlay.difference": {
       "graded": 200,
-      "failures": 23
+      "failures": 5
      },
      "overlay.intersection": {
       "graded": 200,
-      "failures": 15
+      "failures": 3
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 142
+      "failures": 10
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 38
+      "failures": 3
      },
      "validity": {
       "graded": 196,
@@ -415,27 +386,23 @@
      }
     },
     "shared-edge": {
-     "overlay.difference": {
-      "graded": 200,
-      "failures": 2
-     },
      "overlay.intersection": {
       "graded": 200,
       "failures": 4
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 95
+      "failures": 7
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 8
+      "failures": 1
      }
     },
     "sliver-spike": {
      "overlay.difference": {
       "graded": 200,
-      "failures": 6
+      "failures": 5
      },
      "overlay.intersection": {
       "graded": 200,
@@ -443,17 +410,13 @@
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 163
-     },
-     "overlay.union": {
-      "graded": 200,
-      "failures": 7
+      "failures": 15
      }
     },
     "tiling-contact": {
      "overlay.difference": {
       "graded": 200,
-      "failures": 13
+      "failures": 4
      },
      "overlay.intersection": {
       "graded": 200,
@@ -461,11 +424,11 @@
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 105
+      "failures": 16
      },
      "overlay.union": {
       "graded": 200,
-      "failures": 41
+      "failures": 4
      }
     },
     "tiny-transform": {
@@ -475,97 +438,70 @@
      },
      "overlay.symdifference": {
       "graded": 200,
-      "failures": 147
-     }
-    },
-    "vertex-on-edge": {
-     "overlay.difference": {
-      "graded": 200,
-      "failures": 31
-     },
-     "overlay.symdifference": {
-      "graded": 200,
-      "failures": 173
-     },
-     "overlay.union": {
-      "graded": 200,
-      "failures": 71
+      "failures": 4
      }
     }
    },
    "clusters": {
-    "cgal|vertex-on-edge|overlay.symdifference:topological": 173,
-    "cgal|sliver-spike|overlay.symdifference:topological": 163,
-    "cgal|near-collinear|overlay.symdifference:topological": 149,
-    "cgal|tiny-transform|overlay.symdifference:topological": 147,
-    "cgal|multi-touch|overlay.symdifference:topological": 145,
-    "cgal|scaled|overlay.symdifference:topological": 142,
-    "cgal|int-grid|overlay.symdifference:topological": 127,
-    "cgal|multi-touch|overlay.union:topological": 117,
-    "cgal|tiling-contact|overlay.symdifference:topological": 105,
-    "cgal|hole-contact|overlay.symdifference:topological": 101,
-    "cgal|multi-touch|overlay.difference:topological": 99,
-    "cgal|shared-edge|overlay.symdifference:topological": 95,
-    "cgal|vertex-on-edge|overlay.union:topological": 71,
-    "cgal|multi-touch|overlay.intersection:topological": 68,
-    "cgal|tiling-contact|overlay.union:topological": 41,
-    "cgal|scaled|overlay.union:topological": 38,
-    "cgal|int-grid|overlay.difference:topological": 34,
-    "cgal|vertex-on-edge|overlay.difference:topological": 31,
-    "cgal|int-grid|overlay.union:topological": 30,
-    "cgal|scaled|overlay.difference:topological": 23,
-    "cgal|hole-contact|overlay.intersection:topological": 22,
-    "cgal|int-grid|overlay.intersection:topological": 19,
-    "cgal|near-collinear|overlay.difference:topological": 16,
-    "cgal|near-collinear|overlay.union:topological": 15,
-    "cgal|scaled|overlay.intersection:topological": 15,
+    "cgal|tiling-contact|overlay.symdifference:topological": 16,
+    "cgal|sliver-spike|overlay.symdifference:topological": 15,
     "cgal|hole-contact|validity:valid_a=false": 14,
-    "cgal|tiling-contact|overlay.difference:topological": 13,
     "cgal|hole-contact|validity:valid_b=false": 12,
-    "cgal|hole-contact|overlay.union:topological": 12,
+    "cgal|hole-contact|overlay.symdifference:topological": 11,
+    "cgal|scaled|overlay.symdifference:topological": 10,
+    "cgal|near-collinear|overlay.symdifference:topological": 9,
     "cgal|tiling-contact|overlay.intersection:topological": 9,
-    "cgal|hole-contact|overlay.difference:topological": 8,
-    "cgal|shared-edge|overlay.union:topological": 8,
     "cgal|sliver-spike|overlay.intersection:topological": 8,
-    "cgal|sliver-spike|overlay.union:topological": 7,
-    "cgal|sliver-spike|overlay.difference:topological": 6,
+    "cgal|hole-contact|overlay.union:topological": 7,
+    "cgal|shared-edge|overlay.symdifference:topological": 7,
+    "cgal|hole-contact|overlay.intersection:topological": 6,
     "cgal|near-collinear|overlay.intersection:topological": 5,
+    "cgal|scaled|overlay.difference:topological": 5,
+    "cgal|sliver-spike|overlay.difference:topological": 5,
     "cgal|shared-edge|overlay.intersection:topological": 4,
+    "cgal|tiling-contact|overlay.difference:topological": 4,
+    "cgal|tiling-contact|overlay.union:topological": 4,
+    "cgal|tiny-transform|overlay.symdifference:topological": 4,
+    "cgal|multi-touch|overlay.symdifference:topological": 3,
+    "cgal|near-collinear|overlay.union:topological": 3,
+    "cgal|near-collinear|overlay.difference:topological": 3,
     "cgal|scaled|validity:valid_b=false": 3,
-    "cgal|shared-edge|overlay.difference:topological": 2,
-    "cgal|tiny-transform|overlay.difference:topological": 2
+    "cgal|scaled|overlay.intersection:topological": 3,
+    "cgal|scaled|overlay.union:topological": 3,
+    "cgal|multi-touch|overlay.difference:topological": 2,
+    "cgal|multi-touch|overlay.union:topological": 2,
+    "cgal|tiny-transform|overlay.difference:topological": 2,
+    "cgal|multi-touch|overlay.intersection:topological": 1,
+    "cgal|scaled|validity:valid_a=false": 1,
+    "cgal|shared-edge|overlay.union:topological": 1
    },
-   "clusters_total": 41,
-   "clusters_omitted_records": 1
+   "clusters_total": 31,
+   "clusters_omitted_records": 0
   },
   "curated": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T08:27:41Z",
-    "finished": "2026-09-26T08:27:42Z",
-    "elapsed_s": 0.135,
+    "started": "2026-09-26T10:57:35Z",
+    "finished": "2026-09-26T10:57:36Z",
+    "elapsed_s": 0.356,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
     "budget_s": 3600.0,
     "lib_reported": "cgal@5.6",
-    "version_command": null,
+    "library_version": "5.6 (Ubuntu 24.04 libcgal-dev 5.6-1build3)",
+    "library_commit": null,
     "adapter": {
      "name": "cgal",
-     "manifest_sha256": "5a2b60a6b9f3f5053845647a42cb66d18b72e9348fd1e7dc5d644ffc28ab1344",
-     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
-    },
-    "compiler": {
-     "name": "g++ 13.3 (Ubuntu",
-     "version": "24.04)",
-     "flags": "-std=c++17 -O2 -g0 -frounding-math, CGAL assertions and preconditions on (no NDEBUG), GMP 6.3, MPFR 4.2"
+     "manifest_sha256": "2a4283cda4891e6e663be87df1b0d540079ce9741228c9bb16e2fe4c0c4d2be8",
+     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
     }
    },
    "versions": {
     "corpus": "2.0.0",
     "expected": "2",
     "engine": "0.1.0",
-    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
+    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
    },
    "exact_backends": {
     "route": "auto",
@@ -574,9 +510,9 @@
     "validity": "geotruth.validity"
    },
    "cases": {
-    "total": 34,
-    "run": 34,
-    "scored": 34
+    "total": 131,
+    "run": 131,
+    "scored": 131
    },
    "runner": {
     "watchdog_timeouts": 0,
@@ -587,15 +523,15 @@
     "id_mismatches": 0,
     "budget_exhausted": false
    },
-   "headline_failures": 25,
+   "headline_failures": 22,
    "capabilities": {
     "relate": {
      "correct": 0,
      "wrong": 0,
      "error": 0,
      "convention": 0,
-     "unsupported": 6,
-     "not_reported": 22,
+     "unsupported": 66,
+     "not_reported": 59,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
@@ -605,112 +541,140 @@
      "by_range": {}
     },
     "predicates": {
-     "correct": 22,
+     "correct": 58,
      "wrong": 0,
-     "error": 0,
+     "error": 1,
      "convention": 0,
-     "unsupported": 6,
+     "unsupported": 66,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 0,
-     "failure_rate": 0.0,
+     "graded": 59,
+     "failures": 1,
+     "failure_rate": 0.016949,
      "by_range": {
+      "extreme": {
+       "graded": 5,
+       "failures": 1
+      },
       "normal": {
-       "graded": 22,
+       "graded": 54,
        "failures": 0
       }
+     },
+     "error_kinds": {
+      "exception": 1
      }
     },
     "validity": {
-     "correct": 22,
-     "wrong": 0,
-     "error": 0,
+     "correct": 56,
+     "wrong": 2,
+     "error": 1,
      "convention": 0,
-     "unsupported": 6,
+     "unsupported": 66,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 0,
-     "failure_rate": 0.0,
+     "graded": 59,
+     "failures": 3,
+     "failure_rate": 0.050847,
      "by_range": {
+      "extreme": {
+       "graded": 5,
+       "failures": 1
+      },
       "normal": {
-       "graded": 22,
-       "failures": 0
+       "graded": 54,
+       "failures": 2
       }
+     },
+     "error_kinds": {
+      "exception": 1
      }
     },
     "overlay.intersection": {
-     "correct": 21,
-     "wrong": 1,
-     "error": 0,
+     "correct": 54,
+     "wrong": 4,
+     "error": 1,
      "convention": 0,
-     "unsupported": 12,
+     "unsupported": 72,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 1,
-     "failure_rate": 0.045455,
+     "graded": 59,
+     "failures": 5,
+     "failure_rate": 0.084746,
      "by_range": {
-      "normal": {
-       "graded": 22,
+      "extreme": {
+       "graded": 5,
        "failures": 1
+      },
+      "normal": {
+       "graded": 54,
+       "failures": 4
       }
      },
+     "error_kinds": {
+      "exception": 1
+     },
      "overlay_tiers": {
-      "exact": 11,
-      "rounding": 10,
+      "exact": 35,
+      "rounding": 19,
       "budget": 0,
       "gross": 0,
-      "topological": 1,
-      "exception": 0
+      "topological": 4,
+      "exception": 1
      },
      "topological": {
-      "invalid_output": 1,
+      "invalid_output": 4,
       "invalid_output_exact_point_set": 0,
-      "invalid_output_within_rounding": 1,
+      "invalid_output_within_rounding": 4,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "ring_self_intersection": 1
+      "too_few_points": 4
      }
     },
     "overlay.union": {
-     "correct": 19,
+     "correct": 55,
      "wrong": 3,
-     "error": 0,
+     "error": 1,
      "convention": 0,
-     "unsupported": 12,
+     "unsupported": 72,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 3,
-     "failure_rate": 0.136364,
+     "graded": 59,
+     "failures": 4,
+     "failure_rate": 0.067797,
      "by_range": {
+      "extreme": {
+       "graded": 5,
+       "failures": 1
+      },
       "normal": {
-       "graded": 22,
+       "graded": 54,
        "failures": 3
       }
      },
+     "error_kinds": {
+      "exception": 1
+     },
      "overlay_tiers": {
-      "exact": 9,
-      "rounding": 10,
+      "exact": 35,
+      "rounding": 20,
       "budget": 0,
       "gross": 0,
       "topological": 3,
-      "exception": 0
+      "exception": 1
      },
      "topological": {
       "invalid_output": 3,
-      "invalid_output_exact_point_set": 2,
+      "invalid_output_exact_point_set": 0,
       "invalid_output_within_rounding": 3,
       "missing_or_extra_parts": 0
      },
@@ -719,98 +683,118 @@
      }
     },
     "overlay.difference": {
-     "correct": 17,
-     "wrong": 5,
-     "error": 0,
+     "correct": 56,
+     "wrong": 2,
+     "error": 1,
      "convention": 0,
-     "unsupported": 12,
+     "unsupported": 72,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 5,
-     "failure_rate": 0.227273,
+     "graded": 59,
+     "failures": 3,
+     "failure_rate": 0.050847,
      "by_range": {
+      "extreme": {
+       "graded": 5,
+       "failures": 1
+      },
       "normal": {
-       "graded": 22,
-       "failures": 5
+       "graded": 54,
+       "failures": 2
       }
      },
+     "error_kinds": {
+      "exception": 1
+     },
      "overlay_tiers": {
-      "exact": 8,
-      "rounding": 9,
+      "exact": 35,
+      "rounding": 21,
       "budget": 0,
       "gross": 0,
-      "topological": 5,
-      "exception": 0
+      "topological": 2,
+      "exception": 1
      },
      "topological": {
-      "invalid_output": 5,
-      "invalid_output_exact_point_set": 3,
-      "invalid_output_within_rounding": 5,
+      "invalid_output": 2,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 2,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "disconnected_interior": 3,
       "ring_self_intersection": 1,
       "self_intersection": 1
      }
     },
     "overlay.symdifference": {
-     "correct": 6,
-     "wrong": 16,
-     "error": 0,
+     "correct": 53,
+     "wrong": 5,
+     "error": 1,
      "convention": 0,
-     "unsupported": 12,
+     "unsupported": 72,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 22,
-     "failures": 16,
-     "failure_rate": 0.727273,
+     "graded": 59,
+     "failures": 6,
+     "failure_rate": 0.101695,
      "by_range": {
+      "extreme": {
+       "graded": 5,
+       "failures": 1
+      },
       "normal": {
-       "graded": 22,
-       "failures": 16
+       "graded": 54,
+       "failures": 5
       }
      },
+     "error_kinds": {
+      "exception": 1
+     },
      "overlay_tiers": {
-      "exact": 6,
-      "rounding": 0,
+      "exact": 35,
+      "rounding": 18,
       "budget": 0,
       "gross": 0,
-      "topological": 16,
-      "exception": 0
+      "topological": 5,
+      "exception": 1
      },
      "topological": {
-      "invalid_output": 16,
-      "invalid_output_exact_point_set": 5,
-      "invalid_output_within_rounding": 16,
+      "invalid_output": 5,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 5,
       "missing_or_extra_parts": 0
      },
      "invalid_output_reasons": {
-      "disconnected_interior": 14,
-      "ring_self_intersection": 1,
-      "self_intersection": 1
+      "too_few_points": 3,
+      "self_intersection": 2
      }
     }
    },
    "families": {
-    "hole-contact": {
+    "curated": {
+     "overlay.intersection": {
+      "graded": 3,
+      "failures": 1
+     },
      "overlay.symdifference": {
       "graded": 3,
-      "failures": 3
-     }
-    },
-    "int-thin-triangle": {
-     "overlay.symdifference": {
-      "graded": 5,
       "failures": 1
      }
     },
-    "multi-touch": {
+    "hole-contact": {
+     "validity": {
+      "graded": 6,
+      "failures": 2
+     }
+    },
+    "large-scale": {
+     "overlay.difference": {
+      "graded": 2,
+      "failures": 1
+     },
      "overlay.intersection": {
       "graded": 2,
       "failures": 1
@@ -822,6 +806,32 @@
      "overlay.union": {
       "graded": 2,
       "failures": 1
+     },
+     "predicates": {
+      "graded": 2,
+      "failures": 1
+     },
+     "validity": {
+      "graded": 2,
+      "failures": 1
+     }
+    },
+    "near-collinear": {
+     "overlay.difference": {
+      "graded": 6,
+      "failures": 1
+     },
+     "overlay.intersection": {
+      "graded": 6,
+      "failures": 3
+     },
+     "overlay.symdifference": {
+      "graded": 6,
+      "failures": 3
+     },
+     "overlay.union": {
+      "graded": 6,
+      "failures": 3
      }
     },
     "rotated-neighbours": {
@@ -831,81 +841,33 @@
      },
      "overlay.symdifference": {
       "graded": 4,
-      "failures": 4
-     }
-    },
-    "shared-edge": {
-     "overlay.symdifference": {
-      "graded": 1,
       "failures": 1
-     }
-    },
-    "shared-sloped-edge": {
-     "overlay.symdifference": {
-      "graded": 1,
-      "failures": 1
-     },
-     "overlay.union": {
-      "graded": 1,
-      "failures": 1
-     }
-    },
-    "tiling-contact": {
-     "overlay.difference": {
-      "graded": 1,
-      "failures": 1
-     },
-     "overlay.symdifference": {
-      "graded": 1,
-      "failures": 1
-     },
-     "overlay.union": {
-      "graded": 1,
-      "failures": 1
-     }
-    },
-    "tiny-transform": {
-     "overlay.symdifference": {
-      "graded": 1,
-      "failures": 1
-     }
-    },
-    "vertex-on-edge": {
-     "overlay.difference": {
-      "graded": 3,
-      "failures": 3
-     },
-     "overlay.symdifference": {
-      "graded": 3,
-      "failures": 3
      }
     }
    },
    "clusters": {
-    "cgal|rotated-neighbours|overlay.symdifference:topological": 4,
-    "cgal|vertex-on-edge|overlay.difference:topological": 3,
-    "cgal|vertex-on-edge|overlay.symdifference:topological": 3,
-    "cgal|hole-contact|overlay.symdifference:topological": 3,
-    "cgal|int-thin-triangle|overlay.symdifference:topological": 1,
-    "cgal|multi-touch|overlay.union:topological": 1,
-    "cgal|tiling-contact|overlay.union:topological": 1,
-    "cgal|tiling-contact|overlay.difference:topological": 1,
-    "cgal|tiling-contact|overlay.symdifference:topological": 1,
-    "cgal|multi-touch|overlay.intersection:topological": 1,
-    "cgal|multi-touch|overlay.symdifference:topological": 1,
-    "cgal|shared-edge|overlay.symdifference:topological": 1,
-    "cgal|tiny-transform|overlay.symdifference:topological": 1,
-    "cgal|shared-sloped-edge|overlay.union:topological": 1,
-    "cgal|shared-sloped-edge|overlay.symdifference:topological": 1,
-    "cgal|rotated-neighbours|overlay.difference:topological": 1
+    "cgal|near-collinear|overlay.intersection:topological": 3,
+    "cgal|near-collinear|overlay.union:topological": 3,
+    "cgal|near-collinear|overlay.symdifference:topological": 3,
+    "cgal|curated|overlay.intersection:topological": 1,
+    "cgal|curated|overlay.symdifference:topological": 1,
+    "cgal|hole-contact|validity:valid_b=false": 1,
+    "cgal|hole-contact|validity:valid_a=false": 1,
+    "cgal|near-collinear|overlay.difference:topological": 1,
+    "cgal|large-scale|overlay.intersection:exception": 1,
+    "cgal|large-scale|overlay.union:exception": 1,
+    "cgal|large-scale|overlay.difference:exception": 1,
+    "cgal|large-scale|overlay.symdifference:exception": 1,
+    "cgal|rotated-neighbours|overlay.difference:topological": 1,
+    "cgal|rotated-neighbours|overlay.symdifference:topological": 1
    },
-   "clusters_total": 16,
+   "clusters_total": 14,
    "clusters_omitted_records": 0,
    "case_verdicts": {
     "boost-develop-rotated-neighbours-230:rotated-neighbours-1-000230": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -914,22 +876,22 @@
     "boost-develop-rotated-neighbours-230:rotated-neighbours-1-000230.min": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
     },
-    "boost-overlay-ring-structure:hole-contact-7-000051-fill-ulp-in.n32.projected": {
+    "boost-geometry-develop-regression:minimal-regression": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
     },
-    "boost-overlay-ring-structure:multi-touch-7-000029-island-apex.int": {
+    "boost-geometry-develop-regression:minimal-side-sign": {
      "overlay.difference": "correct",
      "overlay.intersection": "wrong",
      "overlay.symdifference": "wrong",
@@ -938,10 +900,37 @@
      "relate": "not_reported",
      "validity": "correct"
     },
+    "boost-geometry-develop-regression:rotated-neighbours-1-000230": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "boost-overlay-ring-structure:hole-contact-7-000051-fill-ulp-in.n32.projected": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "boost-overlay-ring-structure:multi-touch-7-000029-island-apex.int": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
     "boost-overlay-ring-structure:shared-edge-7-000032-float-mid.origin": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -950,7 +939,7 @@
     "boost-overlay-ring-structure:tiny-transform-7-000041-shift-ulp.parcel.origin": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -959,7 +948,7 @@
     "clipper2-polytree-nesting:hole-contact-7-000005-cross-near.n6.int": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -968,34 +957,52 @@
     "clipper2-polytree-nesting:hole-contact-7-000044-cross-near.n6.unit": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "clipper2-polytree-nesting:inscribed-island": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "clipper2-polytree-nesting:medial-triangle": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
     },
     "clipper2-polytree-nesting:vertex-on-edge-7-000026-inscribed.n4.lonlat": {
-     "overlay.difference": "wrong",
+     "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
     },
     "clipper2-polytree-nesting:vertex-on-edge-7-000047-inscribed.n8.projected": {
-     "overlay.difference": "wrong",
+     "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
     },
     "clipper2-polytree-nesting:vertex-on-edge-7-000056-inscribed.n4.int": {
-     "overlay.difference": "wrong",
+     "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -1004,7 +1011,7 @@
     "clipper2-thin-triangle-dropped:fat-pair-thin-intersection": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -1020,6 +1027,60 @@
      "validity": "correct"
     },
     "clipper2-thin-triangle-dropped:thin-tri-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-orig-0010-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-strip-overlap-2e9": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-1e9-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-2e9-4wide-control": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-2e9-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:int-thin-triangle-1-0010": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
      "overlay.symdifference": "correct",
@@ -1074,9 +1135,90 @@
      "validity": "unsupported"
     },
     "geos-3.13-tiling-union-drops-tile:tiling-contact-2-001988-sq-multi.center-direct.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-multipolygon-touching-parts-predicates:case1-multipolygon-contains-own-part": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-multipolygon-touching-parts-predicates:case2-shell-contains-polygon-with-touching-hole": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "wrong"
+    },
+    "geos-multipolygon-touching-parts-predicates:case3-polygon-with-touching-hole-touches-adjacent": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "wrong"
+    },
+    "geos-near-collinear-predicates:min-1-touches": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "correct",
+     "overlay.union": "wrong",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:min-2-contains": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-1-000094-extension.moderate": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "correct",
+     "overlay.union": "wrong",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000026-offedge-in.moderate": {
      "overlay.difference": "wrong",
      "overlay.intersection": "correct",
      "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000280-zigzag.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000450-offedge-out.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "wrong",
      "predicates": "correct",
      "relate": "not_reported",
@@ -1118,10 +1260,658 @@
      "overlay.symdifference": "unsupported",
      "overlay.union": "unsupported"
     },
+    "geos-overlay-geometrycollection:1a-gc-polygon-symdiff-point": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:1b-gc-empty-polygon-symdiff-point": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:1c-point-symdiff-mixed-gc": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:1d-equal-point-sets-symdiff": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:1e-gc-polygon-symdiff-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:2a-point-difference-mixed-gc": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:3a-gc-empty-polygon-intersection-point": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:3b-point-empty-intersection-gc-polygon": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:3c-point-empty-difference-gc-polygon": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:3d-mixed-gc-intersection-multipolygon-empty": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:4a-point-on-prenoded-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:4b-segment-on-prenoded-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-overlay-geometrycollection:5a-nested-empty-gc": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-far-point-contains": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-interior-point-eb": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-line-covers-boundary-eb": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-line-end-on-points": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-own-polygon": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-own-polygon-within": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-ring-within-point": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-testfile-closed-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-testfile-line-ends": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-adjacent-control": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-point": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-point-swapped-elements": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-testfile-gc-reflex": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-testfile-gc-reflex-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-control-center": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-control-polygon": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-equals": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-two-l-shapes": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-no-boundary-vertex": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:known-empty-element": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-geometrycollection-semantics:known-gc-overlap-as-b": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-1": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-1-degenerate-closed": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-1-operands-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-1-parts-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-2-operands-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-2-polygon-target": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-3-jts-1175": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-4-both-operands": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-area-vertex": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-operands-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-squares-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-nested": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-operands-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-polygons-swapped": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-multipolygon-part": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-area": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-line": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-pinned": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:empty-element-dimension-empty": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:empty-element-dimension-exterior": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:lead-relateng-empty-operand-type-dimension": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:linear-boundary-null": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-relateng-segfault:linear-boundary-null-pinned": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "geos-tiny-coordinates-underflow:oracle-review-lead-box-1e-170": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:square-with-hole-1e-200": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:squares-1e-200": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:squares-control-scale1": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:triangle-1e-200": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:triangle-control-scale1": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:min-2tri": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:min-2tri-case2": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:tiling-contact-2-001988-sq-multi.center-direct.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:control-self-overlay-unit": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:line-polygon-1-000090-along-edge-full.ba.int.extreme": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "jts-master-union-extreme-regression:min-disjoint-line-1e170": {
+     "overlay.difference": "unsupported",
+     "overlay.intersection": "unsupported",
+     "overlay.symdifference": "unsupported",
+     "overlay.union": "unsupported",
+     "predicates": "unsupported",
+     "relate": "unsupported",
+     "validity": "unsupported"
+    },
+    "jts-master-union-extreme-regression:min-self-overlay-1e170": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "error",
+     "overlay.union": "error",
+     "predicates": "error",
+     "relate": "not_reported",
+     "validity": "error"
+    },
     "martinez-xor-hang:rotated-neighbours-1-000003": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
+     "overlay.symdifference": "correct",
      "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
@@ -1167,7 +1957,52 @@
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
      "overlay.symdifference": "correct",
-     "overlay.union": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-apex-on-edge": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-identical-triangles": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-in-hole-shared-edge": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-multipolygon-second-part": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "not_reported",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-overlapping-squares": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"
@@ -1175,8 +2010,8 @@
     "turf-touches-overlaps-vertex-rules:shared-sloped-edge-1-000001.min": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
-     "overlay.symdifference": "wrong",
-     "overlay.union": "wrong",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
      "predicates": "correct",
      "relate": "not_reported",
      "validity": "correct"

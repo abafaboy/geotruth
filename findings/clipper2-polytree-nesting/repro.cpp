@@ -2,11 +2,12 @@
 // of the ring lies on the boundary of the ring that contains it.
 //
 //   case 1  a hole whose vertices all touch its outer ring comes back as a
-//           second top-level node (IsHole() == false) with clockwise
-//           (negative) orientation, instead of as a child of the outer ring;
+//           second top-level node (a direct child of the root, Level() == 1,
+//           IsHole() == false) with clockwise (negative) orientation, instead
+//           of as a child of the outer ring;
 //   case 2  an island whose vertices all touch its hole comes back as a
-//           second hole of the outer ring (a level-1 node with positive
-//           orientation), instead of as a child of the hole.
+//           second hole of the outer ring (Level() == 2, IsHole() == true,
+//           positive orientation), instead of as a child of the hole.
 //
 // The flat Paths64 result of the same Execute call is right in both cases.
 // Uses only the public Clipper2 API (clipper2/clipper.h).
@@ -76,7 +77,7 @@ int main() {
   Path64 B2 = MakePath({3,2, 4,4, 1,3});
   run("Control: Difference(A, B2), B2 = (3,2) (4,4) (1,3)", {A}, {B2}, ClipType::Difference);
 
-  // Case 2. S = square (0,0) (12,12) with the hole H = (2,2) (10,4) (4,10);
+  // Case 2. S = square (0,0) (12,12) with the hole H = (2,2) (4,10) (10,4);
   //         I = the triangle on the midpoints of H's edges, (6,3) (7,7) (3,6).
   //         Union(S-with-hole, I) = S minus H plus I, area 144 - 30 + 7.5 = 121.5.
   Paths64 S = {MakePath({0,0, 12,0, 12,12, 0,12}), MakePath({2,2, 4,10, 10,4})};

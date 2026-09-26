@@ -2,13 +2,16 @@
 # Two clusters: the known-exterior skip (this lead) and, separately, the GH-1201 self-noding
 # regression that the lead's "covered-ring line end" case turned out to be. The second
 # entry's evidence lives in covered-ring/; it may be moved to its own findings/ directory.
+# registry.toml allows one entry per findings/ directory (tests/harness/test_findings_registry.py),
+# so until covered-ring/ has its own directory only the first entry goes there, and its notes
+# register the second cluster.
 
 [[finding]]
 id = "geos-relateng-line-end-skip"
 library = "geos-main"
 lib = "geos@3.16.0dev-ae9cdd9"
 signature = "relate: the known-exterior skip in RelateNG::computeLineEnds (RelateNG.cpp:531-534) and computeAreaVertex (596-598) fires after the first element point found in the target exterior even when that point is a Mod-2 interior line end (closed line start, shared end) or a GC area vertex inside another polygon; envelope-disjoint later elements are skipped and their boundary is never recorded: EB/BE = F instead of 0 (line ends) or 1 (GC polygons); depends on element order; named predicates unaffected"
-fields = ["relate", "relate_pattern"]
+fields = ["relate"]
 families = ["multiline-line-ends", "gc-area-vertex", "witness-lattice:ML", "witness-lattice:GC"]
 status = "confirmed"
 status_date = "2026-09-26"
@@ -19,8 +22,9 @@ verified_on = [
     "3.13.1 (shapely 2.1.2 wheel)",
     "3.13.0 d7957246c588aa9c690efe67924fd70e741a06ab (source build)",
     "not affected: 3.11.4 (shapely 2.0.7 wheel, RelateOp)",
-    "JTS 1.20.0 6e95fe82: line ends and area vertices wrong; JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd: line ends fixed (jts#1200, e8de44d9), area vertices still wrong",
-    "fixed by patch/port-jts-1200.diff + patch/area-vertex-skip.diff on main (sweeps: 279 + 9 + 65 skip-class disagreements -> 0; GEOS XML tests 171/171 and RelateNG unit tests 155/155 pass)",
+    "JTS 1.20.0 6e95fe82: line ends and area vertices wrong; JTS master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd: line ends fixed (jts#1200, e8de44d9, merged 2026-06-13), area vertices still wrong (45 of the 3000 gc-3 sweep cases)",
+    "fixed by patch/port-jts-1200.diff then patch/area-vertex-skip.diff (in this order) on main (sweeps: 279 + 9 + 65 skip-class disagreements -> 0, the 65 being 45 area-vertex + 20 line-end; GEOS XML tests 171/171 and RelateNG unit tests 155/155 pass)",
+    "the sibling D3 prototype (geos-relateng-geometrycollection-semantics, all its patches, no skip fix) fixes les-5 but not les-6 (nested squares)",
 ]
 cases = "findings/geos-relateng-line-end-skip/cases.jsonl"
 repro = "findings/geos-relateng-line-end-skip/repro.c"
@@ -29,17 +33,19 @@ links = [
     "https://github.com/locationtech/jts/issues/1175",
     "https://github.com/locationtech/jts/pull/1200",
     "https://github.com/locationtech/jts/commit/e8de44d9fa36049ec165cc308cabaa66bf72957a",
+    "https://github.com/NetTopologySuite/NetTopologySuite/issues/862",
+    "https://github.com/NetTopologySuite/NetTopologySuite/pull/869",
     "https://github.com/NetTopologySuite/NetTopologySuite/pull/886",
 ]
 upstream_issue = ""
-notes = "Line-end part: known upstream in JTS (jts#1175, fixed on JTS master by jts#1200, ported to NTS) but never ported to GEOS; no GEOS issue or PR exists (issue/PR search, relateng history on main/3.15/3.14, all PR branches >= #1200). Area-vertex part (GC whose first tested ring vertex is inside another polygon of the GC): new, unfixed in GEOS and JTS master. FINAL.md (GEOS: port #1200 + area-vertex fix, tested patches in patch/) and JTS_FINAL.md (area-vertex only) are ready, not posted. Only the DE-9IM matrix (relate, prepared relate, relatePattern) is affected: the first exterior point always records the Interior/Exterior entry that decides the named predicates. The lead's 'covered-ring line end' case is a different root cause, see the next entry. This is the line-end-skip class of tests/crosscheck/test_witness_vs_geos.py."
+notes = "Severity: wrong matrix, not wrong predicate. Line-end part: known upstream in JTS (jts#1175, fixed on JTS master by jts#1200, merged 2026-06-13; ported to NTS as NTS#862 / PR #869, with PR #886 syncing the JTS XML test) but never ported to GEOS; no GEOS issue or PR exists (issue/PR search, relateng history on main/3.15/3.14, PR branches #1200-#1536). So the GEOS report is a port request, not a new discovery. Area-vertex part (GC whose first tested ring vertex is inside another polygon of the GC): new, unfixed in GEOS and JTS master. FINAL.md (GEOS: port #1200 + area-vertex fix, tested patches in patch/, to be applied in that order because area-vertex-skip.diff uses the Location alias the port adds) and JTS_FINAL.md (area-vertex only) are ready, not posted. Only the DE-9IM matrix (relate, prepared relate, relatePattern) is affected: the first exterior point always records the Interior/Exterior entry that decides the named predicates. In JTS the default Geometry.relate (RelateOp) is correct on the line cases and rejects GCs, so JTS users are affected only through RelateNG or jts.relate=ng. The area-vertex part overlaps with geos-relateng-geometrycollection-semantics/d3-union-boundary (same function and TODO); D3's vertex choice fixes les-5 but not les-6, so both fixes are needed and the reports cross-reference each other. les-1 is the smallest non-degenerate case (les-1-degenerate-closed is a valid 5-coordinate variant). The lead's 'covered-ring line end' case is a different root cause, see the next entry. This is the line-end-skip class of tests/crosscheck/test_witness_vs_geos.py."
 
 [[finding]]
 id = "geos-relateng-line-end-skip/covered-ring"
 library = "geos-main"
 lib = "geos@3.16.0dev-ae9cdd9"
 signature = "relate/predicates: since GH-1201 (3.13.1) TopologyComputer::isSelfNodingRequired (TopologyComputer.cpp:133-146) ignores B's own flag, so a linear or multi-polygon-GC B is not self-noded when A is polygonal; nodes where B meets itself on A's boundary (or where A's rings touch) lack sections: polygon vs lines covering its boundary gives BE = 1 (exact F); polygon with hole touching shell vs the shell edge gives contains true / touches false; MultiPolygon with touching parts vs the touched edge gives covers false; polygon inside a GC of overlapping polygons gives within false"
-fields = ["relate", "relate_pattern", "contains", "touches", "covers", "within", "covered_by"]
+fields = ["relate", "predicates.contains", "predicates.touches", "predicates.covers", "predicates.within", "predicates.covered_by"]
 families = ["polygon-line-self-noding", "witness-lattice:A/ML", "witness-lattice:MA/GCA"]
 status = "confirmed"
 status_date = "2026-09-26"

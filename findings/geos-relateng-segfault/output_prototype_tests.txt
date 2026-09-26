@@ -1,5 +1,8 @@
 # Prototype fix (prototype_fix.diff on GEOS main ae9cdd98b; jts_prototype_fix.diff on JTS master 3ea61f8)
 # produced 2026-09-26T07:18Z
+# The patched GEOS tree is a copy of the main ae9cdd98b source tree, committed locally as a snapshot
+# ("base", 12d720e, not an upstream commit) with only the two patched files changed. Its src/ is
+# identical to main's apart from those two files.
 
 ## GEOS: patched build (Release, BUILD_TESTING=ON), ctest
 100% tests passed, 0 tests failed out of 535

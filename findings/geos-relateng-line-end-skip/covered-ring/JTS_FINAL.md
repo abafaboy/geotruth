@@ -11,6 +11,7 @@
 | case | A | B | expected | master |
 |---|---|---|---|---|
 | 1 | `POLYGON ((0 0, 2 0, 1 1, 0 0))` | `MULTILINESTRING ((0 0, 2 0, 1 1, 0 0), (1 0, 1 -1))` | `FF210F102` | `FF2101102` |
+| 2 | `POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))` | `MULTILINESTRING ((0 0, 2 0, 2 1, 0 1, 0 0), (1 0, 1 -1))` | `FF210F102` | `FF2101102` |
 | 3 | `POLYGON ((0 0, 2 0, 1 1, 0 0))` | `LINESTRING (0 0, 2 0, 1 1, 0 0, 1 -1, 1 0)` | `FF210F1F2` | `FF21011F2` |
 | 4 | `POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))` | `LINESTRING (0 0, 4 0)` | contains false, touches true | contains **true**, touches **false** |
 | 5 | `MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))` | `LINESTRING (0 2, 2 2)` | covers true | covers **false** |
@@ -18,7 +19,7 @@
 
 The expected answers:
 
-- **Cases 1 and 3.** B contains all of A's boundary, so BE = F. With the operands swapped, the linear A is self-noded and the matrix is right.
+- **Cases 1-3.** B contains all of A's boundary, so BE = F. With the operands swapped, the linear A is self-noded and the matrix is right.
 - **Case 4.** B is the shell's bottom edge, so it lies on A's boundary.
 - **Case 5.** B is part of A's boundary.
 - **Case 6.** A lies inside the union of B's polygons.
@@ -33,7 +34,7 @@ With A polygonal, `computeEdgesMutual` intersects only A×B segments.
 - **Cases 4 and 5.** The node at A's own ring touch gets no section for the ring whose edge passes through it. This is the same mechanism as the polygon/polygon ring-touch problem, which I am reporting separately. Before #1099 it was hidden for a linear B, because B's flag forced full noding.
 - **Case 6.** The flag of B, a GC of overlapping polygons, is ignored.
 
-Restoring `|| geomB.isSelfNodingRequired()` fixes all cases. I checked this in GEOS, with random sweeps against exact answers. It loses the caching gain of #1099, though. Self-noding only B while keeping A's cached index might keep both.
+Restoring `|| geomB.isSelfNodingRequired()` fixes all cases. I checked this in GEOS, with random sweeps against exact answers. It loses the caching gain of #1099, though. Self-noding only B while keeping A's cached index might keep both for cases 1-3 and 6. It would not fix cases 4 and 5, where B is a simple LineString and the missing section is at A's own ring touch; those also need the ring-touch fix.
 
 ---
 

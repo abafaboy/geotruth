@@ -70,6 +70,9 @@ static const Case CASES[] = {
      "POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))", SYMDIFFERENCE, "POLYGON EMPTY",
      "equals:GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), LINESTRING (0 1, 2 1))"
      "|POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))"},
+    {"1e symdifference, A = GC with one polygon (a simple GC), B = line leaving it at (2 2)",
+     "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))", "LINESTRING (1 1, 6 6)", SYMDIFFERENCE,
+     "GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 2 2, 0 4, 0 0)), LINESTRING (2 2, 6 6))", NULL},
 
     /* --- 2. difference ignores B's lines when removing A's points ------------------ */
     {"2a difference, A = point on the line of the mixed GC B",

@@ -1,6 +1,6 @@
 # clipper2-polytree-nesting: triage result
 
-## Verdict: confirmed bug, a regression since Clipper2 1.5.3. New: no upstream issue or PR covers it. Not reported yet.
+## Verdict: confirmed bug, a regression since Clipper2 1.5.3. A remaining case of the regression #973 reported (same symptom, same commit e8ebdef): #973's input is fixed, this one is not. Not a duplicate: no upstream issue or PR has this input. Not reported yet.
 
 `PolyTree64` / `PolyTreeD` put a ring at the wrong nesting level when **every vertex of the ring
 lies on the boundary of the ring that contains it**:
@@ -14,12 +14,20 @@ The flat `Paths64` result of the same operation is right: the rings, their orien
 even-odd area all match the exact answer. Only the parent links in the tree are wrong. This is
 the lead's "rings themselves are right under even-odd" observation, confirmed.
 
+**Severity: wrong structure (PolyTree ownership), not a wrong region.** The rings, the flat
+result and even the sum of signed areas over the tree are exact. The error is gross only for code
+that reads the tree as outer ring + child holes (as OGC polygons do): OGC-read area 20 instead of
+12 on the minimal case, 4166 instead of 2010 on lead case `vertex-on-edge-7-000056`. Code that
+uses the flat `Paths64` result, or sums signed areas over the tree, sees nothing wrong.
+
 The cause is `Path2ContainsPath1` (`clipper.h:718-743`). When no vertex of the inner ring is
 strictly inside the outer ring, it returns `false` (`clipper.h:739`), so
 `RecursiveCheckOwners` (`clipper.engine.cpp:2958-2981`) drops the correct owner that the sweep had
 already assigned and moves the ring up one level. This `return false` for the "all vertices on"
 case came in with the #957 fix (e8ebdef, 2025-05-04). Before that commit the equivocal case fell
-back to a midpoint test that answered "inside". Releases 1.5.2 and earlier are correct.
+back to a midpoint test that answered "inside". Releases 1.5.2 and earlier are correct. The same
+commit caused #973 (a hole returned at the top level); the #973 fix (0d0ba0f/927daf7) repaired
+that input but kept the `return false`, so FINAL.md frames this report as a follow-up to #973.
 
 A maintainer-ready report is in [FINAL.md](FINAL.md). The registry snippet is in
 [finding.toml](finding.toml).
@@ -30,13 +38,13 @@ A maintainer-ready report is in [FINAL.md](FINAL.md). The registry snippet is in
 |---|---|
 | Latest development code | `main` = `f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd` (2026-04-20). `git ls-remote` on 2026-09-26 shows this is still the head of `main` and still the only branch. **Reproduces.** |
 | Latest release | `Clipper2_2.0.1` = `21ebba05db8894f0c7217ad35ea518080f324946` (2025-12-20), still the newest tag. **Reproduces**, with output identical to `main`. |
-| Other versions | 1.5.4 (ef88ee9) and 1.5.3 (fa165fe): wrong. 1.5.2 (6901921), 1.4.0 (736ddb0) and 1.2.4 (ff85874): correct. Open PR #1101 "Ystripes" (head 4115ae4, the only open PR that touches PolyTree nesting): still wrong. |
+| Other versions | 1.5.4 (ef88ee9) and 1.5.3 (fa165fe): wrong. The #973 fix commit 0d0ba0f: wrong ([output/commit_0d0ba0f.txt](output/commit_0d0ba0f.txt)). 1.5.2 (6901921), 1.4.0 (736ddb0) and 1.2.4 (ff85874): correct. Open PR #1101 "Ystripes" (head 4115ae4, the only open PR that touches PolyTree nesting): still wrong. |
 | Bisect | first bad commit `e8ebdef0931771443be86c092874e1bb0b51038a` "Fixed incorrect Polytree ownership following clipping op. (#957)". Its parent `3dd975a` is correct. `git bisect run` on repro.cpp between 1.4.0 and 1.5.4 ([output/bisect_log.txt](output/bisect_log.txt)). |
-| Minimal input (hole) | `A = (0,0) (6,2) (2,6)` (area 16). `B = (3,1) (4,4) (1,3)`, its medial triangle: each vertex of B is the midpoint of an edge of A. `Difference(A, B)` and `Xor(A, B)`, EvenOdd. NonZero, `PolyTreeD` and `BooleanOp` show the same. |
+| Minimal input (hole) | `A = (0,0) (6,2) (2,6)` (area 16). `B = (3,1) (4,4) (1,3)`, its medial triangle: each vertex of B is the midpoint of an edge of A. `Difference(A, B)` and `Xor(A, B)`, EvenOdd. NonZero, Positive, `PolyTreeD`, `BooleanOp` and a single-subject union (`AddSubject({A, B})`, no clip, `ClipType::Union`, EvenOdd) show the same. |
 | Minimal input (island) | `S = square (0,0)-(12,12)` with hole `H = (2,2) (4,10) (10,4)`. `I = (6,3) (7,7) (3,6)`, the triangle on the midpoints of H's edges. `Union(S, I)`, EvenOdd. |
 | Control | moving one vertex of B strictly inside A (`B2 = (3,2) (4,4) (1,3)`) gives a correct tree ([output/main_f9c5eb6.txt](output/main_f9c5eb6.txt)). |
 | Input validity | A, B, S (with its hole), I: all valid simple polygons (`geotruth valid`, oracle.py `valid_a/valid_b`). Small integer coordinates, far below `MAX_COORD` (2^61 − 1). No intersection point needs rounding: every output vertex is an input vertex. Clipper2 accepts any closed paths, so nothing here is outside its documented input domain. |
-| What Clipper2 returns | Case 1: `PolyTree64` has **2 top-level nodes**, `(6,2) (2,6) (0,0)` with area +16 and `(1,3) (4,4) (3,1)` with area −4, both `IsHole() == false`, the second with no parent. Case 2: the square has **two hole-level children**, `H` (area −30) and `I` (area **+7.5**, `IsHole() == true`), and `I` has no parent hole. `Paths64` of the same calls: area 12 and 121.5, both exact. |
+| What Clipper2 returns | Case 1: `PolyTree64` has **2 top-level nodes**, `(6,2) (2,6) (0,0)` with area +16 and `(1,3) (4,4) (3,1)` with area −4, both `IsHole() == false`. The second is not owned by A: it is a direct child of the root (`Level() == 1`; its `Parent()` is the PolyTree itself, not null). Case 2: the square has **two hole-level children**, `H` (area −30) and `I` (area **+7.5**, `IsHole() == true`): `I` is a child of the square, not of `H`. `Paths64` of the same calls: area 12 and 121.5, both exact. |
 
 ### Exact answer (three independent routes)
 
@@ -54,12 +62,15 @@ Files: [exact.txt](exact.txt), [indep_check.txt](indep_check.txt), [oracle.jsonl
 
 - `clipper.engine.h:293-296` (source, checked): *"PolyTree ... does preserve path 'ownership' - ie
   those paths that contain (or own) other paths."* B is contained in A but is not owned by it.
+- `clipper.engine.h:323-327` (source, checked): `IsHole()` is derived from the level (even levels
+  except 0). So the API itself reports the clockwise ring B at level 1 as an outer polygon.
 - PolyTree64 documentation (angusj.com/clipper2/Docs/Units/Clipper.Engine/Classes/PolyTree64):
   *"Direct descendants of PolyTree64 will always be outer polygon contours"*. Issue #957 quotes the
   same page: *"Children of outers will always be holes, and children of holes will always be
-  outers"*. **Caveat:** angusj.com is blocked by this sandbox's egress proxy. These sentences come
-  from web-search snippets of that page and from the #957 issue text. Check them in a browser
-  before citing them upstream.
+  outers"*. **Caveat:** angusj.com (and web.archive.org) are blocked by this sandbox's egress
+  proxy; re-checked on 2026-09-26, still blocked. The first sentence comes from web-search snippets
+  of that page only, and the second from the #957 issue text. Check them in a browser before citing
+  them upstream. FINAL.md therefore quotes only the source (`clipper.engine.h`) and `IsHole()`.
 - Solutions are "Positive" oriented: outer contours counter-clockwise, holes clockwise (the Clipper2
   Overview docs, via search, and the source comment `clipper.engine.cpp:3011`, "closed paths should
   always return a Positive orientation"). A clockwise ring at the top level, or a counter-clockwise
@@ -88,6 +99,13 @@ finding): no vertex moves, and nothing is rounded or removed.
 4. The template's vertex loop ends with `pip == IsOn`, and **`clipper.h:739`
    `if (pip != PointInPolygonResult::IsInside) return false;`** decides "not contained". The
    bounding-box midpoint check below it (`:740-742`) is reached only when some vertex was inside.
+
+Why Clipper2's own tests miss it: `CheckPolytreeFullyContainsChildren` (`clipper.h:419`) only
+checks nodes that have children, so it accepts the wrong tree (it returns true on the repro), and
+the area check in TestPolytreeHoles2 compares signed areas, which a misplaced ring leaves unchanged
+(the tree's signed-area sum is 12, exact). Both are shown in
+[output/variants_check.txt](output/variants_check.txt) ([variants_check.cpp](variants_check.cpp)),
+together with the FillRule::Positive and single-subject union (`AddSubject({A, B})`, no clip) variants.
 
 Public-API demonstration ([rootcause_path2containspath1.cpp](rootcause_path2containspath1.cpp),
 [output/rootcause_path2containspath1.txt](output/rootcause_path2containspath1.txt)):
@@ -142,26 +160,29 @@ snapping of the overlay itself, the class covered by the adapter's δ and by
 
 [patch/prototype_fix.diff](patch/prototype_fix.diff) changes only the template in `clipper.h`, in
 17 lines. When no vertex of path1 is strictly inside path2, the midpoints of path1's edges vote.
-Both paths are doubled so that the midpoints are exact grid points. An edge that lies along path2
-votes neither way, and path1 is contained when the inside votes outnumber the outside votes. The
-existing behaviour is kept whenever some vertex is inside.
+path2 is doubled and each midpoint is taken as the sum of its edge's endpoints, so the midpoints
+are exact grid points. An edge that lies along path2 votes neither way, and path1 is contained when
+the inside votes outnumber the outside votes. The existing behaviour is kept whenever some vertex
+is inside.
 
 | check | unpatched main | with prototype_fix.diff |
 |---|---|---|
 | repro.cpp (3 wrong trees + 1 control) | 3 wrong | 0 wrong |
 | Clipper2's own C++ tests (`CPP/Tests`, 48 tests incl. TestPolytreeHoles1-10 for #618/#942/#957/#973), and the Z build | 48/48 | 48/48 ([patch/unit_tests.txt](patch/unit_tests.txt)) |
-| geotruth 1804-case set + 5 lead cases | 5 lead cases wrong | lead cases all right. Only those 5 cases' outputs change, all other 1799 are byte-identical |
+| geotruth 1804-case set (the 5 lead cases included) | 5 lead cases wrong | lead cases all right. Only those 5 cases' outputs change, all other 1799 are byte-identical |
 | [fuzz_inscribed.cpp](fuzz_inscribed.cpp): 4788 random lattice configurations of a convex polygon A and a polygon B through lattice points inside A's edges. Trees of `Difference(A,B)` / `Union({square, A, B})` | 4434 / 4574 wrong (93 %) | 0 / 1 (the 1 is the flat-result near-miss below, not nesting) |
 
-The failure is the common case, not a corner case: on current releases, 93 % of random
-inscribed-ring configurations produce a wrong tree ([output/fuzz_results.txt](output/fuzz_results.txt)).
+Within inscribed-ring configurations (a deliberately degenerate family: every vertex of B lies on
+A's boundary) the failure is the usual outcome, not a rare one: on current releases, 93 % of them
+produce a wrong tree ([output/fuzz_results.txt](output/fuzz_results.txt)).
 1.5.2 and 1.4.0 get 3 / 4 of the 4788 wrong. That comes from the old bounding-box-midpoint
 heuristic.
 
 A simpler alternative is to give C++ the C# port's fallback,
 [patch/alternative_csharp_fallback.diff](patch/alternative_csharp_fallback.diff). It also passes
-48/48 and fixes repro.cpp, but it leaves the 3 / 4 fuzz failures of 1.5.2
-([patch/variants.txt](patch/variants.txt)). Overflow note for the prototype: doubling is safe for
+48/48 (TestPolytreeHoles9 for #957 and TestPolytreeHoles10 for #973 included, so the
+`return false` is not needed for either fix) and fixes repro.cpp, but it leaves the 3 / 4 fuzz
+failures of 1.5.2 ([patch/variants.txt](patch/variants.txt)). Overflow note for the prototype: doubling is safe for
 |coordinates| ≤ `MAX_COORD` = 2^61 − 1, because the doubled differences stay below 2^63.
 
 ## Upstream search (2026-09-26)
@@ -169,7 +190,7 @@ A simpler alternative is to give C++ the C# port's fallback,
 Sources: the GitHub issue search (MCP, semantic), the GitHub web issue list (open issues, and
 `q=polytree`), the PR search, and web search. The API and HTML pages of github.com were blocked for
 direct reading, so issue pages were read through WebFetch summaries: titles and bodies, but no
-comment threads.
+comment threads (except Angus's reply in Discussion #1022, read the same way at review time).
 
 Queries used:
 - "PolyTree hole placed at top level wrong parent touching polygon"
@@ -180,15 +201,23 @@ Queries used:
 - PRs matching "polytree"
 - web: "Clipper2 polytree hole touches outer polygon at vertices wrong nesting"
 
-No open issue or PR reports this. The open-issue list shown on the web (12 issues, #1084-#1112) was read and none is about
-PolyTree nesting. Related closed issues follow; each is a different input or mechanism, and all of
-them were fixed before or by the commits that introduced this regression:
+No open or closed issue or PR reports this input. There are 20 open issues (#1058-#1112; count and
+titles re-checked on the web issue list on 2026-09-26, the first pass had read only the first page
+of 12, #1084-#1112). None is about PolyTree nesting: the 8 older ones (#1058, #1059, #1062, #1069,
+#1071, #1075, #1076, #1083) are about triangulation, `MakePathZD`, `PointInPolygon` casting and
+union simplicity. Open #1084 is loosely related at most (see below).
+
+Related issues follow. #973 is the closest precedent: the same symptom from the same commit, whose
+fix repaired its own input but not this configuration. None of them has this input:
 
 | issue | relation |
 |---|---|
 | [#957](https://github.com/AngusJohnson/Clipper2/issues/957) "PolyTree issue: outer polygon on hole level" (closed 2025-05-04) | same symptom class (orientation contradicts level). Its fix e8ebdef **introduced** this regression |
-| [#973](https://github.com/AngusJohnson/Clipper2/issues/973) "PolyTree still has issues after fix of #957" (closed 2025-05-06) | follow-up to #957. Its fix moved the helper into `clipper.h` and kept the `return false` |
-| [#942](https://github.com/AngusJohnson/Clipper2/issues/942) "Incorrect Hierarchy in PolyTree Union Results" (closed 2025-02-08) | earlier nesting bug in `CheckSplitOwner`. Fixed before 1.5.3, and 1.5.2 is correct here |
+| [#973](https://github.com/AngusJohnson/Clipper2/issues/973) "PolyTree still has issues after fix of #957" (closed 2025-05-06) | **closest precedent**: the same symptom (a hole returned at the top level), caused by the same commit e8ebdef. Its input has 4 rings whose orientation contradicts their level at e8ebdef, and none at 0d0ba0f, 1.5.2 or `main` ([output/issue973_check.txt](output/issue973_check.txt)). Its fix (0d0ba0f/927daf7) retries on cleaned paths through the new `clipper.h` template, which kept the `return false`, so it repaired the regression only in part. This finding is a remaining case of it: a follow-up to #973, not a duplicate (#973 is closed and its input is fixed). FINAL.md is framed that way |
+| [#942](https://github.com/AngusJohnson/Clipper2/issues/942) "Incorrect Hierarchy in PolyTree Union Results" (closed 2025-02-08) | earlier nesting bug in `CheckSplitOwner`, fixed by fcf5607 (after 1.5.2, before 1.5.3). A different mechanism: 3dd975a, which contains fcf5607, is correct here |
+| [#1084](https://github.com/AngusJohnson/Clipper2/issues/1084) "Union on Paths64 with colinear segments fail" (open, C#) | a `CheckSplitOwner` stack overflow; after the reporter's own recursion-guard change, wrong `PolyTree64` results, with no data. Loosely related at most; not a duplicate |
+| [#1008](https://github.com/AngusJohnson/Clipper2/issues/1008), moved to [Discussion #1022](https://github.com/AngusJohnson/Clipper2/discussions/1022) | valid but non-canonical output (two outer polygons where one was expected; its input, re-run: two positive top-level outers on 1.5.2 and on `main`, so orientation and level agree). Angus: "I'm currently disinclined to making further tweaks where these results are valid (ie correctly describe the filled regions)". FINAL.md heads off that objection: here the tree contradicts itself (a clockwise ring with `IsHole() == false`, not owned by its container), which breaks the PolyTree ownership contract, as in #957 and #973 |
+| [#1039](https://github.com/AngusJohnson/Clipper2/issues/1039) "Difference in Results Between Clipper and Clipper2" | about open paths (`PolyTree64` does not hold them); not related |
 | [#1038](https://github.com/AngusJohnson/Clipper2/issues/1038) "Union Inner/Outer Bug" (closed 2025-11) | C# `PolyTreeD`, NonZero, data in an attachment. It is C# (whose fallback differs, see above), and no data could be read |
 | [#1047](https://github.com/AngusJohnson/Clipper2/issues/1047) "Polygon with hole work wrong" (closed 2025-12-17) | "the result is a polygon without hole", image only. No data to compare; closed within an hour |
 | [#498](https://github.com/AngusJohnson/Clipper2/issues/498), [#520](https://github.com/AngusJohnson/Clipper2/issues/520), [#584](https://github.com/AngusJohnson/Clipper2/issues/584), [#590](https://github.com/AngusJohnson/Clipper2/issues/590), [#618](https://github.com/AngusJohnson/Clipper2/issues/618), [#638](https://github.com/AngusJohnson/Clipper2/issues/638), [#679](https://github.com/AngusJohnson/Clipper2/issues/679), [#687](https://github.com/AngusJohnson/Clipper2/issues/687), [Discussion #576](https://github.com/AngusJohnson/Clipper2/discussions/576) | 2023 PolyTree ownership bugs (horizontal joins, splits). Fixed long before, and 1.2.4 / 1.4.0 are correct here |
@@ -216,6 +245,8 @@ Recommendation: report it. FINAL.md is ready and has not been posted.
 | `repro.cpp`, `run.sh` | public-API repro (Case 1, control, Case 2). `CLIPPER2_SRC=/path/to/Clipper2 ./run.sh` |
 | `rootcause_path2containspath1.cpp` | the root cause through the public `Path2ContainsPath1` (≥ 1.5.3) |
 | `fuzz_inscribed.cpp` | random inscribed-ring check (public API) |
+| `variants_check.cpp`, `output/variants_check.txt` | single-subject Union and FillRule variants; `CheckPolytreeFullyContainsChildren` and the tree's signed-area sum on the wrong tree |
+| `issue973_check.cpp`, `output/issue973_check.txt` | the #973 input on 1.5.2, e8ebdef, 0d0ba0f and main (same symptom at e8ebdef, fixed from 0d0ba0f on) |
 | `cases.jsonl` | the two minimal cases (FORMAT-v1 lines) |
 | `lead_cases.jsonl` | the five original lead cases (FORMAT-v1 lines) |
 | `oracle.jsonl`, `indep.jsonl`, `indep_check.txt`, `exact.txt` | exact answers: oracle.py, indep.py and the geotruth engine |

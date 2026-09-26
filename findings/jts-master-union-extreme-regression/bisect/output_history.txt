@@ -1,0 +1,82 @@
+# bisect/History.java run against jts-core at each commit or release below. The commits were built
+# with javac from modules/core/src/main/java (as bisect_step.sh does); 1.18.0 is the Maven Central jar.
+#   aa755818 = #1112 'Change to use MathUtil.hypot' (2025-01-22); ^ = its parent
+#   4668803  = #1114 'Add KdTree nearestNeighbor() and nearestNeighbors()' (2025-05-27)
+#   52c5d988 = #1187 'OverlayEdge: Don't skip first point when adding coordinates'
+# Coordinate.distance: Math.sqrt(dx*dx + dy*dy) in 1.18.0 and 1.19.0, Math.hypot in 1.20.0 (#923),
+# MathUtil.hypot (= Math.sqrt(x*x + y*y)) from aa755818 on.
+
+=== JTS 1.18.0
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+=== JTS 1.20.0 (6e95fe82)
+  1. KdTree(0.0), points 1e-170 apart: 2 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+=== aa755818^ (before #1112)
+  1. KdTree(0.0), points 1e-170 apart: 2 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+=== aa755818 (#1112)
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+=== 4668803^ (before #1114)
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+=== 4668803 (#1114)
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 1 node(s)
+  3. triangle self-union, first empty: k = 538
+  4. corpus case at 1.5e162, union empty: false
+
+=== 52c5d988^ (before #1187)
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 1 node(s)
+  3. triangle self-union, first empty: k = 538
+  4. corpus case at 1.5e162, union empty: false
+
+=== 52c5d988 (#1187)
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 1 node(s)
+  3. triangle self-union, first empty: k = 538
+  4. corpus case at 1.5e162, union empty: true
+
+=== master 3ea61f8
+  1. KdTree(0.0), points 1e-170 apart: 1 node(s)
+  2. KdTree(1e155), points 1e300 apart: 1 node(s)
+  3. triangle self-union, first empty: k = 538
+  4. corpus case at 1.5e162, union empty: true
+
+=== master 3ea61f8 + ../prototype_fix.diff
+  1. KdTree(0.0), points 1e-170 apart: 2 node(s)
+  2. KdTree(1e155), points 1e300 apart: 2 node(s)
+  3. triangle self-union, first empty: none
+  4. corpus case at 1.5e162, union empty: false
+
+# ../mixed-points/ScanScales.java (OverlayNGRobust UNION of the point-geometry-1-000016 case times 2^k)
+# on the same builds, tiny range only: the POLYGON EMPTY results for k in [-1068, -536] come from the
+# same squared-distance underflow and are already there at aa755818 (#1112) and in 1.18.0.
+=== aa755818^ (before #1112)
+  k in [-1068, -983]: WRONG Point
+  k in [-982, -535]: exception TopologyException
+=== aa755818 (#1112), 4668803^, 4668803 (#1114), master 3ea61f8
+  k in [-1068, -536]: EMPTY Polygon
+  k in [-535, -535]: WRONG Polygon
+=== JTS 1.18.0
+  k in [-1068, -536]: EMPTY Polygon
+=== JTS 1.20.0, and master 3ea61f8 + ../prototype_fix.diff
+  k in [-1068, -983]: WRONG Point
+  k in [-982, -535]: exception TopologyException

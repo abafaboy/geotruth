@@ -9,8 +9,8 @@ index fe1e299..1ef8831 100644
 +    if (pip == PointInPolygonResult::IsOn)
 +    {
 +      // every vertex of path1 touches path2, so decide with the midpoints
-+      // of path1's edges (both paths doubled so that the midpoints are
-+      // exact); the first midpoint that is not on path2 settles it
++      // of path1's edges (path2 doubled, midpoint = sum of endpoints, so the
++      // midpoints are exact); the first midpoint not on path2 settles it
 +      Path<T> path2x2;
 +      path2x2.reserve(path2.size());
 +      for (const Point<T>& pt : path2) path2x2.emplace_back(pt.x * 2, pt.y * 2);

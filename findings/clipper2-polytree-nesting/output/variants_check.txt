@@ -1,0 +1,25 @@
+# variants_check.cpp, g++ 13.3.0 -std=c++17. parent-is-root=1: the node's Parent() is the PolyTree itself (a top-level node)
+== main f9c5eb6
+ver 2.0.1
+Union({A,B}) EvenOdd single subject: top=2, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=0
+  L1 outer -4.0 parent-is-root=1 children=0
+Difference Positive: top=2, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=0
+  L1 outer -4.0 parent-is-root=1 children=0
+Difference NonZero: top=2, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=0
+  L1 outer -4.0 parent-is-root=1 children=0
+Difference EvenOdd: top=2, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=0
+  L1 outer -4.0 parent-is-root=1 children=0
+== Clipper2_1.5.2 6901921
+ver 1.5.2
+Union({A,B}) EvenOdd single subject: top=1, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=1
+Difference Positive: top=1, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=1
+Difference NonZero: top=1, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=1
+Difference EvenOdd: top=1, CheckPolytreeFullyContainsChildren=1, signed tree area=12.0
+  L1 outer +16.0 parent-is-root=1 children=1

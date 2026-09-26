@@ -51,8 +51,9 @@ engine for the examples shown (`--no-compute` turns that off), and the page says
 - There is no total per library and no ranking: rows are alphabetical, and rates are per
   capability, out of the answers graded.
 - A failure cluster is `unreviewed` unless a registry entry matches it by library, family
-  and field; a match is shown as a candidate explanation, with the entry's own signature.
-  Leads (registered by signature only) are never matched automatically.
+  and field (for a predicates cluster: one of the predicates the entry names); a match is
+  shown as a candidate explanation, with the entry's own signature. Leads (registered by
+  signature only) are never matched automatically.
 - The exact answer of every example is re-checked when the site is built, by an
   independent route: the witness-point relate (DESIGN §2.4), the overlay certificate
   (§2.6), or the audited reference validity rules. A failed re-check is shown on the page

@@ -1,5 +1,5 @@
 // JTS master regression: OverlayNGRobust returns POLYGON EMPTY (no exception) for valid
-// inputs with coordinates above about 1.3e162, because KdTree compares squared distances
+// inputs with coordinates above about 1.3e162 (for these inputs), because KdTree compares squared distances
 // and the square of the snapping tolerance overflows to Infinity (since #1114, 4668803).
 //
 // Public API only (OverlayNGRobust, KdTree, Geometry.union with -Djts.overlay=ng).
@@ -131,13 +131,15 @@ public class Repro {
       check("A.union(A), A = " + t170, t.union(t), t);
     }
 
-    System.out.println("\n5. KdTree directly (the cause)");
+    System.out.println("\n5. KdTree directly (the first case is the cause; the second predates #1114, see the report)");
     KdTree big = new KdTree(1e155);
     big.insert(new Coordinate(0, 0));
     big.insert(new Coordinate(1e300, 0));
     System.out.println("  new KdTree(1e155); insert (0 0), (1e300 0): size = " + big.size() + " (expected 2: the points are 1e300 apart)"
         + (big.size() == 2 ? "   OK" : "   WRONG"));
     if (big.size() != 2) failures++;
+    // Tolerance 0 at the tiny end: not from #1114. The comparison has underflowed like this on
+    // master since #1112 (MathUtil.hypot), and in 1.19.0 and earlier; only 1.20.0 keeps the points apart.
     KdTree zero = new KdTree(0.0);
     zero.insert(new Coordinate(0, 0));
     zero.insert(new Coordinate(1e-170, 0));

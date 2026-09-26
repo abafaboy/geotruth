@@ -32,6 +32,14 @@ shapely 2.2.0rc1, GEOS 3.14.1
   symmetric_difference(A, B)LINESTRING (0 1, 2 1)   <-- WRONG (point set differs)
   ... grid_size=0           GEOSException: IllegalArgumentException: Overlay input is mixed-dimension   (documented: OverlayNG rejects a mixed-dimension GC)
 
+1e symdiff, GC(one polygon) vs line leaving it at (2 2)
+  A = GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 0 4, 0 0)))
+  B = LINESTRING (1 1, 6 6)
+  valid: A=True B=True
+  exact                     GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 2 2, 0 4, 0 0)), LINESTRING (2 2, 6 6))
+  symmetric_difference(A, B)POLYGON ((0 4, 4 0, 0 0, 0 4))   <-- WRONG (point set differs)
+  ... grid_size=0           GEOMETRYCOLLECTION (POLYGON ((4 0, 0 0, 0 4, 2 2, 4 0)), LINESTRING (2 2, 6 6))   ok
+
 2a difference, point on the line of a mixed GC
   A = POINT (1 0)
   B = GEOMETRYCOLLECTION (LINESTRING (0 0, 2 0), POINT (3 3))

@@ -6,6 +6,9 @@
  * with the EMPTY element removed (an empty element adds no points, so the DE-9IM
  * matrix cannot change).
  *
+ * This is a selection of entry points; entrypoints.c calls every relate, pattern, named and
+ * prepared predicate entry point on these inputs.
+ *
  * Build: cc -std=c11 -O1 repro.c -o repro $(geos-config --cflags) $(geos-config --clibs)
  */
 #define _POSIX_C_SOURCE 200809L
@@ -53,11 +56,11 @@ static const Case CASES[] = {
 };
 
 enum { OP_RELATE_AB, OP_RELATE_BA, OP_INTERSECTS, OP_CONTAINS_BA, OP_WITHIN,
-       OP_TOUCHES, OP_RELATE_PATTERN, OP_PREP_COVERS_BA, OP_COUNT };
+       OP_TOUCHES, OP_RELATE_PATTERN, OP_RELATE_PATTERN_DISJOINT, OP_PREP_COVERS_BA, OP_COUNT };
 static const char *OP_NAMES[OP_COUNT] = {
     "GEOSRelate(A,B)", "GEOSRelate(B,A)", "GEOSIntersects(A,B)", "GEOSContains(B,A)",
     "GEOSWithin(A,B)", "GEOSTouches(A,B)", "GEOSRelatePattern(A,B,\"T********\")",
-    "GEOSPreparedCovers(prep B, A)"};
+    "GEOSRelatePattern(A,B,\"FF*FF****\")", "GEOSPreparedCovers(prep B, A)"};
 
 /* Runs one operation; writes its answer to buf.  Called in the child. */
 static void run_op(int op, const Case *c, char *buf, size_t n)
@@ -76,6 +79,8 @@ static void run_op(int op, const Case *c, char *buf, size_t n)
     case OP_WITHIN: v = GEOSWithin_r(h, a, b); break;
     case OP_TOUCHES: v = GEOSTouches_r(h, a, b); break;
     case OP_RELATE_PATTERN: v = GEOSRelatePattern_r(h, a, b, "T********"); break;
+    /* the disjoint pattern: unlike T********, an empty operand does not decide it early */
+    case OP_RELATE_PATTERN_DISJOINT: v = GEOSRelatePattern_r(h, a, b, "FF*FF****"); break;
     case OP_PREP_COVERS_BA: {
         const GEOSPreparedGeometry *p = GEOSPrepare_r(h, b);
         v = GEOSPreparedCovers_r(h, p, a);

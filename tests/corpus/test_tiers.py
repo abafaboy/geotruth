@@ -99,13 +99,17 @@ def test_curated_covers_every_finding_and_lead(tiers, curated_records):
         findings = tl.load(fh)["finding"]
     with open(CORPUS / "curated" / "leads.toml", "rb") as fh:
         leads = tl.load(fh)["lead"]
+    # keyed by kind too: a finding may keep the id of the lead it superseded
     by_owner = Counter(
-        r["provenance"].get("finding") or r["provenance"].get("lead") for r in curated_records
+        ("finding", r["provenance"]["finding"])
+        if "finding" in r["provenance"]
+        else ("lead", r["provenance"].get("lead"))
+        for r in curated_records
     )
     for f in findings:
-        assert by_owner[f["id"]] == len(read_jsonl(REPO / f["cases"])), f["id"]
+        assert by_owner["finding", f["id"]] == len(read_jsonl(REPO / f["cases"])), f["id"]
     for lead in leads:
-        assert by_owner[lead["id"]] == len(lead["case"]), lead["id"]
+        assert by_owner["lead", lead["id"]] == len(lead["case"]), lead["id"]
     assert sum(by_owner.values()) == len(curated_records)
     assert "boost-develop-rotated-neighbours-230:rotated-neighbours-1-000230" in {
         r["id"] for r in curated_records

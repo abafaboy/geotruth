@@ -21,24 +21,20 @@
   "core": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T08:22:07Z",
-    "finished": "2026-09-26T08:22:26Z",
-    "elapsed_s": 18.888,
+    "started": "2026-09-26T09:07:15Z",
+    "finished": "2026-09-26T09:07:35Z",
+    "elapsed_s": 19.759,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
     "budget_s": 3600.0,
     "lib_reported": "geos@3.15.0",
-    "version_command": null,
+    "library_version": "3.15.0",
+    "library_commit": "d0228513abb0c29c185443cf2bfb06c9281024b5",
     "adapter": {
      "name": "geos_main",
      "manifest_sha256": "6066d5715a4a2579a15dadd1d000922c2491a10c4064bddb36df57a6d0cf8d60",
      "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
-    },
-    "compiler": {
-     "name": "library: g++",
-     "version": "13.3",
-     "flags": "CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG); adapter: cc -O2 -std=c11 and c++ -O2 -std=c++17"
     }
    },
    "versions": {
@@ -608,24 +604,20 @@
   "curated": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T08:27:38Z",
-    "finished": "2026-09-26T08:27:38Z",
-    "elapsed_s": 0.174,
+    "started": "2026-09-26T10:57:26Z",
+    "finished": "2026-09-26T10:57:26Z",
+    "elapsed_s": 0.552,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
     "budget_s": 3600.0,
     "lib_reported": "geos@3.15.0",
-    "version_command": null,
+    "library_version": "3.15.0",
+    "library_commit": "d0228513abb0c29c185443cf2bfb06c9281024b5",
     "adapter": {
      "name": "geos_main",
      "manifest_sha256": "6066d5715a4a2579a15dadd1d000922c2491a10c4064bddb36df57a6d0cf8d60",
      "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3"
-    },
-    "compiler": {
-     "name": "library: g++",
-     "version": "13.3",
-     "flags": "CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG); adapter: cc -O2 -std=c11 and c++ -O2 -std=c++17"
     }
    },
    "versions": {
@@ -641,9 +633,9 @@
     "validity": "geotruth.validity"
    },
    "cases": {
-    "total": 34,
-    "run": 34,
-    "scored": 34
+    "total": 131,
+    "run": 131,
+    "scored": 131
    },
    "runner": {
     "watchdog_timeouts": 0,
@@ -654,71 +646,11 @@
     "id_mismatches": 0,
     "budget_exhausted": false
    },
-   "headline_failures": 21,
+   "headline_failures": 154,
    "capabilities": {
     "relate": {
-     "correct": 24,
-     "wrong": 4,
-     "error": 0,
-     "convention": 0,
-     "unsupported": 0,
-     "not_reported": 0,
-     "engine_skipped": 0,
-     "engine_error": 0,
-     "derived": 0,
-     "graded": 28,
-     "failures": 4,
-     "failure_rate": 0.142857,
-     "by_range": {
-      "normal": {
-       "graded": 28,
-       "failures": 4
-      }
-     }
-    },
-    "predicates": {
-     "correct": 25,
-     "wrong": 3,
-     "error": 0,
-     "convention": 0,
-     "unsupported": 0,
-     "not_reported": 0,
-     "engine_skipped": 0,
-     "engine_error": 0,
-     "derived": 0,
-     "graded": 28,
-     "failures": 3,
-     "failure_rate": 0.107143,
-     "by_range": {
-      "normal": {
-       "graded": 28,
-       "failures": 3
-      }
-     }
-    },
-    "validity": {
-     "correct": 28,
-     "wrong": 0,
-     "error": 0,
-     "convention": 0,
-     "unsupported": 0,
-     "not_reported": 0,
-     "engine_skipped": 0,
-     "engine_error": 0,
-     "derived": 0,
-     "graded": 28,
-     "failures": 0,
-     "failure_rate": 0.0,
-     "by_range": {
-      "normal": {
-       "graded": 28,
-       "failures": 0
-      }
-     }
-    },
-    "overlay.intersection": {
-     "correct": 27,
-     "wrong": 0,
+     "correct": 68,
+     "wrong": 50,
      "error": 7,
      "convention": 0,
      "unsupported": 0,
@@ -726,140 +658,261 @@
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 34,
-     "failures": 7,
-     "failure_rate": 0.205882,
+     "graded": 125,
+     "failures": 57,
+     "failure_rate": 0.456,
      "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 4
+      },
       "normal": {
-       "graded": 34,
-       "failures": 7
+       "graded": 118,
+       "failures": 53
       }
      },
      "error_kinds": {
-      "exception": 7
-     },
-     "overlay_tiers": {
-      "exact": 16,
-      "rounding": 10,
-      "budget": 1,
-      "gross": 0,
-      "topological": 0,
-      "exception": 7
-     },
-     "topological": {
-      "invalid_output": 0,
-      "invalid_output_exact_point_set": 0,
-      "invalid_output_within_rounding": 0,
-      "missing_or_extra_parts": 0
+      "crash": 7
      }
     },
-    "overlay.union": {
-     "correct": 34,
-     "wrong": 0,
-     "error": 0,
+    "predicates": {
+     "correct": 92,
+     "wrong": 28,
+     "error": 5,
      "convention": 0,
      "unsupported": 0,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 34,
-     "failures": 0,
-     "failure_rate": 0.0,
+     "graded": 125,
+     "failures": 33,
+     "failure_rate": 0.264,
      "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 2
+      },
       "normal": {
-       "graded": 34,
+       "graded": 118,
+       "failures": 31
+      }
+     },
+     "error_kinds": {
+      "crash": 5
+     }
+    },
+    "validity": {
+     "correct": 123,
+     "wrong": 1,
+     "error": 1,
+     "convention": 0,
+     "unsupported": 0,
+     "not_reported": 0,
+     "engine_skipped": 0,
+     "engine_error": 0,
+     "derived": 0,
+     "graded": 125,
+     "failures": 2,
+     "failure_rate": 0.016,
+     "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 2
+      },
+      "normal": {
+       "graded": 118,
        "failures": 0
       }
      },
-     "overlay_tiers": {
-      "exact": 23,
-      "rounding": 10,
-      "budget": 1,
-      "gross": 0,
-      "topological": 0,
-      "exception": 0
-     },
-     "topological": {
-      "invalid_output": 0,
-      "invalid_output_exact_point_set": 0,
-      "invalid_output_within_rounding": 0,
-      "missing_or_extra_parts": 0
+     "error_kinds": {
+      "exception": 1
      }
     },
-    "overlay.difference": {
-     "correct": 30,
-     "wrong": 0,
-     "error": 4,
+    "overlay.intersection": {
+     "correct": 109,
+     "wrong": 5,
+     "error": 17,
      "convention": 0,
      "unsupported": 0,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 34,
-     "failures": 4,
-     "failure_rate": 0.117647,
+     "graded": 131,
+     "failures": 22,
+     "failure_rate": 0.167939,
      "by_range": {
-      "normal": {
-       "graded": 34,
+      "extreme": {
+       "graded": 7,
        "failures": 4
+      },
+      "normal": {
+       "graded": 124,
+       "failures": 18
       }
      },
      "error_kinds": {
-      "exception": 4
+      "exception": 17
      },
      "overlay_tiers": {
-      "exact": 19,
-      "rounding": 10,
-      "budget": 1,
-      "gross": 0,
-      "topological": 0,
-      "exception": 4
+      "exact": 85,
+      "rounding": 22,
+      "budget": 2,
+      "gross": 4,
+      "topological": 1,
+      "exception": 17
      },
      "topological": {
       "invalid_output": 0,
       "invalid_output_exact_point_set": 0,
       "invalid_output_within_rounding": 0,
-      "missing_or_extra_parts": 0
+      "missing_or_extra_parts": 1
      }
     },
-    "overlay.symdifference": {
-     "correct": 31,
-     "wrong": 3,
-     "error": 0,
+    "overlay.union": {
+     "correct": 126,
+     "wrong": 4,
+     "error": 1,
      "convention": 0,
      "unsupported": 0,
      "not_reported": 0,
      "engine_skipped": 0,
      "engine_error": 0,
      "derived": 0,
-     "graded": 34,
-     "failures": 3,
-     "failure_rate": 0.088235,
+     "graded": 131,
+     "failures": 5,
+     "failure_rate": 0.038168,
      "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 4
+      },
       "normal": {
-       "graded": 34,
-       "failures": 3
+       "graded": 124,
+       "failures": 1
       }
      },
+     "error_kinds": {
+      "exception": 1
+     },
      "overlay_tiers": {
-      "exact": 20,
-      "rounding": 10,
-      "budget": 1,
-      "gross": 3,
-      "topological": 0,
-      "exception": 0
+      "exact": 100,
+      "rounding": 24,
+      "budget": 2,
+      "gross": 2,
+      "topological": 2,
+      "exception": 1
      },
      "topological": {
       "invalid_output": 0,
       "invalid_output_exact_point_set": 0,
       "invalid_output_within_rounding": 0,
-      "missing_or_extra_parts": 0
+      "missing_or_extra_parts": 2
+     }
+    },
+    "overlay.difference": {
+     "correct": 113,
+     "wrong": 8,
+     "error": 10,
+     "convention": 0,
+     "unsupported": 0,
+     "not_reported": 0,
+     "engine_skipped": 0,
+     "engine_error": 0,
+     "derived": 0,
+     "graded": 131,
+     "failures": 18,
+     "failure_rate": 0.137405,
+     "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 3
+      },
+      "normal": {
+       "graded": 124,
+       "failures": 15
+      }
+     },
+     "error_kinds": {
+      "exception": 10
+     },
+     "overlay_tiers": {
+      "exact": 89,
+      "rounding": 22,
+      "budget": 2,
+      "gross": 5,
+      "topological": 3,
+      "exception": 10
+     },
+     "topological": {
+      "invalid_output": 0,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 0,
+      "missing_or_extra_parts": 3
+     }
+    },
+    "overlay.symdifference": {
+     "correct": 114,
+     "wrong": 16,
+     "error": 1,
+     "convention": 0,
+     "unsupported": 0,
+     "not_reported": 0,
+     "engine_skipped": 0,
+     "engine_error": 0,
+     "derived": 0,
+     "graded": 131,
+     "failures": 17,
+     "failure_rate": 0.129771,
+     "by_range": {
+      "extreme": {
+       "graded": 7,
+       "failures": 4
+      },
+      "normal": {
+       "graded": 124,
+       "failures": 13
+      }
+     },
+     "error_kinds": {
+      "exception": 1
+     },
+     "overlay_tiers": {
+      "exact": 90,
+      "rounding": 22,
+      "budget": 2,
+      "gross": 12,
+      "topological": 4,
+      "exception": 1
+     },
+     "topological": {
+      "invalid_output": 0,
+      "invalid_output_exact_point_set": 0,
+      "invalid_output_within_rounding": 0,
+      "missing_or_extra_parts": 4
      }
     }
    },
    "families": {
+    "curated": {
+     "overlay.difference": {
+      "graded": 16,
+      "failures": 9
+     },
+     "overlay.intersection": {
+      "graded": 16,
+      "failures": 7
+     },
+     "overlay.symdifference": {
+      "graded": 16,
+      "failures": 6
+     },
+     "overlay.union": {
+      "graded": 16,
+      "failures": 1
+     }
+    },
     "empty": {
      "overlay.difference": {
       "graded": 7,
@@ -875,42 +928,158 @@
      }
     },
     "gc": {
+     "overlay.difference": {
+      "graded": 27,
+      "failures": 1
+     },
      "overlay.symdifference": {
-      "graded": 5,
-      "failures": 3
+      "graded": 27,
+      "failures": 7
      },
      "predicates": {
-      "graded": 5,
+      "graded": 27,
+      "failures": 16
+     },
+     "relate": {
+      "graded": 27,
+      "failures": 21
+     }
+    },
+    "gc-area-vertex": {
+     "relate": {
+      "graded": 6,
+      "failures": 4
+     }
+    },
+    "gc-empty-element": {
+     "overlay.difference": {
+      "graded": 10,
+      "failures": 1
+     },
+     "overlay.intersection": {
+      "graded": 10,
+      "failures": 4
+     },
+     "predicates": {
+      "graded": 10,
+      "failures": 5
+     },
+     "relate": {
+      "graded": 10,
+      "failures": 10
+     }
+    },
+    "hole-contact": {
+     "predicates": {
+      "graded": 6,
       "failures": 2
      },
      "relate": {
-      "graded": 5,
+      "graded": 6,
       "failures": 2
      }
     },
     "multi-touch": {
      "predicates": {
-      "graded": 2,
-      "failures": 1
+      "graded": 3,
+      "failures": 2
      },
      "relate": {
-      "graded": 2,
-      "failures": 1
+      "graded": 3,
+      "failures": 2
+     }
+    },
+    "multiline-line-ends": {
+     "relate": {
+      "graded": 8,
+      "failures": 7
+     }
+    },
+    "near-collinear": {
+     "predicates": {
+      "graded": 6,
+      "failures": 6
+     },
+     "relate": {
+      "graded": 6,
+      "failures": 6
+     }
+    },
+    "tiny-scale": {
+     "overlay.difference": {
+      "graded": 6,
+      "failures": 3
+     },
+     "overlay.intersection": {
+      "graded": 6,
+      "failures": 4
+     },
+     "overlay.symdifference": {
+      "graded": 6,
+      "failures": 4
+     },
+     "overlay.union": {
+      "graded": 6,
+      "failures": 4
+     },
+     "predicates": {
+      "graded": 6,
+      "failures": 2
+     },
+     "relate": {
+      "graded": 6,
+      "failures": 4
+     },
+     "validity": {
+      "graded": 6,
+      "failures": 2
      }
     }
    },
    "clusters": {
+    "geos-release|gc|overlay.symdifference:gross": 7,
     "geos-release|empty|overlay.intersection:exception": 7,
+    "geos-release|curated|overlay.intersection:exception": 6,
+    "geos-release|curated|overlay.difference:exception": 5,
+    "geos-release|curated|overlay.symdifference:gross": 5,
+    "geos-release|curated|overlay.difference:gross": 4,
+    "geos-release|gc|relate:IE,BE": 4,
+    "geos-release|gc|predicates:overlaps,within,covered_by": 4,
+    "geos-release|multiline-line-ends|relate:EB": 4,
+    "geos-release|gc-empty-element|overlay.intersection:exception": 4,
+    "geos-release|tiny-scale|overlay.symdifference:topological": 4,
     "geos-release|empty|overlay.difference:exception": 4,
-    "geos-release|gc|overlay.symdifference:gross": 3,
-    "geos-release|gc|relate:IE,BE": 2,
-    "geos-release|gc|predicates:overlaps,within,covered_by": 2,
-    "geos-release|multi-touch|relate:EI,EB": 1,
-    "geos-release|multi-touch|predicates:overlaps,contains,covers": 1,
-    "geos-release|empty|relate:EI,EB": 1
+    "geos-release|near-collinear|relate:II,IB,BI": 3,
+    "geos-release|near-collinear|predicates:touches,overlaps": 3,
+    "geos-release|near-collinear|relate:BI,EI,EB": 3,
+    "geos-release|near-collinear|predicates:overlaps,contains,covers": 3,
+    "geos-release|gc|relate:IE": 3,
+    "geos-release|gc|relate:II,BI": 3,
+    "geos-release|gc|predicates:touches,contains": 3,
+    "geos-release|gc|relate:BI,EI": 3,
+    "geos-release|tiny-scale|overlay.intersection:gross": 3,
+    "geos-release|tiny-scale|overlay.difference:topological": 3,
+    "geos-release|multi-touch|relate:EI,EB": 2,
+    "geos-release|multi-touch|predicates:overlaps,contains,covers": 2,
+    "geos-release|gc|relate:EI,EB": 2,
+    "geos-release|gc|predicates:overlaps,contains,covers": 2,
+    "geos-release|gc|relate:EB": 2,
+    "geos-release|gc|predicates:covered_by": 2,
+    "geos-release|gc|predicates:contains,covers,equals": 2,
+    "geos-release|multiline-line-ends|relate:BE": 2,
+    "geos-release|gc-area-vertex|relate:BE": 2,
+    "geos-release|gc-area-vertex|relate:EB": 2,
+    "geos-release|gc-empty-element|relate:IE,BE": 2,
+    "geos-release|tiny-scale|relate:II,IB,BI,EI,EB": 2,
+    "geos-release|tiny-scale|predicates:touches,overlaps": 2,
+    "geos-release|tiny-scale|overlay.union:gross": 2,
+    "geos-release|tiny-scale|overlay.union:topological": 2,
+    "geos-release|hole-contact|relate:BI,EI": 1,
+    "geos-release|hole-contact|predicates:overlaps,contains,covers": 1,
+    "geos-release|hole-contact|relate:II,IB": 1
    },
-   "clusters_total": 8,
-   "clusters_omitted_records": 0,
+   "clusters_total": 60,
+   "clusters_omitted_records": 20,
    "case_verdicts": {
     "boost-develop-rotated-neighbours-230:rotated-neighbours-1-000230": {
      "overlay.difference": "correct",
@@ -922,6 +1091,33 @@
      "validity": "correct"
     },
     "boost-develop-rotated-neighbours-230:rotated-neighbours-1-000230.min": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "boost-geometry-develop-regression:minimal-regression": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "boost-geometry-develop-regression:minimal-side-sign": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "boost-geometry-develop-regression:rotated-neighbours-1-000230": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
      "overlay.symdifference": "correct",
@@ -984,6 +1180,24 @@
      "relate": "correct",
      "validity": "correct"
     },
+    "clipper2-polytree-nesting:inscribed-island": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "clipper2-polytree-nesting:medial-triangle": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
     "clipper2-polytree-nesting:vertex-on-edge-7-000026-inscribed.n4.lonlat": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
@@ -1030,6 +1244,60 @@
      "validity": "correct"
     },
     "clipper2-thin-triangle-dropped:thin-tri-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-orig-0010-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-strip-overlap-2e9": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-1e9-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-2e9-4wide-control": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:geo-thin-tri-2e9-self": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geo-i-overlay-thin-polygon-collapse:int-thin-triangle-1-0010": {
      "overlay.difference": "correct",
      "overlay.intersection": "correct",
      "overlay.symdifference": "correct",
@@ -1092,6 +1360,87 @@
      "relate": "correct",
      "validity": "correct"
     },
+    "geos-multipolygon-touching-parts-predicates:case1-multipolygon-contains-own-part": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-multipolygon-touching-parts-predicates:case2-shell-contains-polygon-with-touching-hole": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-multipolygon-touching-parts-predicates:case3-polygon-with-touching-hole-touches-adjacent": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:min-1-touches": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:min-2-contains": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-1-000094-extension.moderate": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000026-offedge-in.moderate": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000280-zigzag.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-near-collinear-predicates:near-collinear-2-000450-offedge-out.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
     "geos-overlay-empty-vs-gc-assertion:pair-Ae-GC": {
      "overlay.difference": "error",
      "overlay.intersection": "error",
@@ -1127,6 +1476,654 @@
      "overlay.intersection": "error",
      "overlay.symdifference": "correct",
      "overlay.union": "correct"
+    },
+    "geos-overlay-geometrycollection:1a-gc-polygon-symdiff-point": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:1b-gc-empty-polygon-symdiff-point": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:1c-point-symdiff-mixed-gc": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:1d-equal-point-sets-symdiff": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:1e-gc-polygon-symdiff-line": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:2a-point-difference-mixed-gc": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:3a-gc-empty-polygon-intersection-point": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:3b-point-empty-intersection-gc-polygon": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:3c-point-empty-difference-gc-polygon": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:3d-mixed-gc-intersection-multipolygon-empty": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:4a-point-on-prenoded-line": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:4b-segment-on-prenoded-line": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-overlay-geometrycollection:5a-nested-empty-gc": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "error",
+     "overlay.union": "error",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-far-point-contains": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-interior-point-eb": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-line-covers-boundary-eb": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-line-end-on-points": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-own-polygon": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-own-polygon-within": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-ring-within-point": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-testfile-closed-line": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d1-testfile-line-ends": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-adjacent-control": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-line": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-point": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-reflex-point-swapped-elements": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-testfile-gc-reflex": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d2-testfile-gc-reflex-line": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-control-center": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-control-polygon": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-equals": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-frame-two-l-shapes": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:d3-no-boundary-vertex": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:known-empty-element": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-geometrycollection-semantics:known-gc-overlap-as-b": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-1": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-1-degenerate-closed": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-1-operands-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-1-parts-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-2-operands-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-2-polygon-target": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-3-jts-1175": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-4-both-operands": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-area-vertex": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-operands-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-5-gc-squares-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-nested": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-operands-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-line-end-skip:les-6-gc-polygons-swapped": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-multipolygon-part": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "error",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "error",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-area": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "error",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-line": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "error",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:adjacent-edge-empty-polygon-pinned": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "error",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:empty-element-dimension-empty": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:empty-element-dimension-exterior": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:lead-relateng-empty-operand-type-dimension": {
+     "overlay.difference": "error",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:linear-boundary-null": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-relateng-segfault:linear-boundary-null-pinned": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "error",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "error",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:oracle-review-lead-box-1e-170": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "wrong",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:square-with-hole-1e-200": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "wrong",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "error"
+    },
+    "geos-tiny-coordinates-underflow:squares-1e-200": {
+     "overlay.difference": "wrong",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "wrong",
+     "predicates": "wrong",
+     "relate": "wrong",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:squares-control-scale1": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-tiny-coordinates-underflow:triangle-1e-200": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "wrong",
+     "overlay.symdifference": "wrong",
+     "overlay.union": "wrong",
+     "predicates": "correct",
+     "relate": "wrong",
+     "validity": "wrong"
+    },
+    "geos-tiny-coordinates-underflow:triangle-control-scale1": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:min-2tri": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:min-2tri-case2": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "geos-union-drops-polygon:tiling-contact-2-001988-sq-multi.center-direct.origin": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:control-self-overlay-unit": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:line-polygon-1-000090-along-edge-full.ba.int.extreme": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:min-disjoint-line-1e170": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "jts-master-union-extreme-regression:min-self-overlay-1e170": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
     },
     "martinez-xor-hang:rotated-neighbours-1-000003": {
      "overlay.difference": "correct",
@@ -1180,6 +2177,51 @@
      "overlay.union": "correct",
      "predicates": "wrong",
      "relate": "wrong",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-apex-on-edge": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-identical-triangles": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-in-hole-shared-edge": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-multipolygon-second-part": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
+     "validity": "correct"
+    },
+    "turf-boolean-predicates:turf-touches-overlapping-squares": {
+     "overlay.difference": "correct",
+     "overlay.intersection": "correct",
+     "overlay.symdifference": "correct",
+     "overlay.union": "correct",
+     "predicates": "correct",
+     "relate": "correct",
      "validity": "correct"
     },
     "turf-touches-overlaps-vertex-rules:shared-sloped-edge-1-000001.min": {

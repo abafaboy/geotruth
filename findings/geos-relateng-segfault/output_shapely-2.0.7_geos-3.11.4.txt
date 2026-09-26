@@ -6,6 +6,7 @@ case 1  point on the shared edge of two squares, GC has a POLYGON EMPTY
   is_valid(A) = True, is_valid(B) = True
   expected relate(A, B) = 0FFFFF212
   relate(A, B)     0FFFFF212   ok
+  relate_pattern(A, B, 'FF*FF****') False
   intersects(A, B) True
   within(A, B)     True
   touches(A, B)    False
@@ -16,6 +17,7 @@ case 2  GC(point, LINESTRING EMPTY) vs POINT EMPTY
   is_valid(A) = True, is_valid(B) = True
   expected relate(A, B) = FF0FFFFF2
   relate(A, B)     exception: shapely.errors.GEOSException: IllegalArgumentException: Operation not supported by GeometryCollection   <-- WRONG
+  relate_pattern(A, B, 'FF*FF****') exception: shapely.errors.GEOSException: IllegalArgumentException: Operation not supported by GeometryCollection
   intersects(A, B) False
   within(A, B)     False
   touches(A, B)    False
@@ -26,6 +28,7 @@ case 3  GC(line, POLYGON EMPTY) vs a disjoint point (wrong matrix, no crash)
   is_valid(A) = True, is_valid(B) = True
   expected relate(A, B) = FF1FF00F2
   relate(A, B)     FF2FF10F2   <-- WRONG
+  relate_pattern(A, B, 'FF*FF****') True
   intersects(A, B) False
   within(A, B)     False
   touches(A, B)    False

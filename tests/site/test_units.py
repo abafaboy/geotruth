@@ -253,6 +253,29 @@ def test_registry_matching_rules():
     assert status([f1, f2]) == "mixed"
 
 
+def test_registry_matching_narrows_predicates_to_the_ones_named():
+    from gtsite.triage import matches
+
+    touches = {
+        "id": "t",
+        "library": "turf",
+        "fields": ["predicates.touches"],
+        "families": ["shared-edge"],
+        "status": "confirmed",
+    }
+    any_predicate = {"id": "a", "library": "turf", "fields": ["relate"], "status": "confirmed"}
+    v1 = {"id": "v", "library": "turf", "fields": ["overlaps"], "status": "by-design"}
+    reg = [touches, any_predicate, v1]
+
+    def pred(sig):
+        return _cluster("turf", "shared-edge", "predicates", sig)
+
+    assert matches(pred("predicates:touches,overlaps|tolerance"), reg) == [touches, v1]
+    assert matches(pred("predicates:overlaps|tolerance"), reg) == [v1]
+    assert matches(pred("predicates:within"), reg) == []
+    assert matches(pred("predicates:error"), reg) == [touches, v1]  # errors name no predicate
+
+
 def test_example_selection_prefers_small_and_varied_cases():
     from gtsite import select_examples
 

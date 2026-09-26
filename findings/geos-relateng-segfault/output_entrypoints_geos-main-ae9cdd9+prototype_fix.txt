@@ -1,0 +1,145 @@
+# entrypoints.c on GEOS main ae9cdd98b + prototype_fix.diff (Release build of the main source tree with only the two patched files changed), 2026-09-26: no crash, and no answer differs from the EMPTY-free control
+GEOS 3.16.0dev-CAPI-1.22.0
+columns: (A,B) and (B,A) on the input; the same on the EMPTY-free control;
+prepared entry points prepare the first argument; '!' marks an answer that differs
+from the control's
+
+## crash 1, point operand
+  A = POINT (2 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  control: A = POINT (2 1), B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  exact relate(A,B) = 0FFFFF212, relate(B,A) = 0F2FF1FF2
+  entry point                          (A,B)            (B,A)            ctrl (A,B)  ctrl (B,A) 
+  GEOSRelate                           0FFFFF212        0F2FF1FF2        0FFFFF212   0F2FF1FF2  
+  GEOSRelatePattern T********          true             true             true        true       
+  GEOSRelatePattern *********          true             true             true        true       
+  GEOSRelatePattern FF*FF****          false            false            false       false      
+  GEOSRelatePattern <exact(A,B)>       true             true             true        true       
+  GEOSRelateBoundaryNodeRule OGC       0FFFFF212        0F2FF1FF2        0FFFFF212   0F2FF1FF2  
+  GEOSIntersects                       true             true             true        true       
+  GEOSDisjoint                         false            false            false       false      
+  GEOSTouches                          false            false            false       false      
+  GEOSCrosses                          false            false            false       false      
+  GEOSWithin                           true             false            true        false      
+  GEOSContains                         false            true             false       true       
+  GEOSOverlaps                         false            false            false       false      
+  GEOSEquals                           false            false            false       false      
+  GEOSCovers                           false            true             false       true       
+  GEOSCoveredBy                        true             false            true        false      
+  GEOSPreparedIntersects               true             true             true        true       
+  GEOSPreparedDisjoint                 false            false            false       false      
+  GEOSPreparedTouches                  false            false            false       false      
+  GEOSPreparedCrosses                  false            false            false       false      
+  GEOSPreparedWithin                   true             false            true        false      
+  GEOSPreparedContains                 false            true             false       true       
+  GEOSPreparedContainsProperly         false            true             false       true       
+  GEOSPreparedOverlaps                 false            false            false       false      
+  GEOSPreparedCovers                   false            true             false       true       
+  GEOSPreparedCoveredBy                true             false            true        false      
+  GEOSPreparedRelate                   0FFFFF212        0F2FF1FF2        0FFFFF212   0F2FF1FF2  
+  GEOSPreparedRelatePattern FF*FF****  false            false            false       false      
+
+## crash 1, line operand
+  A = LINESTRING (1 1, 3 1)
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  control: A = LINESTRING (1 1, 3 1), B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  exact relate(A,B) = 1FF0FF212, relate(B,A) = 102FF1FF2
+  entry point                          (A,B)            (B,A)            ctrl (A,B)  ctrl (B,A) 
+  GEOSRelate                           1FF0FF212        102FF1FF2        1FF0FF212   102FF1FF2  
+  GEOSRelatePattern T********          true             true             true        true       
+  GEOSRelatePattern *********          true             true             true        true       
+  GEOSRelatePattern FF*FF****          false            false            false       false      
+  GEOSRelatePattern <exact(A,B)>       true             true             true        true       
+  GEOSRelateBoundaryNodeRule OGC       1FF0FF212        102FF1FF2        1FF0FF212   102FF1FF2  
+  GEOSIntersects                       true             true             true        true       
+  GEOSDisjoint                         false            false            false       false      
+  GEOSTouches                          false            false            false       false      
+  GEOSCrosses                          false            false            false       false      
+  GEOSWithin                           true             false            true        false      
+  GEOSContains                         false            true             false       true       
+  GEOSOverlaps                         false            false            false       false      
+  GEOSEquals                           false            false            false       false      
+  GEOSCovers                           false            true             false       true       
+  GEOSCoveredBy                        true             false            true        false      
+  GEOSPreparedIntersects               true             true             true        true       
+  GEOSPreparedDisjoint                 false            false            false       false      
+  GEOSPreparedTouches                  false            false            false       false      
+  GEOSPreparedCrosses                  false            false            false       false      
+  GEOSPreparedWithin                   true             false            true        false      
+  GEOSPreparedContains                 false            true             false       true       
+  GEOSPreparedContainsProperly         false            true             false       true       
+  GEOSPreparedOverlaps                 false            false            false       false      
+  GEOSPreparedCovers                   false            true             false       true       
+  GEOSPreparedCoveredBy                true             false            true        false      
+  GEOSPreparedRelate                   1FF0FF212        102FF1FF2        1FF0FF212   102FF1FF2  
+  GEOSPreparedRelatePattern FF*FF****  false            false            false       false      
+
+## crash 1, polygon operand
+  A = POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0))
+  B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)), POLYGON EMPTY)
+  control: A = POLYGON ((1 0, 3 0, 3 2, 1 2, 1 0)), B = GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((2 0, 4 0, 4 2, 2 2, 2 0)))
+  exact relate(A,B) = 2FF11F212, relate(B,A) = 212F11FF2
+  entry point                          (A,B)            (B,A)            ctrl (A,B)  ctrl (B,A) 
+  GEOSRelate                           2FF11F212        212F11FF2        2FF11F212   212F11FF2  
+  GEOSRelatePattern T********          true             true             true        true       
+  GEOSRelatePattern *********          true             true             true        true       
+  GEOSRelatePattern FF*FF****          false            false            false       false      
+  GEOSRelatePattern <exact(A,B)>       true             true             true        true       
+  GEOSRelateBoundaryNodeRule OGC       2FF11F212        212F11FF2        2FF11F212   212F11FF2  
+  GEOSIntersects                       true             true             true        true       
+  GEOSDisjoint                         false            false            false       false      
+  GEOSTouches                          false            false            false       false      
+  GEOSCrosses                          false            false            false       false      
+  GEOSWithin                           true             false            true        false      
+  GEOSContains                         false            true             false       true       
+  GEOSOverlaps                         false            false            false       false      
+  GEOSEquals                           false            false            false       false      
+  GEOSCovers                           false            true             false       true       
+  GEOSCoveredBy                        true             false            true        false      
+  GEOSPreparedIntersects               true             true             true        true       
+  GEOSPreparedDisjoint                 false            false            false       false      
+  GEOSPreparedTouches                  false            false            false       false      
+  GEOSPreparedCrosses                  false            false            false       false      
+  GEOSPreparedWithin                   true             false            true        false      
+  GEOSPreparedContains                 false            true             false       true       
+  GEOSPreparedContainsProperly         false            false            false       false      
+  GEOSPreparedOverlaps                 false            false            false       false      
+  GEOSPreparedCovers                   false            true             false       true       
+  GEOSPreparedCoveredBy                true             false            true        false      
+  GEOSPreparedRelate                   2FF11F212        212F11FF2        2FF11F212   212F11FF2  
+  GEOSPreparedRelatePattern FF*FF****  false            false            false       false      
+
+## crash 2
+  A = GEOMETRYCOLLECTION (POINT (0 0), LINESTRING EMPTY)
+  B = POINT EMPTY
+  control: A = POINT (0 0), B = POINT EMPTY
+  exact relate(A,B) = FF0FFFFF2, relate(B,A) = FFFFFF0F2
+  entry point                          (A,B)            (B,A)            ctrl (A,B)  ctrl (B,A) 
+  GEOSRelate                           FF0FFFFF2        FFFFFF0F2        FF0FFFFF2   FFFFFF0F2  
+  GEOSRelatePattern T********          false            false            false       false      
+  GEOSRelatePattern *********          true             true             true        true       
+  GEOSRelatePattern FF*FF****          true             true             true        true       
+  GEOSRelatePattern <exact(A,B)>       true             true             true        true       
+  GEOSRelateBoundaryNodeRule OGC       FF0FFFFF2        FFFFFF0F2        FF0FFFFF2   FFFFFF0F2  
+  GEOSIntersects                       false            false            false       false      
+  GEOSDisjoint                         true             true             true        true       
+  GEOSTouches                          false            false            false       false      
+  GEOSCrosses                          false            false            false       false      
+  GEOSWithin                           false            false            false       false      
+  GEOSContains                         false            false            false       false      
+  GEOSOverlaps                         false            false            false       false      
+  GEOSEquals                           false            false            false       false      
+  GEOSCovers                           false            false            false       false      
+  GEOSCoveredBy                        false            false            false       false      
+  GEOSPreparedIntersects               false            false            false       false      
+  GEOSPreparedDisjoint                 true             true             true        true       
+  GEOSPreparedTouches                  false            false            false       false      
+  GEOSPreparedCrosses                  false            false            false       false      
+  GEOSPreparedWithin                   false            false            false       false      
+  GEOSPreparedContains                 false            false            false       false      
+  GEOSPreparedContainsProperly         false            false            false       false      
+  GEOSPreparedOverlaps                 false            false            false       false      
+  GEOSPreparedCovers                   false            false            false       false      
+  GEOSPreparedCoveredBy                false            false            false       false      
+  GEOSPreparedRelate                   FF0FFFFF2        FFFFFF0F2        FF0FFFFF2   FFFFFF0F2  
+  GEOSPreparedRelatePattern FF*FF****  true             true             true        true       

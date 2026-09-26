@@ -1,6 +1,6 @@
 /*
  * RelateNG: an element skipped by the "known exterior" optimisation in computeLineEnds
- * (cases 1-3) or computeAreaVertex (case 4) never has its boundary recorded
+ * (cases 1-3) or computeAreaVertex (cases 4-5) never has its boundary recorded
  * (DE-9IM EB/BE = F instead of 0 or 1); the result depends on element order.
  *
  * Public GEOS C API only. Build and run:
@@ -82,11 +82,16 @@ int main(void)
     }
     check("case 1, B's elements swapped (same point set, same boundary)", P, B1swap, "FF0FFF102");
     check("case 1, operands swapped (expected = transpose)", B1, P, "FF1FF00F2");
+    check("case 1, variant: the closed element is the degenerate (valid) line (0 0, 1 0, 0 0)", P,
+          "MULTILINESTRING ((0 0, 1 0, 0 0), (5 5, 6 6))", "FF0FFF102");
     printf("\n");
 
     check("case 2: polygon target; (2 3) is shared by both elements (Mod-2 interior)",
           "POLYGON ((1 2, 4 0, 1 0, 1 2))",
           "MULTILINESTRING ((2 3, 1 1), (2 3, 4 3))", "1F2001102");
+    check("case 2, operands swapped (expected = transpose)",
+          "MULTILINESTRING ((2 3, 1 1), (2 3, 4 3))",
+          "POLYGON ((1 2, 4 0, 1 0, 1 2))", "101F00212");
     check("case 3: the input of JTS issue #1175",
           "LINESTRING (10 10, 20 20)",
           "MULTILINESTRING ((0 0, 1 0), (1 0, 2 0), (-1 0, 0 0))", "FF1FF0102");
@@ -106,6 +111,22 @@ int main(void)
     check("case 4, operands swapped (expected = transpose)",
           "LINESTRING (10 10, 11 11)",
           "GEOMETRYCOLLECTION (POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1)), POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)))",
+          "FF1FF0212");
+
+    printf("\n");
+
+    /* The same skip, with no vertex of the first polygon on the collection's boundary: every
+       vertex of the small square lies inside the big one. So choosing a better vertex per ring
+       (the TODO in computeAreaVertex) cannot help here; the skip itself must change. */
+    check("case 5: GeometryCollection of nested squares, far from B",
+          "GEOMETRYCOLLECTION (POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1)), POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0)))",
+          "LINESTRING (10 10, 11 11)", "FF2FF1102");
+    check("case 5, the two squares swapped",
+          "GEOMETRYCOLLECTION (POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0)), POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1)))",
+          "LINESTRING (10 10, 11 11)", "FF2FF1102");
+    check("case 5, operands swapped (expected = transpose)",
+          "LINESTRING (10 10, 11 11)",
+          "GEOMETRYCOLLECTION (POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1)), POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0)))",
           "FF1FF0212");
 
     printf("\n%d wrong result(s)\n", nwrong);

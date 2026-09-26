@@ -43,7 +43,7 @@ LINESTRING (0 0, 1 0, 0 1, 0 0) # GEOS's own overlay: A is not covered by B
 ```
 
 The same results come from the C API (`GEOSRelate_r`, `GEOSContains_r`, `GEOSCovers_r`,
-`GEOSWithin_r`, `GEOSCoveredBy_r` and the prepared variants) and from Shapely.
+`GEOSWithin_r`, `GEOSCoveredBy_r`, and the prepared contains, covers and within) and from Shapely.
 
 More cases, all with valid inputs and all wrong the same way:
 
@@ -69,7 +69,8 @@ GEOS reports EI = 2 and EB = 1, as if B were partly outside A. The polygon eleme
 the correct `212FF1FF2`.
 
 In the line case, the open segment from (0 0) to (1 0) is in A's interior. Only (0 0) of it is
-in B, so IE = 1 and A is not within B. GEOS reports IE = F.
+in B, so IE = 1 and A is not within B. GEOS reports IE = F. (`crosses` is true in both the
+expected and the GEOS matrix, so for this case only `within` and `coveredBy` are wrong.)
 
 The expected matrices were computed by an exact rational engine with two independent routes
 (arrangement and witness points), and they agree with the hand derivations above.
@@ -79,10 +80,10 @@ The expected matrices were computed by an exact rational engine with two indepen
 - GEOS `main` ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 and 3.15.0 (d0228513a): wrong.
 - 3.14.1, 3.13.1 and 3.13.0 (d7957246): wrong, the same matrices. The bug has been present since
   RelateNG was introduced.
-- 3.11.4 (RelateOp): the polygon+point cases are correct. The line-end cases are wrong in a
-  different way.
-- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): identical wrong matrices (a separate JTS
-  report).
+- 3.11.4 (RelateOp): the cases with a Point element against an areal target are correct. The
+  cases where a line ends on a Point element are wrong in a different way.
+- JTS master 3ea61f8 and 1.20.0 (`RelateNG`): the same wrong matrices on all of these cases (a
+  separate JTS report). In JTS, RelateNG is opt-in (the `RelateNG` API or `-Djts.relate=ng`).
 
 ## Analysis
 
@@ -155,7 +156,7 @@ This hunk is taken from the tested prototype `prototype_fix_1.diff`:
 Test results:
 
 - **GEOS test suite.** With this patch on main, `ctest` passes 535/535.
-- **Differential run.** Over 33,719 generated small-integer relate cases (both argument orders,
+- **Differential run.** Over 29,719 generated small-integer relate cases (both argument orders,
   exact answers from the rational engine), it corrects 689 wrong answers and changes no correct
   one.
 - **Side effect.** It also corrects the wrong matrix for `GC(LINESTRING (0 0, 1 0), POLYGON EMPTY)`
@@ -168,12 +169,19 @@ Suggested tests for `TestRelateGC.xml` are the rows of the table above.
 
 ## Related issues
 
-- #1148 / JTS #1069 (closed, 3.13.0), "RelateNG Equals regression". That fix handles Point and Line
-  elements *covered* by the collection's polygon. This report is about *uncovered* elements; the
-  #1148 cases are correct on main.
-- #1022, #981, #982 (open) are pre-RelateNG GeometryCollection predicate reports. They give the
-  union-semantics answer on main and are not this bug.
-- #1011 (closed): the declared dimension of an EMPTY element, a different cause.
+- #1148 ("RelateNG Equals regression", closed), fixed for 3.13.0 by the port of
+  locationtech/jts#1069 ("Fix RelateNG for Line Ends in mixed-dim GCs"). That fix handles Point
+  and Line elements *covered* by the collection's polygon. This report is about *uncovered*
+  elements; the #1148 cases are correct on main.
+- #1060 (closed) lists the GeometryCollection issues from before RelateNG. None of them is this
+  bug:
+  - #981, #982, #1022, #1027 (open) and #1033 (closed) give the expected answers on main;
+  - #983 (open) is about the old RelateOp throwing for disjoint inputs;
+  - #1011 (closed) is the declared dimension of an EMPTY element, a different cause.
+- #1147 and #1149 (closed) are other RelateNG regressions (a LineString against a MultiPolygon;
+  the boundary node rule).
+- #1275 (closed) is about prepared and non-prepared results differing. Here both give the same
+  wrong answer.
 
 No existing report of this behaviour was found (searches of libgeos/geos and locationtech/jts
 issues and PRs, open and closed).

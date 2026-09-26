@@ -11,8 +11,8 @@ index fe1e299..a59addd 100644
 +    {
 +      // No vertex of path1 is inside path2: every vertex is on path2, except
 +      // perhaps one that rounding has put just outside. The vertices cannot
-+      // decide, so let the midpoints of path1's edges vote (both paths are
-+      // doubled so that the midpoints are exact grid points).
++      // decide, so let the midpoints of path1's edges vote, in doubled
++      // coordinates (path2 * 2, midpoint = sum of endpoints) so they are exact.
 +      Path<T> path2x2;
 +      path2x2.reserve(path2.size());
 +      for (const Point<T>& pt : path2) path2x2.emplace_back(pt.x * 2, pt.y * 2);

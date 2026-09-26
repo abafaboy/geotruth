@@ -49,11 +49,11 @@
   "curated.jsonl": {
    "tier": "curated",
    "in_git": true,
-   "sha256": "345b9ae9db1e92ea6fda2cfb3a1f486d21696c8f3213c1c5a3592cef6c299647",
-   "bytes": 264332,
-   "records": 34,
+   "sha256": "bc3ab64a2da8882ed93b7ef02ccf24c47e5ff62d6ea41aa61f5d6521fb14bf83",
+   "bytes": 771934,
+   "records": 131,
    "status": {
-    "ok": 34,
+    "ok": 131,
     "engine_skipped": 0,
     "engine_error": 0
    },
@@ -61,11 +61,11 @@
    "expected_version": "2",
    "corpus_version": "2.0.0",
    "cases": {
-    "cases/curated.jsonl": "1fb2968638560b50e005a0b3d149fe3728cd4f65578df5566b33c2f168df5d86"
+    "cases/curated.jsonl": "f44a7d6eb2739d645c29c9299484a527dceb678a2bfcc8665835f237eab06cff"
    },
    "computed_with": {
-    "engine_commit": "caee9072045ec61bce57ff302b6d3fa85043fd97",
-    "engine_worktree_clean": false,
+    "engine_commit": "9061dd814c2d55f2929a1e59f8958e240ff953b1",
+    "engine_worktree_clean": true,
     "engine_source_sha256": "20a827571eaf039c311c3fa27e11320898d49a099accdc8124b70c0f8a5ef4b6",
     "python": "3.11.15",
     "gmpy2": "2.3.1",
