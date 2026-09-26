@@ -1,0 +1,2 @@
+thin-tri-self	clipper2@2.0.1-f9c5eb6	area	area_inter	exact=500000.0	got=0.0
+thin-tri-self	clipper2@2.0.1-f9c5eb6	area	area_union	exact=500000.0	got=0.0

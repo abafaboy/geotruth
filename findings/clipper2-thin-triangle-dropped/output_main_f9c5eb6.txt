@@ -1,0 +1,18 @@
+Clipper2 commit: f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd
+Clipper2 2.0.1
+
+input t1 = (0,0) (1,0) (0,1000000), |area| = 500000
+Union(t1, NonZero):                          0 path(s), area 0
+Union(t1, EvenOdd):                          0 path(s), area 0
+Intersect(t1, t1, NonZero):                  0 path(s), area 0
+
+input t2 = (0,0) (2,0) (0,1000000), |area| = 1000000
+Union(t2, NonZero):                          1 path(s), area 1000000
+     (0,1000000) (0,0) (2,0)
+
+A = (0,-2000000) (2000000,-2000000) (2000000,1) (0,1),  |area| = 4000002000000
+B = (-2000000,-2) (2000000,2) (-2000000,2000000),        |area| = 4000004000000
+Intersect(A, B):                             0 path(s), area 0
+Difference(A, B):                            1 path(s), area 4000001500000
+     (2000000,1) (1000000,1) (0,0) (0,-2000000) (2000000,-2000000)
+|A| - |A-B| = 500000, but |A∩B| returned = 0

@@ -1,0 +1,6 @@
+# Input of upstream issue #742: Intersect(triangle (1,1),(2,2),(1,4), box (0,0),(5,0),(5,5),(0,5), NonZero)
+## main f9c5eb6
+#742 Intersect: 0 path(s), area 0.0
+## main f9c5eb6 with IsVerySmallTriangle() forced to false (rootcause_check.diff)
+#742 Intersect: 1 path(s), area 1.5
+    (2,2) (1,4) (1,1)
