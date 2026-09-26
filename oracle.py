@@ -19,6 +19,8 @@ operand (even-odd rule). Summing trapezoid areas by membership class gives
 usage: python oracle.py cases.jsonl > oracle.jsonl
 """
 import json
+import math
+import os
 import sys
 
 try:
@@ -29,11 +31,27 @@ except ImportError:  # pragma: no cover
 ZERO = Q(0)
 HALF = Q(1, 2)
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "oracle_review"))
+import validity  # noqa: E402  exact OGC/GEOS validity for any shape (review finding F3)
+
+
+def num(v):
+    """The exact value an adapter sees: JSON integers above 2^53 round like doubles (F4)."""
+    return Q(float(v))
+
+
+def fl(q):
+    """float() that saturates instead of raising OverflowError on huge areas (F1)."""
+    try:
+        return float(q)
+    except OverflowError:
+        return math.inf
+
 
 def rings(geom):
     for poly in geom:
         for ring in poly:
-            yield [(Q(x), Q(y)) for x, y in ring]
+            yield [(num(x), num(y)) for x, y in ring]
 
 
 def edges(geom):
@@ -191,29 +209,44 @@ def valid_single_polygon(geom):
     """Exact validity for one polygon without holes; None for other shapes."""
     if len(geom) != 1 or len(geom[0]) != 1:
         return None
-    return ring_simple([(Q(x), Q(y)) for x, y in geom[0][0]])
+    return ring_simple([(num(x), num(y)) for x, y in geom[0][0]])
 
 
 def shoelace(geom):
     total = ZERO
     for poly in geom:
         for k, ring in enumerate(poly):
-            r = [(Q(x), Q(y)) for x, y in ring]
+            r = [(num(x), num(y)) for x, y in ring]
             s = sum(p[0] * q[1] - q[0] * p[1] for p, q in zip(r, r[1:])) * HALF
             total += abs(s) if k == 0 else -abs(s)
     return total
 
 
+def finite(geom):
+    return all(math.isfinite(float(v)) for poly in geom for ring in poly for pt in ring for v in pt[:2])
+
+
+def geom_valid(geom):
+    """Exact validity of any shape (single ring, holes, multipolygon); False if non-finite."""
+    if not finite(geom):
+        return False
+    return bool(validity.valid_geometry(geom))
+
+
 def evaluate(case):
     a, b = case["a"], case["b"]
+    va, vb = geom_valid(a), geom_valid(b)
+    if not (va and vb):
+        # nothing else is defined for invalid input, and compare.py reads nothing else (F2)
+        return {"id": case["id"], "lib": "oracle", "valid_a": va, "valid_b": vb}
     ea, eb = edges(a), edges(b)
     both, da, db = overlay_areas(ea, eb)
     inter = intersects(a, b, ea, eb)
     res = {
         "id": case["id"],
         "lib": "oracle",
-        "valid_a": valid_single_polygon(a),
-        "valid_b": valid_single_polygon(b),
+        "valid_a": va,
+        "valid_b": vb,
         "intersects": inter,
         "disjoint": not inter,
         "touches": inter and both == 0,
@@ -223,12 +256,12 @@ def evaluate(case):
         "within": da == 0,
         "covered_by": da == 0,
         "equals": da == 0 and db == 0,
-        "area_a": float(both + da),
-        "area_b": float(both + db),
-        "area_inter": float(both),
-        "area_union": float(both + da + db),
-        "area_diff": float(da),
-        "area_symdiff": float(da + db),
+        "area_a": fl(both + da),
+        "area_b": fl(both + db),
+        "area_inter": fl(both),
+        "area_union": fl(both + da + db),
+        "area_diff": fl(da),
+        "area_symdiff": fl(da + db),
         "exact": {"inter": str(both), "diff_ab": str(da), "diff_ba": str(db)},
     }
     # internal consistency: slab areas must agree with the shoelace formula
@@ -238,8 +271,14 @@ def evaluate(case):
 
 def main():
     for line in open(sys.argv[1]):
-        if line.strip():
-            print(json.dumps(evaluate(json.loads(line))), flush=True)
+        if not line.strip():
+            continue
+        case = json.loads(line)
+        try:
+            res = evaluate(case)
+        except Exception as e:  # noqa: BLE001  one bad case must not stop the run (F2)
+            res = {"id": case.get("id"), "lib": "oracle", "oracle_error": repr(e)}
+        print(json.dumps(res), flush=True)
 
 
 if __name__ == "__main__":

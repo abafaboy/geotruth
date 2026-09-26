@@ -1,0 +1,18 @@
+[package]
+name = "geo_adapter"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Differential geometry bug-hunt adapter for the georust `geo` crate (see ../../FORMAT.md)"
+
+[dependencies]
+# Latest geo on crates.io at the time of writing; Cargo.lock pins the exact tree.
+geo = "0.33.1"
+# float_roundtrip: correctly rounded parsing of doubles (the default fast path can be 1 ulp off).
+# preserve_order: output keys in insertion order.
+serde_json = { version = "1.0.151", features = ["float_roundtrip", "preserve_order"] }
+libc = "0.2"
+
+[profile.release]
+debug = 1          # symbols for backtraces of panics / crashes
+panic = "unwind"   # required: every operation runs under catch_unwind
