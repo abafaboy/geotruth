@@ -6,6 +6,6 @@ minimal-side-sign {'within': True, 'overlaps': False, 'area_inter': 3.0, 'area_u
 gh1487 {'within': False, 'overlaps': True, 'area_inter': 18983.88497186239, 'area_union': 0.0, 'area_diff': 3.0240698833949864e-11}
 # 2) upstream test/algorithms/set_operations/set_ops_areal_areal.cpp
 Running 1 test case...
-/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
+$GEOTRUTH_BUILD_DIR/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
 
 *** 1 failure is detected in the test module "Test Program"

@@ -1,6 +1,8 @@
 """python3 listwrong.py NAME build [build2]: list cases whose relate (either order) is wrong in build (and status in build2)."""
 import sys
-sys.path.insert(0, "/home/user/geotruth/src")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path.insert(0, GEOTRUTH_ROOT + "/src")
 from geotruth.predicates import transpose
 name, b1 = sys.argv[1], sys.argv[2]
 others = sys.argv[3:]

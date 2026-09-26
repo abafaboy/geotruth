@@ -384,7 +384,10 @@ def test_hang_and_crash_fail_one_operation(tgt, tmp_path):
     assert r["errors"]["overlay.union"]["kind"] == "timeout"
     assert r["overlay"]["union"] is None
     assert r["overlay"]["difference"] is not None  # the next operation ran in a fresh worker
-    (r,) = run(tgt, [c], tmp_path, env={**env, var: crash})
+    # a crash shows up as EOF, not by waiting: the short timeout of the hang half would race
+    # the worker's teardown (a core-dump helper can hold a segfaulted process for seconds)
+    slow = {k: "120" for k in env if k != var}
+    (r,) = run(tgt, [c], tmp_path, env={**env, **slow, var: crash})
     path = crash.split(":", 1)[1]
     assert r["errors"][path]["kind"] == "crash", r["errors"]
     others = [p for p in ("overlay.union", "overlay.difference") if p != path]

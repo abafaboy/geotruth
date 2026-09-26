@@ -2,7 +2,9 @@
 Prints per build: cases wrong in relate(A,B) / relate(B,A) / any named predicate of (A,B), and diff signatures."""
 import sys
 from collections import Counter
-sys.path.insert(0, "/home/user/geotruth/src")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path.insert(0, GEOTRUTH_ROOT + "/src")
 from geotruth.io import read_wkt
 from geotruth.predicates import predicates, transpose
 E = ("II", "IB", "IE", "BI", "BB", "BE", "EI", "EB", "EE")

@@ -17,7 +17,7 @@ coordinates to trigger:
 On 2026-09-26, `git ls-remote` showed that no upstream head had moved:
 
 - locationtech/jts `master` = `3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd`, the build in
-  `/tmp/claude-0/gb-build/jts-main`.
+  `$GEOTRUTH_BUILD_DIR/jts-main`.
 - Tag `1.20.0` peels to `6e95fe82feb986a7aa657f4ffa406d8c290af509`, the build in `jts-release`.
 - libgeos/geos `main` = `ae9cdd98be4e0bae552b918d4d14c94a9ce99c58`.
 

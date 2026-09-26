@@ -69,7 +69,7 @@ Core tier, turf@7.4.0 against the exact expected answers. These are the Polygon/
 - **overlaps true, exact false: 505.** 502 have the edge-contact mechanism of #2454: 346 are touch-only pairs, and 156 are containment or equality with a shared boundary. The other 3 are the robustness near-misses.
 - **overlaps false, exact true: 165.** 155 come from the geojsonEquality 1e-6 check, and 10 are robustness cases.
 
-Over all areal pairs in the core tier, `booleanTouches` disagrees on 404 cases, across 10 families. Restricted to valid areal pairs whose coordinates are all integers below 2^24, so that every float operation Turf performs is exact, 70 of 207 are wrong (60 false positives, 10 false negatives).
+Over the 2000 non-empty Polygon/MultiPolygon pairs of the core tier (all valid), `booleanTouches` disagrees on 404, across 10 families (hole-contact, int-grid, multi-touch, near-collinear, scaled, shared-edge, sliver-spike, tiling-contact, tiny-transform, vertex-on-edge). Restricted to valid areal pairs whose coordinates are all integers below 2^24, so that every float operation Turf performs is exact, 70 of 207 are wrong (60 false positives, 10 false negatives).
 
 ## Upstream search (2026-09-26)
 
@@ -90,15 +90,36 @@ Queries on the Turfjs/turf issues and PRs, open and closed: `booleanTouches`, `b
 > const b = turf.polygon([[[0,0],[1,0],[1,1],[0,1],[0,0]]]);
 > turf.booleanOverlap(a, b);  // true  (expected false; booleanContains(a, b) is true, DE-9IM 212F11FF2)
 > ```
-> (turf 7.4.0 and master bec3ac7; the root cause is `lineIntersect(segment1, segment2)` in packages/turf-boolean-overlap/index.ts L79-L89, which counts any shared point of two edges.)
+> (turf 7.4.0 and master bec3ac7, see output/extra-turf-*.txt; the root cause is `lineIntersect(segment1, segment2)` in packages/turf-boolean-overlap/index.ts L79-L89, which counts any shared point of two edges.)
+
+## Re-verification (second pass, 2026-09-26)
+
+Everything above was re-checked from scratch rather than taken over from the first pass (scratch: $GEOTRUTH_BUILD_DIR/triage2/turf-boolean-predicates/verify2):
+
+- **Heads** (git ls-remote): Turf master is still bec3ac7860d5 and npm `latest` is still 7.4.0. GEOS ae9cdd98be4e, JTS 3ea61f8cf210, Clipper2 f9c5eb6e14a5, Boost.Geometry 196d04c614c1 and geo c12769fdf745 have not moved either.
+- **Release**: a fresh `npm install` of this directory's package.json (@turf/turf 7.4.0, jsts 2.12.1), then `./run.sh`: 5/5 cases wrong, the same output as output/turf-7.4.0.txt.
+- **Master**: a fresh `build-master.sh` (new shallow clone at bec3ac7, esbuild bundle). The bundle's source markers show `turf/packages/turf-boolean-touches/index.ts`, `turf-boolean-point-on-line` and `turf-boolean-point-in-polygon` from the clone, and no `node_modules/@turf` code. Result: 5/5 wrong. `git diff v7.4.0 HEAD` confirms that the index.ts of boolean-touches, boolean-point-on-line, boolean-point-in-polygon and boolean-overlap are unchanged, and that boolean-contains changed only in its doc comment.
+- **Exact answers**: `geotruth relate --dual` gives the five matrices, and the witness route agrees on each. `geotruth valid --operand a|b` is valid for all ten operands. tests/reference/indep.py (`evaluate_geoms`, both orders, selfcheck true) and oracle.py (`evaluate`, both orders) give touches = false, false, true, true, true. extra.mjs's cases are in output/exact-extra.txt.
+- **Source**: the line numbers in FINAL.md were re-read at bec3ac7 (Polygon/Polygon L560-L581, Polygon/MultiPolygon L582-L605 with the ring-as-Polygon call at L598, MultiPolygon/Polygon L703-L726, MultiPolygon/MultiPolygon L727-L761 with the ring-count bound at L731). `booleanPointOnLine` is called without `epsilon`. test.ts runs `booleanTouches(feature1, feature2)` in one order only and checks JSTS / Shapely `touches` when `JSTS` / `SHAPELY` is set.
+- **Statistics**: re-run: 70 of 207 integer pairs wrong (60 false positives, 10 false negatives), and 404 of 2000 areal pairs.
+- **The overlay shortcut is not a safe fix.** `booleanIntersects(a, b) && intersect(a, b) === null` fails on 71 of the 2012 valid areal core cases, which includes 12 with empty elements. 19 of the 71 are cases where `intersect` (polyclip-ts) throws, some of them on integer inputs ("Unable to complete output ring"). The rest are wrong answers. This is why FINAL.md proposes the edge-splitting approach that `isPolyInPoly` already uses (`splitLineIntoSegmentsOnPolygon` → `lineSplit`, contains index.ts L357-L367, called from `isPolyInPoly` at L478-L492), and not an overlay.
+- **Tracker** (GitHub semantic search on Turfjs/turf, plus the literal web searches `booleanTouches`, `"boolean-touches"`, `touches is:issue` and the discussions search `touches`): still no report of the polygon behaviour.
+  - The first result page of each literal search lists #3088, #2702, #2617, #2431, #2398, #2157, #1882, #2170, #1947, #1428, #1338, #1029, #88, #2328, #1712, #916, #623, #203 and #56. None reports a wrong polygon `touches` result.
+  - #1882 appears in the `booleanTouches` search, but its rendered page (body and comments) does not mention touches. It is a booleanContains hole report, already listed above.
+  - The 2026 boolean PRs (#3079, #3080, #3085, #3088, #3091, #3097, #3099, #3100, #3102, #3103, #3104) change other predicates, or the line branches of booleanTouches (#3088). Open PR #3164 touches boolean-point-in-polygon and boolean-point-on-line for performance only.
+  - #2454 (open, no comments) does not mention the containment sub-case. #1991 (open) asks for `booleanOverlap` = true under containment, which is the opposite of the documented OGC meaning, so it is not the same report.
+
+Verdict unchanged: one new bug report (FINAL.md, booleanTouches on polygons). The #2454 containment sub-case is at most a comment. Everything else is a known issue or a documented tolerance. Nothing has been posted.
 
 ## Files
 
 - [repro.mjs](repro.mjs): the five cases, public API only. Run it with `npm install && node repro.mjs`. `TURF_MODULE=<bundle> node repro.mjs` runs it against another build.
+- [extra.mjs](extra.mjs): public-API checks for the analysis claims: the MultiPolygon/MultiPolygon ring-count bound (L731), the Polygon/MultiPolygon first-part-only branch, the two original lead cases, and the #2454 containment sub-case.
 - [run.sh](run.sh), [package.json](package.json) (pins `@turf/turf` 7.4.0 and `jsts` 2.12.1), [crosscheck.mjs](crosscheck.mjs), [build-master.sh](build-master.sh).
 - [cases.jsonl](cases.jsonl): the cases as typed JSON, which `geotruth relate --dual --id <id> @cases.jsonl` accepts.
 - output/:
   - `turf-7.4.0.txt`, `turf-master-bec3ac7.txt`, `turf-7.0.0.txt`, `boolean-touches-6.5.0.txt`: captured library outputs.
+  - `extra-turf-7.4.0.txt`, `extra-turf-master-bec3ac7.txt`: extra.mjs on the release and on master; `exact-extra.txt`: the exact matrices of its cases (both relate routes).
   - `exact.jsonl`, `indep.jsonl`, `shapely-2.1.2-geos-3.13.1.txt`: the references.
   - `core-clusters.txt`: the cluster analysis.
 - [FINAL.md](FINAL.md): the maintainer-ready report. [finding.toml](finding.toml): the registry snippet.

@@ -1,7 +1,9 @@
 """GeometryCollections of (often overlapping) polygons, some far away, vs L/ML/A/MA/GC
 targets near the origin. Writes gc-<seed>.tsv/.exact."""
 import random, sys
-sys.path.insert(0, "/home/user/geotruth/src"); sys.path.insert(0, "/home/user/geotruth/tests")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path.insert(0, GEOTRUTH_ROOT + "/src"); sys.path.insert(0, GEOTRUTH_ROOT + "/tests")
 from geotruth.geom import GeometryCollection, LineString, MultiLineString, Polygon
 from geotruth.io import to_wkt
 from geotruth.relate import relate

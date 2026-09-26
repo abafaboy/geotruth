@@ -9,7 +9,7 @@ through ctypes; exact signs with fractions.Fraction.
 import ctypes, math, os, random
 from fractions import Fraction as F
 
-lib = ctypes.CDLL(os.environ.get("GEOS_C_LIB", "/tmp/claude-0/gb-build/geos-main/install/lib/libgeos_c.so"))
+lib = ctypes.CDLL(os.environ.get("GEOS_C_LIB", os.path.expanduser(os.environ.get("GEOTRUTH_BUILD_DIR", "~/.cache/geotruth")) + "/geos-main/install/lib/libgeos_c.so"))
 lib.GEOS_init_r.restype = ctypes.c_void_p
 lib.GEOSOrientationIndex_r.argtypes = [ctypes.c_void_p] + [ctypes.c_double] * 6
 lib.GEOSOrientationIndex_r.restype = ctypes.c_int

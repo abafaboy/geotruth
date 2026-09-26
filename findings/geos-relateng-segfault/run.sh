@@ -5,9 +5,9 @@
 # optionally PYTHONPATH=<geotruth>/src for the exact answers (exact_check.py).
 #
 # The outputs captured in this directory were made with:
-#   GEOS main ae9cdd98b   GEOS_CONFIG=/tmp/claude-0/gb-build/geos-main/install/bin/geos-config
-#   GEOS 3.15.0 d0228513a GEOS_CONFIG=/tmp/claude-0/gb-build/geos-release/install/bin/geos-config
-#   JTS master 3ea61f8 / 1.20.0 (JTS_JAR=/tmp/claude-0/gb-build/jts-{main,release}/out/jts-core.jar)
+#   GEOS main ae9cdd98b   GEOS_CONFIG=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/geos-main/install/bin/geos-config
+#   GEOS 3.15.0 d0228513a GEOS_CONFIG=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/geos-release/install/bin/geos-config
+#   JTS master 3ea61f8 / 1.20.0 (JTS_JAR=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/jts-{main,release}/out/jts-core.jar)
 set -e
 cd "$(dirname "$0")"
 GEOS_CONFIG=${GEOS_CONFIG:-geos-config}

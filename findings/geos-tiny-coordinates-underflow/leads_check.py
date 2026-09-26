@@ -4,7 +4,7 @@ import math, subprocess, shapely
 from shapely.geometry import box, Polygon
 from shapely.validation import explain_validity
 import os
-GEOSOP = os.environ.get("GEOSOP", "/tmp/claude-0/gb-build/geos-main/install/bin/geosop")
+GEOSOP = os.environ.get("GEOSOP", os.path.expanduser(os.environ.get("GEOTRUTH_BUILD_DIR", "~/.cache/geotruth")) + "/geos-main/install/bin/geosop")
 def geosop(a, b, op):
     args = [GEOSOP, "-a", a] + (["-b", b] if b else []) + [op]
     return subprocess.run(args, capture_output=True, text=True).stdout.strip()

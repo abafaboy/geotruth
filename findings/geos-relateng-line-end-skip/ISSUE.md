@@ -12,9 +12,9 @@ Triage also found the same flaw in `computeAreaVertex`, for GeometryCollections.
 
 | repo | ref | commit | moved since the builds? |
 |---|---|---|---|
-| libgeos/geos | `main` | ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 | no (same as /tmp/claude-0/gb-build/geos-main) |
+| libgeos/geos | `main` | ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 | no (same as $GEOTRUTH_BUILD_DIR/geos-main) |
 | libgeos/geos | tag 3.15.0 | d0228513abb0c29c185443cf2bfb06c9281024b5 | no (the latest release; the `3.15` branch 86a4af48 has no relateng changes after 3.15.0) |
-| locationtech/jts | `master` | 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd | no (same as /tmp/claude-0/gb-build/jts-main) |
+| locationtech/jts | `master` | 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd | no (same as $GEOTRUTH_BUILD_DIR/jts-main) |
 | locationtech/jts | tag 1.20.0 | 6e95fe82 (tag object 9dd8436f) | the latest JTS release |
 
 `git diff 3.15.0 main -- src/operation/relateng include/geos/operation/relateng` is empty. I also built GEOS 3.13.0 (d7957246), the first RelateNG release, from source to date the regression.
@@ -88,7 +88,7 @@ With the patches every line-end and area-vertex disagreement disappears, and not
 - the same regression with a GC or ring-touch operand B: gc-3, 7 cases;
 - one inexact-node case (sweep-1, a crossing at (1/3, 4/3) on a collinear overlap). That class is already known in `tests/crosscheck/test_witness_vs_geos.py` and is out of scope.
 
-The patched GEOS tree was built in /tmp/claude-0/gb-build/triage2/geos-relateng-line-end-skip/geos-patched. With the two patches, all 171 GEOS XML tests pass, and so do the 155 RelateNG unit tests, which I compiled separately against the patched libgeos. With the covered-ring experiment added, those tests pass too. The rest of the unit suite was not run. The results are in `output/geos-main-ae9cdd9+patches-tests.txt`.
+The patched GEOS tree was built in $GEOTRUTH_BUILD_DIR/triage2/geos-relateng-line-end-skip/geos-patched. With the two patches, all 171 GEOS XML tests pass, and so do the 155 RelateNG unit tests, which I compiled separately against the patched libgeos. With the covered-ring experiment added, those tests pass too. The rest of the unit suite was not run. The results are in `output/geos-main-ae9cdd9+patches-tests.txt`.
 
 The pinned case in `tests/crosscheck/test_relate_dual.py::test_line_end_skip_confirmed_on_a_single_witness` is also this class. It is A = `MULTILINESTRING ((6 3, 6 6, 1 0, 5 10, 6 6, 6 3), (9 8, 11 2))` against B = `LINESTRING (0 0, 11 1, 0 0)`. The exact matrix is `0F1FF01F2`; GEOS main and 3.13.0 give `0F1FFF1F2`, and the patched build gives `0F1FF01F2`.
 

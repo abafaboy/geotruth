@@ -6,8 +6,8 @@
 # exact_check.py: exact answers, certificates and the hand checks).
 #
 # The captured outputs in this directory were made with:
-#   GEOS main ae9cdd98b  GEOS_CONFIG=/tmp/claude-0/gb-build/geos-main/install/bin/geos-config
-#   GEOS 3.15.0 d0228513a GEOS_CONFIG=/tmp/claude-0/gb-build/geos-release/install/bin/geos-config
+#   GEOS main ae9cdd98b  GEOS_CONFIG=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/geos-main/install/bin/geos-config
+#   GEOS 3.15.0 d0228513a GEOS_CONFIG=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/geos-release/install/bin/geos-config
 #   GEOS 3.13.0 d7957246 (built from the tag), main + prototype_fix.diff
 #   Shapely 2.0.7 (GEOS 3.11.4), 2.1.2 (GEOS 3.13.1), 2.2.0rc1 (GEOS 3.14.1) wheels
 #   JTS master 3ea61f8 / 1.20.0 6e95fe82

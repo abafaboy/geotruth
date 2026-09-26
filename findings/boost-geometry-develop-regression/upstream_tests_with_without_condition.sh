@@ -13,8 +13,8 @@
 #   output_upstream_set_ops_areal_areal.txt. So the condition is still needed for #1288.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-GEOM="${GEOM:-/tmp/claude-0/gb-build/boost-geometry/geometry}"
-WORK="${WORK:-/tmp/claude-0/gb-build/triage/boost-geometry-develop-regression/utest2}"
+GEOM="${GEOM:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/boost-geometry/geometry}"
+WORK="${WORK:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/triage/boost-geometry-develop-regression/utest2}"
 COMPAT="${COMPAT:-$HERE/../../adapters/boost_geometry/compat}"
 mkdir -p "$WORK"
 rm -rf "$WORK/patched" && mkdir -p "$WORK/patched" && cp -r "$GEOM/include" "$WORK/patched/"

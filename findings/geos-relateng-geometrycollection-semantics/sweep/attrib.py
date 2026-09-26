@@ -1,5 +1,7 @@
 import sys
-sys.path.insert(0, "/home/user/geotruth/src")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path.insert(0, GEOTRUTH_ROOT + "/src")
 from geotruth.predicates import transpose
 from collections import Counter
 tot = Counter()

@@ -1,4 +1,4 @@
-# geotruth Clipper2 adapter (v2 contract, PolyTree64 -> typed polygons), 1804-case broader check (/tmp/claude-0/gb-build/e4a-baseline/all.jsonl: seed + 60 cases per generator family + int_cases.jsonl) and the 5 lead cases.
+# geotruth Clipper2 adapter (v2 contract, PolyTree64 -> typed polygons), 1804-case broader check ($GEOTRUTH_BUILD_DIR/e4a-baseline/all.jsonl: seed + 60 cases per generator family + int_cases.jsonl) and the 5 lead cases.
 # checker: analyse_nesting.py (below); a mismatch = a shell with negative or a hole with positive signed area, or OGC-read area != even-odd area.
 # 'patched' = prototype_fix.diff; the first-attempt fix (all-IsOn only) is shown as patched-v1.
 

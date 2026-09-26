@@ -80,8 +80,9 @@ def _run_pytest(tmp_path, records):
     [f] = export_records(records, "pytest")
     path = tmp_path / "test_exported.py"
     path.write_text(f.text)
+    # --color=no: CI sets FORCE_COLOR, and colour codes would hide the FAILED lines parsed below
     return subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", str(path)],
+        [sys.executable, "-m", "pytest", "-q", "--color=no", "-p", "no:cacheprovider", str(path)],
         capture_output=True,
         text=True,
         cwd=tmp_path,

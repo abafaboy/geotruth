@@ -1,6 +1,6 @@
-geo: /tmp/claude-0/gb-build/triage/geo-i-overlay-thin-polygon-collapse/geo-main @ c12769fdf7453df1dd590e6e3bca28913d3c0564
+geo: $GEOTRUTH_BUILD_DIR/triage/geo-i-overlay-thin-polygon-collapse/geo-main @ c12769fdf7453df1dd590e6e3bca28913d3c0564
 i_overlay: i_overlay v4.5.2
-geo: geo v0.33.1 (/tmp/claude-0/gb-build/triage/geo-i-overlay-thin-polygon-collapse/geo-main/geo)
+geo: geo v0.33.1 ($GEOTRUTH_BUILD_DIR/triage/geo-i-overlay-thin-polygon-collapse/geo-main/geo)
 [1] A = POLYGON((0 0,1 0,0 2000000000,0 0))
   is_valid(A) = true   area(A) = 1000000000
   A ∩ A      area = 0                      MULTIPOLYGON EMPTY

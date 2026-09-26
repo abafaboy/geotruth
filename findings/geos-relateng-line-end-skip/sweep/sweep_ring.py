@@ -1,7 +1,9 @@
 """Polygonal A vs MultiLineString B made of some of A's rings (as closed lines, possibly
 partial) plus short spurs/segments on the lattice. Writes ring-<seed>.tsv/.exact."""
 import random, sys
-sys.path.insert(0, "/home/user/geotruth/src"); sys.path.insert(0, "/home/user/geotruth/tests")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path.insert(0, GEOTRUTH_ROOT + "/src"); sys.path.insert(0, GEOTRUTH_ROOT + "/tests")
 from geotruth.geom import LineString, MultiLineString
 from geotruth.io import to_wkt
 from geotruth.relate import relate

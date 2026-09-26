@@ -227,5 +227,5 @@ Recommendation: report it. FINAL.md is ready and has not been posted.
 | `output/fuzz_results.txt` | fuzz counts per version |
 | `patch/` | prototype fix, the C#-fallback alternative, the first attempt, unit-test summaries and variant comparison |
 
-Scratch (not needed to reproduce): `/tmp/claude-0/gb-build/triage2/clipper2-polytree-nesting/`
+Scratch (not needed to reproduce): `$GEOTRUTH_BUILD_DIR/triage2/clipper2-polytree-nesting/`
 (full clone, worktrees per version, builds, adapter runs).

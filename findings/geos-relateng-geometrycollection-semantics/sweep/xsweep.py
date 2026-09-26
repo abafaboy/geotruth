@@ -3,8 +3,10 @@
 keeps GEOS-eligible pairs without EMPTY elements (the unpatched batch runner does not fork)."""
 import sys, importlib.util
 from multiprocessing import Pool
-sys.path[:0] = ["/home/user/geotruth/src", "/home/user/geotruth/tests", "/home/user/geotruth/tests/reference"]
-spec = importlib.util.spec_from_file_location("crosscheck_relate", "/home/user/geotruth/tools/crosscheck_relate.py")
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path[:0] = [GEOTRUTH_ROOT + "/src", GEOTRUTH_ROOT + "/tests", GEOTRUTH_ROOT + "/tests/reference"]
+spec = importlib.util.spec_from_file_location("crosscheck_relate", GEOTRUTH_ROOT + "/tools/crosscheck_relate.py")
 X = importlib.util.module_from_spec(spec); sys.modules["crosscheck_relate"] = X; spec.loader.exec_module(X)
 from geotruth.io import to_wkt
 from geotruth.relate import relate

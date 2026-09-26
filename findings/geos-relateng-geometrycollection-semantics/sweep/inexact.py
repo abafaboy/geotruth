@@ -1,7 +1,9 @@
 """For cases wrong in a build: does the exact arrangement have a non-dyadic intersection point
 (GEOS cannot represent it: the known inexact-node class)? python3 inexact.py NAME build"""
 import sys
-sys.path[:0] = ["/home/user/geotruth/src"]
+import os
+GEOTRUTH_ROOT = os.path.abspath(__file__ + "/../../../..")  # the geotruth checkout
+sys.path[:0] = [GEOTRUTH_ROOT + "/src"]
 from geotruth.io import read_wkt
 from geotruth.predicates import transpose
 from geotruth.relate_witness import relate_witness

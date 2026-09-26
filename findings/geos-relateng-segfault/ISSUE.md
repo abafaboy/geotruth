@@ -286,5 +286,5 @@ Results (`output_prototype_tests.txt`):
 | `prototype_fix.diff`, `jts_prototype_fix.diff`, `output_prototype_tests.txt` | the prototype fix and its test results |
 | `finding.toml` | registry snippet |
 
-Scratch (not needed to reproduce) is under `/tmp/claude-0/gb-build/triage2/geos-relateng-segfault/`:
+Scratch (not needed to reproduce) is under `$GEOTRUTH_BUILD_DIR/triage2/geos-relateng-segfault/`:
 the debug build, the patched build, the batch runner `relate_batch.c`, and the 25,000-case dump.

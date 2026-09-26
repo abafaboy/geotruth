@@ -57,10 +57,10 @@ class. Patch 2 must not land without patch 3: on its own it unmasks an older ski
 
 | repo | ref | commit | moved since the builds? |
 |---|---|---|---|
-| libgeos/geos | `main` | ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 (2026-09-21) | no (= /tmp/claude-0/gb-build/geos-main) |
-| libgeos/geos | tag 3.15.0 (latest release) | d0228513abb0c29c185443cf2bfb06c9281024b5 | no (= /tmp/claude-0/gb-build/geos-release) |
-| locationtech/jts | `master` | 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd (2026-09-23) | no (= /tmp/claude-0/gb-build/jts-main) |
-| locationtech/jts | tag 1.20.0 (latest release) | 6e95fe82feb986a7aa657f4ffa406d8c290af509 | the jar in /tmp/claude-0/gb-build/jts-release |
+| libgeos/geos | `main` | ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 (2026-09-21) | no (= $GEOTRUTH_BUILD_DIR/geos-main) |
+| libgeos/geos | tag 3.15.0 (latest release) | d0228513abb0c29c185443cf2bfb06c9281024b5 | no (= $GEOTRUTH_BUILD_DIR/geos-release) |
+| locationtech/jts | `master` | 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd (2026-09-23) | no (= $GEOTRUTH_BUILD_DIR/jts-main) |
+| locationtech/jts | tag 1.20.0 (latest release) | 6e95fe82feb986a7aa657f4ffa406d8c290af509 | the jar in $GEOTRUTH_BUILD_DIR/jts-release |
 
 Also run: GEOS 3.13.0 (d7957246, the first RelateNG release, source build from the
 line-end-skip triage), 3.14.1 (Shapely 2.2.0rc1 wheel), 3.13.1 (Shapely 2.1.2 wheel), and 3.11.4
@@ -511,5 +511,5 @@ JTS port is `jts_prototype_fix.diff`.
 | `sweep/` | the generators, batch runner, comparison scripts, attribution and differential summaries |
 | `finding.toml` | registry snippet |
 
-Scratch (not needed to reproduce) is in `/tmp/claude-0/gb-build/triage2/geos-relateng-geometrycollection-semantics/`:
+Scratch (not needed to reproduce) is in `$GEOTRUTH_BUILD_DIR/triage2/geos-relateng-geometrycollection-semantics/`:
 the experiment build with switches, the sweep TSVs and per-build outputs.

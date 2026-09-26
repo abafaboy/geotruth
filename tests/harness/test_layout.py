@@ -93,7 +93,8 @@ def test_run_wrappers_look_in_geotruth_build_dir(repo, tmp_path, wrapper):
 def test_hunt_runs_exactly_the_manifest_targets(repo, manifests):
     hunt = (repo / "harness" / "hunt.sh").read_text()
     run_ids = set(re.findall(r"^(?:\w+=\S+ )?run ([\w.-]+) ", hunt, flags=re.M))
-    controls = {"engine-control", "mutant"}  # harness self-checks, run by geotruth run, not the hunt
+    # harness self-checks, run by geotruth run, not the hunt
+    controls = {"engine-control", "mutant"}
     assert run_ids == {t["id"] for m in manifests.values() for t in m["target"]} - controls
 
 

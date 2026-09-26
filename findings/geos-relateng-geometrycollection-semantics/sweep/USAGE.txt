@@ -1,5 +1,5 @@
-Sweeps used by ISSUE.md sections 5 and 6 (run from a scratch directory; paths to the geotruth
-checkout are hard-coded as /home/user/geotruth).
+Sweeps used by ISSUE.md sections 5 and 6 (run from a scratch directory; the geotruth checkout is
+found relative to this directory).
 
   python3 sweep.py mix 4000 1      # mix-1.tsv + mix-1.exact (exact relate(A,B), arrangement route)
   python3 sweep.py ovl 4000 2

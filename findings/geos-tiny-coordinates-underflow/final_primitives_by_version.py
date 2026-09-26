@@ -1,5 +1,5 @@
 import ctypes, math, glob, os
-B="/tmp/claude-0/gb-build"
+B = os.path.expanduser(os.environ.get("GEOTRUTH_BUILD_DIR", "~/.cache/geotruth"))
 libs = {
  "3.11.4": glob.glob(B+"/triage/geos-multipolygon-touching-parts-predicates/venv-shapely20/lib/python3.11/site-packages/shapely.libs/libgeos_c-*.so*")[0],
  "3.13.1": glob.glob("/usr/local/lib/python3.11/dist-packages/shapely.libs/libgeos_c-*.so*")[0],

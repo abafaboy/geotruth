@@ -16,8 +16,9 @@ TARGET_KEYS = {"id", "library", "upstream", "version", "lib", "run", "version_co
 DELTA_KINDS = {"relative", "grid", "ulp", "undocumented"}
 # contract v2 fields beyond v1 (DESIGN.md §4.1)
 V2_EXTRA = {"echo", "relate",
-            *(f"predicates.{p}" for p in ("intersects", "disjoint", "touches", "crosses", "overlaps",
-                                          "contains", "covers", "within", "covered_by", "equals")),
+            *(f"predicates.{p}" for p in ("intersects", "disjoint", "touches", "crosses",
+                                          "overlaps", "contains", "covers", "within",
+                                          "covered_by", "equals")),
             *(f"overlay.{op}" for op in ("intersection", "union", "difference", "symdifference"))}
 # harness self-checks, not libraries: the engine itself and a deliberately broken copy
 CONTROL_IDS = {"engine-control", "mutant"}
@@ -64,7 +65,10 @@ def test_fields_partition_the_contract_fields(manifests):
         listed = [*f["supported"], *f["derived"], *f["unsupported"]]
         assert len(listed) == len(set(listed)), (d, t["id"], "a field is listed twice")
         # libraries speak both contracts; the harness controls speak v2 only
-        expected = (V2_EXTRA | {"valid_a", "valid_b"}) if t["id"] in CONTROL_IDS else V1_FIELDS | V2_EXTRA
+        if t["id"] in CONTROL_IDS:
+            expected = V2_EXTRA | {"valid_a", "valid_b"}
+        else:
+            expected = V1_FIELDS | V2_EXTRA
         assert set(listed) == expected, (d, t["id"])
         assert all(isinstance(v, str) and v for v in f["derived"].values()), (d, t["id"])
 
