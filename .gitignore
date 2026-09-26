@@ -1,9 +1,27 @@
-results/
-cases/*.jsonl
-!cases/seed.jsonl
-__pycache__/
-node_modules/
+# Build trees normally live under $GEOTRUTH_BUILD_DIR (default ~/.cache/geotruth), outside
+# the repository; these catch in-tree builds.
+build/
 target/
+node_modules/
 *.o
 *.class
-build/
+# adapters/js/run_lib.sh creates its node_modules link through a transient name
+adapters/js/.node_modules.*
+
+# Results of runs
+results/
+
+# Generated case files: only the small tracked tiers (seed.jsonl) are committed
+corpus/cases/*.jsonl
+!corpus/cases/seed.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage

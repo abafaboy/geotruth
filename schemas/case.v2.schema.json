@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/case.v2.schema.json",
+  "title": "geotruth case v2",
+  "description": "One corpus case: two typed operands with metadata. Cases are immutable; expected answers are versioned separately. One JSON object per line in corpus/cases/*.jsonl.",
+  "type": "object",
+  "required": [
+    "id",
+    "family",
+    "tags",
+    "provenance",
+    "a",
+    "b"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9._:+/-]+$",
+      "description": "Case id, unique within the corpus (e.g. \"near-collinear-000123\")."
+    },
+    "family": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Generator family (families starting with \"invalid-\" deliberately contain invalid inputs)."
+    },
+    "tags": {
+      "$ref": "#/$defs/Tags"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "ops": {
+      "type": "array",
+      "description": "Operations to run; absent means every supported operation except echo. The parse-echo canary is a case with ops [\"echo\"].",
+      "items": {
+        "enum": [
+          "echo",
+          "relate",
+          "predicates",
+          "validity",
+          "overlay"
+        ]
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "a": {
+      "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+    },
+    "b": {
+      "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Tags": {
+      "type": "object",
+      "description": "Stratification tags; results are reported per class. Extra keys are allowed.",
+      "properties": {
+        "degeneracy": {
+          "enum": [
+            "lattice",
+            "ulp",
+            "generic"
+          ],
+          "description": "lattice: exactly representable degeneracy (touch, collinear overlap); ulp: within a few ulps of one; generic: neither."
+        },
+        "range": {
+          "enum": [
+            "normal",
+            "extreme"
+          ],
+          "description": "extreme: some |coordinate| < ~1e-150 or > ~1e150."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of input vertices of a and b."
+        },
+        "k": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Number of intersection points between a and b, if known."
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "$ref": "geometry.v2.schema.json#/$defs/GeometryType"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "flags": {
+          "type": "array",
+          "description": "Free-form kebab-case flags, e.g. convention (the answer depends on the empty-geometry convention table), zero-length-line, nonfinite, empty, invalid-input.",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "Provenance": {
+      "type": "object",
+      "description": "Where the case came from (generator + seed, or the upstream issue of a curated case). Extra keys are allowed.",
+      "properties": {
+        "source": {
+          "enum": [
+            "generator",
+            "review",
+            "curated",
+            "minimised",
+            "manual",
+            "legacy"
+          ]
+        },
+        "generator": {
+          "type": "string"
+        },
+        "generator_version": {
+          "type": "string"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "parent": {
+          "type": "string",
+          "description": "Id of the case this one was minimised or derived from."
+        },
+        "issue_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

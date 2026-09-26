@@ -1,0 +1,150 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from README.md in this directory unless marked "uncertain". One driver
+# (adapter.mjs, worker.mjs, common.mjs) runs four libraries through lib_<name>.mjs.
+manifest_version = 1
+
+[adapter]
+name = "js"
+language = "JavaScript (Node.js >= 18; tested with v22.22.2)"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/js/install.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/js-libs"
+build_root_override = "BUILD_ROOT"
+build_recipe = "npm ci of package.json / package-lock.json in the build root; adapters/js/node_modules links to it (run_lib.sh re-creates the link)"
+isolation = "the library runs in a worker_threads worker that sends back each result as it has it; an operation over JS_ADAPTER_TIMEOUT (default 10 s) terminates the worker, fails that field and a new worker continues; worker heap capped at JS_ADAPTER_MEM_MB (default 2048)"
+
+# Areas of every library are measured by the adapter (common.mjs): planar shoelace, each
+# ring translated to its first vertex, Neumaier-compensated; |shell| - sum |holes|.
+
+[[target]]
+id = "turf"
+library = "Turf"
+upstream = "https://github.com/Turfjs/turf"
+version = "7.4.0 (@turf/turf)"
+lib = "turf@7.4.0"
+run = "adapters/js/run_turf.sh"
+version_command = "harness/lib_string.sh adapters/js/run_turf.sh"
+toolchain = "Node.js v22.22.2"
+options = [
+    "booleanEqual precision = 323.3 (10^-323.3 = 5e-324, so coordinates match only when they are the same double) instead of Turf's default 6; TURF_EQUAL_PRECISION=6 restores the default",
+]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # booleanValid
+    "intersects", "disjoint", "touches", "overlaps", "contains", "within",  # boolean* with default options
+    "equals",  # booleanEqual: structural vertex comparison after cleanCoords, not topological equality
+    "area_inter", "area_union", "area_diff",  # turf.intersect / union / difference (polyclip-ts 0.16.8 inside)
+]
+unsupported = ["covers", "covered_by"]  # Turf has no covers predicate
+
+[target.fields.derived]
+area_symdiff = "area(difference(A, B)) + area(difference(B, A)): Turf has no symmetric difference"
+
+[target.precision]
+model = "Overlays: polyclip-ts 0.16.8 (bignumber.js arithmetic on the decimal string of each double, divisions rounded to 20 decimal places, no snapping epsilon). Predicates: Turf's own point-in-polygon, line-intersect and geojson-equality code, with fixed tolerances"
+delta = { kind = "undocumented" }  # as polyclip-ts
+tolerance_predicates = true
+tolerances = [
+    "booleanOverlap: inputs that are geojson-equal at 1e-6 are not overlapping",
+    "booleanContains: edge midpoints within 1e-6 of the boundary count as on it",
+    "booleanEqual: absolute tolerance 10^-precision per coordinate (the adapter passes an exact precision, see options)",
+    "booleanTouches (Polygon/Polygon) only tests A's shell vertices against B's shell; booleanOverlap is true as soon as two edges meet",
+]
+
+[target.coordinates]
+range = "any finite double"  # uncertain: undocumented
+out_of_range = "not detected"
+
+[[target]]
+id = "polygon-clipping"
+library = "polygon-clipping"
+upstream = "https://github.com/mfogel/polygon-clipping"
+version = "0.15.7"
+lib = "polygon-clipping@0.15.7"
+run = "adapters/js/run_polygon_clipping.sh"
+version_command = "harness/lib_string.sh adapters/js/run_polygon_clipping.sh"
+toolchain = "Node.js v22.22.2"
+options = []
+
+[target.fields]
+supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, difference, xor
+unsupported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+]
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double; comparisons with a relative epsilon of about Number.EPSILON, and new points rounded onto nearby existing coordinates"  # uncertain: from the library source, not its documentation
+delta = { kind = "undocumented" }
+tolerance_predicates = false
+tolerances = ["coordinate comparisons within a relative epsilon of about 2^-52 count as equal"]  # uncertain
+
+[target.coordinates]
+range = "any finite double"  # uncertain: undocumented
+out_of_range = "not detected"
+
+[[target]]
+id = "polyclip-ts"
+library = "polyclip-ts"
+upstream = "https://github.com/luizbarboza/polyclip-ts"
+version = "0.16.8"
+lib = "polyclip-ts@0.16.8"
+run = "adapters/js/run_polyclip_ts.sh"
+version_command = "harness/lib_string.sh adapters/js/run_polyclip_ts.sh"
+toolchain = "Node.js v22.22.2"
+options = []  # default precision: no setPrecision call, no snapping epsilon
+
+[target.fields]
+supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, difference, xor
+unsupported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+]
+
+[target.fields.derived]
+
+[target.precision]
+model = "bignumber.js arithmetic on the decimal string of each input double; divisions round to 20 decimal places; output converted back to doubles"
+delta = { kind = "undocumented" }  # uncertain: about 1e-20 absolute plus half an ulp of M from the output rounding, which is large relative to tiny-coordinate inputs
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: undocumented
+out_of_range = "not detected"
+
+[[target]]
+id = "martinez"
+library = "martinez-polygon-clipping"
+upstream = "https://github.com/w8r/martinez"
+version = "0.8.1"
+lib = "martinez@0.8.1"
+run = "adapters/js/run_martinez.sh"
+version_command = "harness/lib_string.sh adapters/js/run_martinez.sh"
+toolchain = "Node.js v22.22.2"
+options = [
+    "imports the ESM build (dist/martinez.js): the CommonJS build of 0.8.1 fails on Node 22 (its dependency tinyqueue 3 is ESM-only)",
+]
+
+[target.fields]
+supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, diff, xor
+unsupported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+]
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double sweep line (Martinez-Rueda-Feito); output rings may be left unclosed (measured as closed)"
+delta = { kind = "undocumented" }
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: undocumented
+out_of_range = "not detected"

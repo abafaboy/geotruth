@@ -1,0 +1,209 @@
+[
+  {
+    "id": "canary-parse-echo",
+    "family": "canary",
+    "tags": {
+      "degeneracy": "generic",
+      "range": "extreme",
+      "n": 4,
+      "k": 0,
+      "types": [
+        "MultiPoint",
+        "Point"
+      ],
+      "flags": [
+        "canary"
+      ]
+    },
+    "provenance": {
+      "source": "manual",
+      "notes": "DESIGN §4.1 parse-echo canary"
+    },
+    "ops": [
+      "echo"
+    ],
+    "a": {
+      "type": "MultiPoint",
+      "coordinates": [
+        [
+          9007199254740993,
+          5e-324
+        ],
+        [
+          -0.0,
+          0.30000000000000004
+        ],
+        [
+          1.7976931348623157e+308,
+          2.2250738585072014e-308
+        ],
+        [
+          -1.7976931348623157e+308,
+          5e-324
+        ]
+      ]
+    },
+    "b": {
+      "type": "Point",
+      "coordinates": [
+        0.1,
+        -2.5e-310
+      ]
+    }
+  },
+  {
+    "id": "shared-edge-000001",
+    "family": "shared-edge",
+    "tags": {
+      "degeneracy": "lattice",
+      "range": "normal",
+      "n": 10,
+      "k": 2,
+      "types": [
+        "Polygon",
+        "Polygon"
+      ]
+    },
+    "provenance": {
+      "source": "generator",
+      "generator": "corpus/generators/families.py",
+      "generator_version": "2",
+      "seed": 3
+    },
+    "a": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      ]
+    },
+    "b": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "id": "gc-line-000007",
+    "family": "gc-mixed",
+    "tags": {
+      "degeneracy": "lattice",
+      "range": "normal",
+      "flags": [
+        "gc"
+      ]
+    },
+    "provenance": {
+      "source": "curated",
+      "issue_url": "https://github.com/libgeos/geos/issues/1"
+    },
+    "a": {
+      "type": "GeometryCollection",
+      "geometries": [
+        {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "type": "LineString",
+          "coordinates": [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ]
+          ]
+        },
+        {
+          "type": "Point",
+          "coordinates": []
+        }
+      ]
+    },
+    "b": {
+      "type": "MultiLineString",
+      "coordinates": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            5
+          ]
+        ],
+        []
+      ]
+    }
+  }
+]

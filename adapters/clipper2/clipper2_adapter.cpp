@@ -1,4 +1,4 @@
-// Clipper2 adapter for the geometry bug hunt (contract: ../../FORMAT.md).
+// Clipper2 adapter for the geometry bug hunt (contract: ../../harness/FORMAT-v1.md).
 //
 //   clipper2_adapter [options] CASES.jsonl > RESULTS.jsonl
 //

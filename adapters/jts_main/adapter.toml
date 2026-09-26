@@ -1,0 +1,52 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from JtsAdapter.java and the built tree, unless marked "uncertain".
+manifest_version = 1
+
+[adapter]
+name = "jts_main"
+language = "Java (jts-core)"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/jts_main/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/jts-main"
+build_root_override = "JTS_BUILD_DIR"
+build_recipe = "JTS git master at the pinned commit in src/, jts-core compiled to out/jts-core.jar, adapter classes in out/"  # uncertain: summarised from the build tree layout
+isolation = "per-case wall-clock budget (--timeout, default 10 s): on timeout every field is null and errors.timeout is set; exceptions are caught per operation. One JVM runs every case, so a JVM crash ends the run"  # uncertain: no process isolation is visible in JtsAdapter.java
+
+[[target]]
+id = "jts-main"
+library = "JTS Topology Suite"
+upstream = "https://github.com/locationtech/jts"
+version = "1.21.0-SNAPSHOT"
+commit = "3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd"
+lib = "jts@1.21.0-SNAPSHOT-3ea61f8"
+run = "adapters/jts_main/run.sh"
+version_command = "harness/lib_string.sh adapters/jts_main/run.sh"
+toolchain = "OpenJDK 21.0.10"  # uncertain: the JDK on the build machine; build.sh has the details
+options = [
+    "areas through OverlayNGRobust.overlay(a, b, op) directly; Geometry.intersection() and friends still default to the legacy OverlayOp unless -Djts.overlay=ng",  # uncertain: JTS default of GeometryOverlay
+]
+# `--relate ng` sets jts.relate=ng (RelateNG) and appends "+relateng" to `lib`; the default
+# `--relate old` is RelateOp, which is also JTS's own default
+variants = ["--relate ng (+relateng)"]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # IsValidOp
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",  # Geometry.equalsTopo
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # OverlayNGRobust.overlay(...).getArea()
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double, default GeometryFactory (floating PrecisionModel), coordinates parsed by Double.parseDouble. Overlay: OverlayNGRobust (floating noder, snapping with tolerance M/1e12 x10 per try, 5 tries, then snap-rounding). Predicates: RelateOp (GeometryGraph, floating-point intersection points with robust orientation), no tolerance"
+delta = { kind = "relative", value = 1e-8 }  # uncertain: same constants as the GEOS port (SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5); verify against OverlayNGRobust.java
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: JTS documents no limit
+out_of_range = "not detected"

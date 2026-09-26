@@ -15,7 +15,7 @@ and at least ~2^33 units across. The degeneracies live at the unit scale:
   (outside it: the `int-beyond-maxcoord` family, which only tests the documented limit).
 
 All inputs are valid OGC geometries (checked with shapely when it is installed, else with the
-exact ring test in oracle.py, which covers single rings only).
+exact ring test in tests/reference/oracle.py, which covers single rings only).
 
 usage: python gen_int_cases.py [N_PER_FAMILY] [SEED] > int_cases.jsonl
 """
@@ -25,7 +25,9 @@ import os
 import random
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+# the exact oracle (only needed without shapely): tests/reference/oracle.py
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "..", "..", "tests", "reference"))
 
 try:
     from shapely.geometry import MultiPolygon, Polygon
@@ -185,7 +187,7 @@ def fam_identical(rng):
         B = A[::-1]
     else:  # midpoints of every edge (lattice points, since A was doubled)
         B = []
-        for p, q in zip(A, A[1:] + A[:1]):
+        for p, q in zip(A, A[1:] + A[:1], strict=True):
             B += [p, ((p[0] + q[0]) // 2, (p[1] + q[1]) // 2)]
     return [[T.ring(A)]], [[T.ring(B)]]
 

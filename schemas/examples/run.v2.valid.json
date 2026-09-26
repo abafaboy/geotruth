@@ -1,0 +1,27 @@
+[
+  {
+    "lib": "geos@3.16.0dev-ae9cdd9",
+    "library_version": "3.16.0dev",
+    "library_commit": "ae9cdd98be4e0bae552b918d4d14c94a9ce99c58",
+    "adapter": {
+      "name": "geos-main",
+      "git_sha": "04e3918",
+      "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "compiler": {
+      "name": "gcc",
+      "version": "13.3",
+      "flags": "-O2"
+    },
+    "options": {
+      "overlay": "default (OverlayNG floating with fallbacks)"
+    },
+    "engine_version": "0.1.0",
+    "corpus_version": "1",
+    "expected_version": "1",
+    "tier": "core",
+    "runner_image": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "started": "2026-09-26T12:00:00Z",
+    "finished": "2026-09-26T12:10:00Z"
+  }
+]

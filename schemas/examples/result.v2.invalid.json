@@ -1,0 +1,77 @@
+[
+  {
+    "why": "lib must be name@version",
+    "instance": {
+      "id": "x",
+      "lib": "geos"
+    }
+  },
+  {
+    "why": "error keys are field paths",
+    "instance": {
+      "id": "x",
+      "lib": "clipper2@2.0.1",
+      "relate": null,
+      "valid_a": "unsupported",
+      "errors": {
+        "foo": "x"
+      }
+    }
+  },
+  {
+    "why": "predicates are booleans, null or unsupported",
+    "instance": {
+      "id": "x",
+      "lib": "a@1",
+      "predicates": {
+        "touches": "yes"
+      }
+    }
+  },
+  {
+    "why": "unknown predicate",
+    "instance": {
+      "id": "x",
+      "lib": "a@1",
+      "predicates": {
+        "touch": true
+      }
+    }
+  },
+  {
+    "why": "overlay output uses double ordinates",
+    "instance": {
+      "id": "x",
+      "lib": "a@1",
+      "overlay": {
+        "union": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                "1",
+                "1"
+              ],
+              [
+                "2",
+                "1"
+              ],
+              [
+                "2",
+                "2"
+              ],
+              [
+                "1",
+                "2"
+              ],
+              [
+                "1",
+                "1"
+              ]
+            ]
+          ]
+        }
+      }
+    }
+  }
+]

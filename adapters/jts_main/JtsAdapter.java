@@ -1,5 +1,5 @@
 // JTS (locationtech/jts, jts-core) adapter for the geometry bug hunt.
-// Contract: ../../FORMAT.md.  Usage (via run.sh):  JtsAdapter [options] CASES.jsonl > RESULTS.jsonl
+// Contract: ../../harness/FORMAT-v1.md.  Usage (via run.sh):  JtsAdapter [options] CASES.jsonl > RESULTS.jsonl
 //
 // Options:
 //   --lib STRING       value of the "lib" field (run.sh passes jts@<version>-<short commit>)

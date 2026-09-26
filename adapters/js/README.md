@@ -1,6 +1,6 @@
 # js: Turf, polygon-clipping, polyclip-ts and martinez (Node.js)
 
-Four adapters that follow the contract in `../../FORMAT.md`. They share one driver.
+Four adapters that follow the contract in `../../harness/FORMAT-v1.md`. They share one driver.
 
 | run command | `lib` field | npm package (pinned in `package-lock.json`) | fields |
 |---|---|---|---|
@@ -13,14 +13,18 @@ The version in `lib` is read at run time from the installed package's `package.j
 All four were the latest releases on npm on 2026-09-25. They were tested with Node v22.22.2.
 
 ```sh
-adapters/js/install.sh        # npm ci into /tmp/claude-0/gb-build/js-libs, then symlink node_modules here
-adapters/js/run_turf.sh cases/seed.jsonl > turf.jsonl
-python compare.py cases/seed.jsonl results/oracle/seed.jsonl turf.jsonl
+adapters/js/install.sh        # npm ci into $GEOTRUTH_BUILD_DIR/js-libs, then link node_modules here
+adapters/js/run_turf.sh corpus/cases/seed.jsonl > turf.jsonl
+python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl turf.jsonl
 ```
 
 `install.sh` copies `package.json` and `package-lock.json` to `$BUILD_ROOT` (default
-`/tmp/claude-0/gb-build/js-libs`), runs `npm ci` there, and links `adapters/js/node_modules`
-to `$BUILD_ROOT/node_modules`. That keeps the roughly 29 MB tree out of the repo, and
+`$GEOTRUTH_BUILD_DIR/js-libs`, where `GEOTRUTH_BUILD_DIR`, shared by every adapter, defaults
+to `~/.cache/geotruth`), runs `npm ci` there, and links `adapters/js/node_modules` to
+`$BUILD_ROOT/node_modules`. The run wrappers go through `run_lib.sh`, which creates that link,
+or re-points it, whenever `$BUILD_ROOT/node_modules` exists and the link is missing or points
+elsewhere: Node resolves ES-module imports only through a `node_modules` next to the adapter
+files, so an environment variable cannot do it. That keeps the roughly 29 MB tree out of the repo, and
 `.gitignore` covers the link. Running `npm ci` directly in this directory works too.
 
 ## Files
@@ -31,12 +35,13 @@ to `$BUILD_ROOT/node_modules`. That keeps the roughly 29 MB tree out of the repo
 | `worker.mjs` | worker thread that loads `lib_<name>.mjs` and runs its operations |
 | `lib_turf.mjs`, `lib_polygon_clipping.mjs`, `lib_polyclip_ts.mjs`, `lib_martinez.mjs` | what each library computes for each field |
 | `common.mjs` | builds the geometry, computes planar area, formats errors |
-| `install.sh`, `run_*.sh` | install script and run wrappers |
+| `install.sh`, `run_*.sh` | install script and run wrappers (`run_<lib>.sh` calls the shared `run_lib.sh`) |
+| `adapter.toml` | manifest (DESIGN.md §4.2) for the four libraries: fields, precision, tolerances, options |
 
 ## What is computed
 
 Input: a one-part multipolygon becomes a GeoJSON `Polygon`, and anything else becomes a
-`MultiPolygon` (FORMAT.md). Each operation gets its own deep copy of the coordinates.
+`MultiPolygon` (FORMAT-v1.md). Each operation gets its own deep copy of the coordinates.
 
 **turf** (`lib_turf.mjs`), with A and B as GeoJSON Features:
 

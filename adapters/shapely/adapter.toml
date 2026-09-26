@@ -1,0 +1,44 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from shapely_adapter.py and the installed Shapely, unless marked "uncertain".
+manifest_version = 1
+
+[adapter]
+name = "shapely"
+language = "Python (Shapely 2 over the GEOS C API)"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "pip install 'shapely==2.1.2'"  # the wheel bundles GEOS 3.13.1; nothing is built here
+build_recipe = "none: the installed Shapely wheel and its bundled GEOS are used as they are"
+isolation = "exceptions are caught per operation; there is no process isolation and no timeout, so a GEOS crash or hang stops the run"
+
+[[target]]
+id = "shapely"
+library = "GEOS (through Shapely)"
+upstream = "https://github.com/shapely/shapely"
+version = "GEOS 3.13.1, Shapely 2.1.2"
+lib = "geos@3.13.1+shapely@2.1.2"
+run = "python3 adapters/shapely/shapely_adapter.py"
+version_command = "harness/lib_string.sh python3 adapters/shapely/shapely_adapter.py"
+toolchain = "the PyPI wheel"
+options = []  # library defaults throughout
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # is_valid (GEOS IsValidOp)
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",  # topological equality (GEOSEquals)
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # .area of intersection etc.
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double, floating PrecisionModel. Overlay: OverlayNG through OverlayNGRobust (floating noder, then snapping with tolerance M/1e12 x10 per try, 5 tries, then snap-rounding). Predicates: RelateNG (GEOS >= 3.13), no tolerance"
+delta = { kind = "relative", value = 1e-8 }  # uncertain: the loosest documented fallback, the 5th snapping try (OverlayNGRobust: SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5)
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: GEOS documents no limit
+out_of_range = "not detected"

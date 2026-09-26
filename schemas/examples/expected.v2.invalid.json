@@ -1,0 +1,535 @@
+[
+  {
+    "why": "status ok requires validity",
+    "instance": {
+      "id": "x",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "ok",
+      "dimensions": {
+        "a": {
+          "dimension": 2,
+          "real_dimension": 2
+        },
+        "b": {
+          "dimension": 2,
+          "real_dimension": 2
+        }
+      }
+    }
+  },
+  {
+    "why": "a DE-9IM has nine characters from F012",
+    "instance": {
+      "id": "shared-edge-000001",
+      "case_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "ok",
+      "dimensions": {
+        "a": {
+          "dimension": 2,
+          "real_dimension": 2
+        },
+        "b": {
+          "dimension": 2,
+          "real_dimension": 2
+        }
+      },
+      "relate": "2F",
+      "predicates": {
+        "intersects": true,
+        "disjoint": false,
+        "touches": false,
+        "crosses": false,
+        "overlaps": true,
+        "contains": false,
+        "covers": false,
+        "within": false,
+        "covered_by": false,
+        "equals": false
+      },
+      "validity": {
+        "a": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        },
+        "b": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        }
+      },
+      "overlay": {
+        "intersection": {
+          "non_strict": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1",
+            "num_vertices": 4
+          },
+          "areal": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1"
+          }
+        }
+      },
+      "measures": {
+        "area_a": "4",
+        "area_b": "4",
+        "length_a": {
+          "lo": "8",
+          "hi": "8",
+          "rounded": 8.0
+        }
+      }
+    }
+  },
+  {
+    "why": "engine_error needs a reason",
+    "instance": {
+      "id": "x",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "engine_error"
+    }
+  },
+  {
+    "why": "rationals are canonical (no /1)",
+    "instance": {
+      "id": "shared-edge-000001",
+      "case_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "ok",
+      "dimensions": {
+        "a": {
+          "dimension": 2,
+          "real_dimension": 2
+        },
+        "b": {
+          "dimension": 2,
+          "real_dimension": 2
+        }
+      },
+      "relate": "212101212",
+      "predicates": {
+        "intersects": true,
+        "disjoint": false,
+        "touches": false,
+        "crosses": false,
+        "overlaps": true,
+        "contains": false,
+        "covers": false,
+        "within": false,
+        "covered_by": false,
+        "equals": false
+      },
+      "validity": {
+        "a": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        },
+        "b": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        }
+      },
+      "overlay": {
+        "intersection": {
+          "non_strict": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1",
+            "num_vertices": 4
+          },
+          "areal": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1"
+          }
+        }
+      },
+      "measures": {
+        "area_a": "4/1"
+      }
+    }
+  },
+  {
+    "why": "valid inputs require relate and predicates",
+    "instance": {
+      "id": "shared-edge-000001",
+      "case_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "ok",
+      "dimensions": {
+        "a": {
+          "dimension": 2,
+          "real_dimension": 2
+        },
+        "b": {
+          "dimension": 2,
+          "real_dimension": 2
+        }
+      },
+      "predicates": {
+        "intersects": true,
+        "disjoint": false,
+        "touches": false,
+        "crosses": false,
+        "overlaps": true,
+        "contains": false,
+        "covers": false,
+        "within": false,
+        "covered_by": false,
+        "equals": false
+      },
+      "validity": {
+        "a": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        },
+        "b": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        }
+      },
+      "overlay": {
+        "intersection": {
+          "non_strict": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1",
+            "num_vertices": 4
+          },
+          "areal": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    "1",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "1"
+                  ],
+                  [
+                    "2",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "2"
+                  ],
+                  [
+                    "1",
+                    "1"
+                  ]
+                ]
+              ]
+            },
+            "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+            "area": "1"
+          }
+        }
+      },
+      "measures": {
+        "area_a": "4",
+        "area_b": "4",
+        "length_a": {
+          "lo": "8",
+          "hi": "8",
+          "rounded": 8.0
+        }
+      }
+    }
+  },
+  {
+    "why": "exact ordinates are strings, not numbers",
+    "instance": {
+      "id": "shared-edge-000001",
+      "case_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "ok",
+      "dimensions": {
+        "a": {
+          "dimension": 2,
+          "real_dimension": 2
+        },
+        "b": {
+          "dimension": 2,
+          "real_dimension": 2
+        }
+      },
+      "relate": "212101212",
+      "predicates": {
+        "intersects": true,
+        "disjoint": false,
+        "touches": false,
+        "crosses": false,
+        "overlaps": true,
+        "contains": false,
+        "covers": false,
+        "within": false,
+        "covered_by": false,
+        "equals": false
+      },
+      "validity": {
+        "a": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        },
+        "b": {
+          "valid": true,
+          "reasons": [],
+          "first_reason": null
+        }
+      },
+      "overlay": {
+        "intersection": {
+          "non_strict": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              ]
+            },
+            "wkt": ""
+          },
+          "areal": {
+            "exact": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              ]
+            },
+            "wkt": ""
+          }
+        }
+      },
+      "measures": {
+        "area_a": "4",
+        "area_b": "4",
+        "length_a": {
+          "lo": "8",
+          "hi": "8",
+          "rounded": 8.0
+        }
+      }
+    }
+  },
+  {
+    "why": "status is an enum",
+    "instance": {
+      "id": "big-000002",
+      "engine": {
+        "version": "0.1.0",
+        "sha": "04e3918",
+        "backend": "gmpy2"
+      },
+      "status": "skipped",
+      "reason": "n + k = 250000 exceeds the budget of 200000"
+    }
+  }
+]

@@ -1,4 +1,4 @@
-// Boost.Geometry adapter for the geometry bug hunt.  Implements ../../FORMAT.md:
+// Boost.Geometry adapter for the geometry bug hunt.  Implements ../../harness/FORMAT-v1.md:
 //
 //     bg_adapter CASES.jsonl > RESULTS.jsonl
 //
@@ -465,7 +465,7 @@ static Poly build_poly(const PolyIn &in, int &reversed)
     return pg;
 }
 
-// A Polygon when the case has exactly one part, else a MultiPolygon (FORMAT.md).
+// A Polygon when the case has exactly one part, else a MultiPolygon (FORMAT-v1.md).
 static Geom build_geom(const MPolyIn &in, int &reversed)
 {
     reversed = 0;

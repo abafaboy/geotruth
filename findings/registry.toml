@@ -1,0 +1,55 @@
+# geotruth triage registry (DESIGN.md §0.4 and §5.4).
+#
+# One [[finding]] per failure cluster. No automated disagreement is presented as a
+# confirmed bug: every cluster carries a triage status, one of
+#
+#   unreviewed  found by the harness, not yet triaged by a person
+#   confirmed   triaged: a wrong answer within the library's documented contract
+#   by-design   triaged: documented or intended behaviour (not reported as a bug)
+#   reported    confirmed and reported upstream (upstream_issue is set)
+#   fixed       fixed upstream (fixed_in names the commit or release)
+#
+# Keys of a finding:
+#   id              the directory under findings/ that holds the evidence
+#   library         the adapter target id (adapters/*/adapter.toml [[target]].id)
+#   lib             the `lib` string of the build the finding was made on
+#   signature       what goes wrong, stated so that later disagreements can be matched to it
+#   fields          result fields affected
+#   families        corpus families where the cluster shows up
+#   status          see above; status_date is when it last changed
+#   verified_on     library versions or commits the minimal case was reproduced on
+#   cases           minimal cases (FORMAT-v1 case lines); repro: standalone program
+#   evidence        the triage write-up
+#   links           upstream documentation, issues and discussions
+#   upstream_issue  URL of the report, once reported ("" otherwise)
+#   notes           anything a reader must know before citing the finding
+#
+# Candidate clusters that are only described in adapter READMEs (for example the
+# Boost.Geometry develop regression on rotated-neighbours-1-000230, or the thin-triangle
+# collapse in geo/i_overlay) have no findings/ directory yet, so they are not registered here.
+registry_version = 1
+
+[[finding]]
+id = "clipper2-thin-triangle-dropped"
+library = "clipper2"
+lib = "clipper2@2.0.1-f9c5eb6"
+signature = "overlay area: a result triangle with an edge shorter than 2 grid units is deleted whatever its area (IsVerySmallTriangle / PtsReallyClose in clipper.engine.cpp)"
+fields = ["area_inter", "area_union"]
+families = ["int-thin-triangle", "int-thin-crossing", "int-near-parallel-large", "int-near-miss"]
+status = "by-design"
+status_date = "2026-09-26"
+verified_on = [
+    "main f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd",
+    "release Clipper2_2.0.1 21ebba05db8894f0c7217ad35ea518080f324946",
+]
+cases = "findings/clipper2-thin-triangle-dropped/cases.jsonl"
+repro = "findings/clipper2-thin-triangle-dropped/repro.cpp"
+evidence = "findings/clipper2-thin-triangle-dropped/ISSUE.md"
+links = [
+    "https://angusj.com/clipper2/Docs/Robustness.htm",
+    "https://github.com/AngusJohnson/Clipper2/discussions/538",
+    "https://github.com/AngusJohnson/Clipper2/issues/742",
+    "https://github.com/AngusJohnson/Clipper2/issues/309",
+]
+upstream_issue = ""
+notes = "Documented on Clipper2's Robustness page, so not reported as a bug; ISSUE.md holds an optional enhancement-request draft. The Robustness quote was obtained through web search only (angusj.com was unreachable from the sandbox): check it in a browser before citing it upstream. The adapter manifest's delta (2 grid units) covers this behaviour."

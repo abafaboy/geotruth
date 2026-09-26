@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/result.v2.schema.json",
+  "title": "geotruth adapter result v2",
+  "description": "What an adapter reports for one case: one JSON object per input line, in order. A field is null when the library does not provide it (capability), \"unsupported\" when this input is outside the library's contract, and null with an entry in errors when it failed. Output coordinates are written by the adapter itself in shortest round-trip form, never through the library's WKT writer.",
+  "type": "object",
+  "required": [
+    "id",
+    "lib"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9._:+/-]+$",
+      "description": "Case id, unique within the corpus (e.g. \"near-collinear-000123\")."
+    },
+    "lib": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._+-]+@[^\\s]+$",
+      "description": "<library>@<version or commit>, e.g. geos@3.14.0dev-1a2b3c4."
+    },
+    "relate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[F012]{9}$",
+          "description": "DE-9IM matrix in row order II IB IE BI BB BE EI EB EE (A rows, B columns); EE is always 2 for bounded inputs."
+        },
+        {
+          "type": "null"
+        },
+        {
+          "const": "unsupported"
+        }
+      ]
+    },
+    "predicates": {
+      "type": "object",
+      "properties": {
+        "intersects": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "disjoint": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "touches": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "crosses": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "overlaps": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "contains": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "covers": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "within": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "covered_by": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "equals": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "valid_a": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "const": "unsupported"
+        }
+      ]
+    },
+    "valid_b": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "const": "unsupported"
+        }
+      ]
+    },
+    "overlay": {
+      "type": "object",
+      "description": "Overlay outputs as typed JSON with round-trip doubles.",
+      "properties": {
+        "intersection": {
+          "oneOf": [
+            {
+              "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "union": {
+          "oneOf": [
+            {
+              "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "difference": {
+          "oneOf": [
+            {
+              "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        },
+        "symdifference": {
+          "oneOf": [
+            {
+              "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "const": "unsupported"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "echo": {
+      "type": "object",
+      "description": "Parse-echo canary: the operands exactly as the adapter parsed them, written back in shortest round-trip form (2^53+1 as an integer, subnormals, -0.0, 0.30000000000000004, the largest double).",
+      "properties": {
+        "a": {
+          "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+        },
+        "b": {
+          "$ref": "geometry.v2.schema.json#/$defs/Geometry"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ],
+      "additionalProperties": false
+    },
+    "errors": {
+      "type": "object",
+      "description": "Failures keyed by field path: relate, valid_a, valid_b, echo, predicates.<name>, overlay.<op>, or * for the whole case.",
+      "propertyNames": {
+        "pattern": "^(\\*|relate|valid_a|valid_b|echo|predicates\\.[a-z_]+|overlay\\.[a-z]+)$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/Error"
+      }
+    },
+    "elapsed_ms": {
+      "type": "object",
+      "description": "Wall time per field path, for timeout budgeting.",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Error": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "An exception message (kind exception)."
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "exception",
+                "crash",
+                "timeout",
+                "memory"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

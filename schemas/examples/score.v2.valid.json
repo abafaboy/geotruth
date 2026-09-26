@@ -1,0 +1,48 @@
+[
+  {
+    "id": "shared-edge-000001",
+    "lib": "geos@3.13.1",
+    "family": "shared-edge",
+    "capability": "relate",
+    "verdict": "wrong",
+    "fields": [
+      "relate"
+    ],
+    "expected": "212101212",
+    "got": "212111212",
+    "tags": {
+      "degeneracy": "lattice",
+      "range": "normal"
+    },
+    "versions": {
+      "corpus": "1",
+      "expected": "1",
+      "engine": "0.1.0",
+      "lib": "3.13.1"
+    },
+    "cluster": "geos|shared-edge|BB"
+  },
+  {
+    "id": "shared-edge-000001",
+    "lib": "clipper2@2.0.1",
+    "capability": "overlay.union",
+    "verdict": "correct",
+    "tier": "budget",
+    "metrics": {
+      "hausdorff2": "1/4194304",
+      "symdiff_area": "0",
+      "delta": 0.00048828125,
+      "output_valid": true
+    }
+  },
+  {
+    "id": "x",
+    "lib": "turf@7.4",
+    "capability": "predicates",
+    "verdict": "convention",
+    "fields": [
+      "predicates.equals"
+    ],
+    "derived": false
+  }
+]

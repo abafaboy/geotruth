@@ -1,7 +1,7 @@
 // Minimal Clipper2 repro for the "very small triangle" cleanup (clipper.engine.cpp,
 // IsVerySmallTriangle): a 3-vertex result ring is discarded when two of its vertices are
 // within 1 unit in x and y, whatever its area. Build (after build.sh), with
-// B=/tmp/claude-0/gb-build/clipper2:
+// B=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/clipper2:
 //   g++ -O2 -std=c++17 -I$B/src/CPP/Clipper2Lib/include repro_small_triangle.cpp
 //       $B/obj/clipper.engine.o -o $B/bin/repro_small_triangle
 #include "clipper2/clipper.h"

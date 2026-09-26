@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Adapter driver for the JavaScript libraries (contract: ../../FORMAT.md).
+// Adapter driver for the JavaScript libraries (contract: ../../harness/FORMAT-v1.md).
 //
 //   node adapter.mjs <turf|polygon_clipping|polyclip_ts|martinez> CASES.jsonl > RESULTS.jsonl
 //

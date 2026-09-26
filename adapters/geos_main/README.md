@@ -2,7 +2,7 @@
 
 This adapter runs GEOS built from the `main` branch. It is a small C program that uses
 the reentrant GEOS C API (`geos_c.h`, `*_r` functions, `GEOS_USE_ONLY_R_API`), and it
-implements the adapter contract in `../../FORMAT.md`.
+implements the adapter contract in `../../harness/FORMAT-v1.md`.
 
 - Pinned commit: `ae9cdd98be4e0bae552b918d4d14c94a9ce99c58` (libgeos/geos main, 2026-09-21,
   "Update NEWS.md"). Its `Version.txt` says 3.16.0dev, C API 1.22.0.
@@ -20,14 +20,14 @@ implements the adapter contract in `../../FORMAT.md`.
 | `run.sh` | run wrapper: `run.sh CASES.jsonl > RESULTS.jsonl` |
 
 The build tree stays outside the repo, under `$BUILD_ROOT`
-(default `/tmp/claude-0/gb-build/geos-main`):
+(default `$GEOTRUTH_BUILD_DIR/geos-main`, where `GEOTRUTH_BUILD_DIR` defaults to `~/.cache/geotruth`):
 `src/` (a shallow clone at the pinned commit), `build/`, `install/`, and
 `bin/geos_adapter`. The adapter is linked with an rpath to `install/lib`.
 
 ```sh
 adapters/geos_main/build.sh                       # JOBS=2 by default; GEOS_COMMIT=<sha> to move the pin
-adapters/geos_main/run.sh cases/seed.jsonl > results/geos-main/seed.jsonl
-python compare.py cases/seed.jsonl results/oracle/seed.jsonl results/geos-main/seed.jsonl
+adapters/geos_main/run.sh corpus/cases/seed.jsonl > results/geos-main/seed.jsonl
+python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl results/geos-main/seed.jsonl
 ```
 
 ## What is computed
@@ -90,3 +90,11 @@ generated cases take 4.3 s).
   everything except validity when the oracle says an input is invalid.
 - `equals` is topological equality (`GEOSEquals_r`), not `GEOSEqualsExact_r` or
   `GEOSEqualsIdentical_r`.
+
+## Manifest and build root
+
+`adapter.toml` is this adapter's manifest (DESIGN.md §4.2): the fields, the precision
+model and its δ (the loosest OverlayNGRobust snapping tolerance, 1e-8 of the largest
+ordinate), the coordinate range and the build recipe. The build tree defaults to
+`$GEOTRUTH_BUILD_DIR/geos-main`, where `GEOTRUTH_BUILD_DIR`, shared by every adapter,
+defaults to `~/.cache/geotruth`; `BUILD_ROOT` still overrides it for this adapter alone.

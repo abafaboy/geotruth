@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/expected.v2.schema.json",
+  "title": "geotruth expected answer v2",
+  "description": "The exact answer for one case, produced by the engine. One JSON object per line in expected-vY/*.jsonl. Every claim cites (corpus vX, expected vY, engine version/sha).",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "engine"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9._:+/-]+$",
+      "description": "Case id, unique within the corpus (e.g. \"near-collinear-000123\")."
+    },
+    "case_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the canonical case JSON (geotruth.io.case_sha256)."
+    },
+    "engine": {
+      "$ref": "#/$defs/Engine"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "engine_skipped",
+        "engine_error"
+      ],
+      "description": "engine_skipped: over budget; engine_error: the engine raised. Neither is ever counted against a library."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why the engine skipped or failed (budget exceeded, exception text)."
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Type dimension (JTS getDimension) and real dimension (RelateNG getDimensionReal) of each operand; -1 means empty.",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/Dimensions"
+        },
+        "b": {
+          "$ref": "#/$defs/Dimensions"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ],
+      "additionalProperties": false
+    },
+    "relate": {
+      "type": "string",
+      "pattern": "^[F012]{9}$",
+      "description": "DE-9IM matrix in row order II IB IE BI BB BE EI EB EE (A rows, B columns); EE is always 2 for bounded inputs."
+    },
+    "predicates": {
+      "$ref": "#/$defs/Predicates"
+    },
+    "conventions": {
+      "type": "array",
+      "description": "Fields whose answer comes from the convention table (e.g. predicates.equals for EMPTY/EMPTY); disagreements on them are scored as convention, not wrong.",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "validity": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/Validity"
+        },
+        "b": {
+          "$ref": "#/$defs/Validity"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ],
+      "additionalProperties": false
+    },
+    "overlay": {
+      "type": "object",
+      "description": "Exact overlay results; absent when an input is invalid.",
+      "properties": {
+        "intersection": {
+          "$ref": "#/$defs/OverlayOp"
+        },
+        "union": {
+          "$ref": "#/$defs/OverlayOp"
+        },
+        "difference": {
+          "$ref": "#/$defs/OverlayOp"
+        },
+        "symdifference": {
+          "$ref": "#/$defs/OverlayOp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "measures": {
+      "type": "object",
+      "description": "Exact measures (area_a, area_b, distance2, ...) as rationals, or certified intervals for irrational ones (length, line centroid).",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "$ref": "geometry.v2.schema.json#/$defs/Rational"
+          },
+          {
+            "$ref": "#/$defs/Interval"
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "dimensions",
+          "validity"
+        ]
+      },
+      "else": {
+        "required": [
+          "reason"
+        ]
+      }
+    },
+    {
+      "description": "relate and the predicates are defined when both inputs are valid.",
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          },
+          "validity": {
+            "properties": {
+              "a": {
+                "properties": {
+                  "valid": {
+                    "const": true
+                  }
+                }
+              },
+              "b": {
+                "properties": {
+                  "valid": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "status",
+          "validity"
+        ]
+      },
+      "then": {
+        "required": [
+          "relate",
+          "predicates"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "Engine": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "geotruth.ENGINE_VERSION"
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$",
+          "description": "Git commit of the engine."
+        },
+        "backend": {
+          "enum": [
+            "gmpy2",
+            "fractions"
+          ]
+        },
+        "expected_version": {
+          "type": "string",
+          "description": "Version of the expected-answer release."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Dimensions": {
+      "type": "object",
+      "required": [
+        "dimension",
+        "real_dimension"
+      ],
+      "properties": {
+        "dimension": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 2
+        },
+        "real_dimension": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "Predicates": {
+      "type": "object",
+      "description": "Named predicates of the ordered pair (A, B), dispatched on real dimension as in DESIGN §1 (contains = A contains B).",
+      "properties": {
+        "intersects": {
+          "type": "boolean"
+        },
+        "disjoint": {
+          "type": "boolean"
+        },
+        "touches": {
+          "type": "boolean"
+        },
+        "crosses": {
+          "type": "boolean"
+        },
+        "overlaps": {
+          "type": "boolean"
+        },
+        "contains": {
+          "type": "boolean"
+        },
+        "covers": {
+          "type": "boolean"
+        },
+        "within": {
+          "type": "boolean"
+        },
+        "covered_by": {
+          "type": "boolean"
+        },
+        "equals": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "intersects",
+        "disjoint",
+        "touches",
+        "crosses",
+        "overlaps",
+        "contains",
+        "covers",
+        "within",
+        "covered_by",
+        "equals"
+      ],
+      "additionalProperties": false
+    },
+    "Validity": {
+      "type": "object",
+      "required": [
+        "valid",
+        "reasons"
+      ],
+      "properties": {
+        "valid": {
+          "type": "boolean",
+          "description": "OGC/GEOS IsValidOp validity (the scored field)."
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValidityCode"
+          },
+          "uniqueItems": true,
+          "description": "Every defect found (exact, complete)."
+        },
+        "first_reason": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ValidityCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The reason GEOS would report first (informational; never scored)."
+        },
+        "message": {
+          "type": "string",
+          "description": "GEOS-style message, e.g. \"Ring Self-intersection\"."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ValidityCode": {
+      "enum": [
+        "invalid_coordinate",
+        "ring_not_closed",
+        "too_few_points",
+        "self_intersection",
+        "ring_self_intersection",
+        "hole_outside_shell",
+        "nested_holes",
+        "nested_shells",
+        "disconnected_interior",
+        "duplicate_rings"
+      ],
+      "description": "GEOS TopologyValidationError kinds, in GEOS precedence order."
+    },
+    "OverlayOp": {
+      "type": "object",
+      "description": "One overlay operation in both variants.",
+      "required": [
+        "non_strict",
+        "areal"
+      ],
+      "properties": {
+        "non_strict": {
+          "$ref": "#/$defs/OverlayResult",
+          "description": "OverlayNG default (non-strict) semantics; may be a GeometryCollection."
+        },
+        "areal": {
+          "$ref": "#/$defs/OverlayResult",
+          "description": "Regularized areal result (polygon part only), for polygon-only clippers."
+        }
+      },
+      "additionalProperties": false
+    },
+    "OverlayResult": {
+      "type": "object",
+      "required": [
+        "exact",
+        "wkt"
+      ],
+      "properties": {
+        "exact": {
+          "$ref": "geometry.v2.schema.json#/$defs/ExactGeometry",
+          "description": "Exact result in canonical order (rings start at their lexicographically smallest vertex, shells CCW, holes CW, parts sorted); typed empty per OverlayUtil.resultDimension."
+        },
+        "wkt": {
+          "type": "string",
+          "description": "Display-only WKT rounded to doubles; never scored (rounding can make it invalid)."
+        },
+        "area": {
+          "$ref": "geometry.v2.schema.json#/$defs/Rational"
+        },
+        "length_interval": {
+          "$ref": "#/$defs/Interval"
+        },
+        "num_vertices": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Interval": {
+      "type": "object",
+      "description": "A certified enclosure [lo, hi] of an irrational value and its correctly rounded double, once decided.",
+      "required": [
+        "lo",
+        "hi"
+      ],
+      "properties": {
+        "lo": {
+          "$ref": "geometry.v2.schema.json#/$defs/Rational"
+        },
+        "hi": {
+          "$ref": "geometry.v2.schema.json#/$defs/Rational"
+        },
+        "rounded": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

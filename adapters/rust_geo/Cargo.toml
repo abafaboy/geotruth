@@ -3,7 +3,7 @@ name = "geo_adapter"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "Differential geometry bug-hunt adapter for the georust `geo` crate (see ../../FORMAT.md)"
+description = "Differential geometry bug-hunt adapter for the georust `geo` crate (see ../../harness/FORMAT-v1.md)"
 
 [dependencies]
 # Latest geo on crates.io at the time of writing; Cargo.lock pins the exact tree.

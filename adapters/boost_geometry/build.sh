@@ -22,7 +22,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BG_REPO="${BG_REPO:-https://github.com/boostorg/geometry}"
 BG_COMMIT="${BG_COMMIT:-196d04c614c12a8d788212b63fa65d25c8b7ea86}"
-BUILD_ROOT="${BUILD_ROOT:-/tmp/claude-0/gb-build/boost-geometry}"
+BUILD_ROOT="${BUILD_ROOT:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/boost-geometry}"
 JOBS="${JOBS:-2}"
 CXX="${CXX:-g++}"
 SYS_INC="${SYS_INC:-/usr/include}"

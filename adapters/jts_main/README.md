@@ -1,7 +1,7 @@
 # JTS master adapter (`jts-main`)
 
 Adapter for [locationtech/jts](https://github.com/locationtech/jts) `jts-core`, built from
-current git master. It follows the contract in `../../FORMAT.md`.
+current git master. It follows the contract in `../../harness/FORMAT-v1.md`.
 
 ## Files
 
@@ -15,7 +15,7 @@ current git master. It follows the contract in `../../FORMAT.md`.
     adapters/jts_main/build.sh            # clone if needed, then build
     adapters/jts_main/build.sh --update   # fetch the latest master first
 
-The build tree is `$JTS_BUILD_DIR` (default `/tmp/claude-0/gb-build/jts-main`), outside the
+The build tree is `$JTS_BUILD_DIR` (default `$GEOTRUTH_BUILD_DIR/jts-main`, where `GEOTRUTH_BUILD_DIR` defaults to `~/.cache/geotruth`), outside the
 repo:
 
 - `src/`: the clone.
@@ -68,3 +68,11 @@ Predicates use the JTS default engine, which is the old `RelateOp`/`GeometryGrap
   goes to stderr. `--timeout 0` turns the budget off.
 - `JAVA_TOOL_OPTIONS` on this machine makes the JVM print a banner on stderr. Stdout carries
   only JSON lines.
+
+## Manifest and build root
+
+`adapter.toml` is this adapter's manifest (DESIGN.md §4.2): the fields, the precision
+model and its δ (the loosest OverlayNGRobust snapping tolerance, 1e-8 of the largest
+ordinate), the coordinate range and the build recipe. The build tree defaults to
+`$GEOTRUTH_BUILD_DIR/jts-main`, where `GEOTRUTH_BUILD_DIR`, shared by every adapter,
+defaults to `~/.cache/geotruth`; `JTS_BUILD_DIR` still overrides it for this adapter alone.

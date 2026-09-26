@@ -1,4 +1,4 @@
-//! Adapter for the georust `geo` crate (see ../../FORMAT.md and README.md).
+//! Adapter for the georust `geo` crate (see ../../harness/FORMAT-v1.md and README.md).
 //!
 //! usage: geo_adapter [--in-process] CASES.jsonl > RESULTS.jsonl
 //!        geo_adapter --version

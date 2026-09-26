@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Installs the pinned npm packages (package-lock.json) outside the repo, under $BUILD_ROOT
-# (default /tmp/claude-0/gb-build/js-libs), and links node_modules here to it.
+# (default $GEOTRUTH_BUILD_DIR/js-libs, GEOTRUTH_BUILD_DIR defaulting to ~/.cache/geotruth), and links node_modules here to it.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-BUILD_ROOT="${BUILD_ROOT:-/tmp/claude-0/gb-build/js-libs}"
+BUILD_ROOT="${BUILD_ROOT:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/js-libs}"
 mkdir -p "$BUILD_ROOT"
 cp "$HERE/package.json" "$HERE/package-lock.json" "$BUILD_ROOT/"
 (cd "$BUILD_ROOT" && npm ci --no-audit --no-fund)

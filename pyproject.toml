@@ -1,0 +1,114 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geotruth"
+dynamic = ["version"]
+description = "Exact ground truth for computational geometry: DE-9IM, overlay and validity in exact arithmetic."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Abdulfayyod Mukhamedov" }]
+requires-python = ">=3.10"
+dependencies = ["gmpy2>=2.2"]
+keywords = ["geometry", "exact arithmetic", "DE-9IM", "overlay", "testing", "GEOS", "JTS"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Testing",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "hypothesis>=6.90",
+    "ruff>=0.4",
+    "jsonschema>=4.18",
+    "tomli>=2.0; python_version < '3.11'",
+]
+shapely = ["shapely>=2.0"]
+
+[project.urls]
+Homepage = "https://github.com/abafaboy/geotruth"
+Design = "https://github.com/abafaboy/geotruth/blob/main/docs/DESIGN.md"
+
+[project.scripts]
+geotruth = "geotruth.cli:main"
+
+# Third-party subcommands may register here too (see geotruth.cli):
+# [project.entry-points."geotruth.commands"]
+# mycmd = "mypackage.mycmd"
+
+[tool.setuptools.dynamic]
+version = { attr = "geotruth.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# --------------------------------------------------------------------------- pytest
+
+[tool.pytest.ini_options]
+minversion = "7.4"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--strict-markers -ra"
+markers = [
+    "unit: fast engine unit tests; the whole set runs in under a minute",
+    "crosscheck: cross-checks between independent implementations (engine, references, GEOS)",
+    "slow: long-running tests (large arrangements, full corpora)",
+]
+xfail_strict = true
+
+# ----------------------------------------------------------------------------- ruff
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+# Vendored references and pre-geotruth bug-hunt code are kept byte-for-byte (provenance),
+# so they are not linted.
+extend-exclude = [
+    "tests/reference",
+    "tools/oracle_review",
+    "corpus/generators",
+    "findings",
+    "adapters/js/node_modules",
+    "adapters/rust_geo/target",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "UP",   # pyupgrade
+    "SIM",  # simplify
+    "C4",   # comprehensions
+    "RUF",  # ruff-specific
+    "PT",   # pytest style
+]
+ignore = [
+    "E741",   # single-letter names like l, I, O are idiomatic in geometry code
+    "RUF001", # ambiguous unicode in strings (math symbols in messages)
+    "RUF002", # ambiguous unicode in docstrings
+    "RUF003", # ambiguous unicode in comments
+    "SIM108", # ternaries are not always clearer
+    "PT018",  # compound assertions read naturally in property checks
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011", "PT011"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["geotruth"]

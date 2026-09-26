@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/run.v2.schema.json",
+  "title": "geotruth run record v2",
+  "description": "Provenance of one adapter run over a corpus (stored next to the result files as run.json): everything needed to reproduce and cite the results.",
+  "type": "object",
+  "required": [
+    "lib",
+    "adapter",
+    "engine_version",
+    "corpus_version",
+    "started"
+  ],
+  "properties": {
+    "lib": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._+-]+@[^\\s]+$",
+      "description": "<library>@<version or commit>, e.g. geos@3.14.0dev-1a2b3c4."
+    },
+    "library_version": {
+      "type": "string"
+    },
+    "library_commit": {
+      "type": "string"
+    },
+    "adapter": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "compiler": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "options": {
+      "type": "object",
+      "description": "Every option that departs from the library's defaults.",
+      "additionalProperties": true
+    },
+    "engine_version": {
+      "type": "string"
+    },
+    "corpus_version": {
+      "type": "string"
+    },
+    "expected_version": {
+      "type": "string"
+    },
+    "tier": {
+      "enum": [
+        "core",
+        "full",
+        "curated"
+      ]
+    },
+    "runner_image": {
+      "type": "string",
+      "description": "Container image digest of the runner."
+    },
+    "started": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "host": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

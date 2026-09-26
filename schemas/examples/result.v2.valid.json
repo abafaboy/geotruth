@@ -1,0 +1,108 @@
+[
+  {
+    "id": "shared-edge-000001",
+    "lib": "geos@3.16.0dev-ae9cdd9",
+    "relate": "212101212",
+    "predicates": {
+      "intersects": true,
+      "disjoint": false,
+      "touches": false,
+      "crosses": null,
+      "overlaps": true,
+      "contains": false,
+      "covers": false,
+      "within": false,
+      "covered_by": false,
+      "equals": false
+    },
+    "valid_a": true,
+    "valid_b": true,
+    "overlay": {
+      "intersection": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              2.0,
+              1.0
+            ],
+            [
+              2.0,
+              2.0
+            ],
+            [
+              1.0,
+              2.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        ]
+      },
+      "union": null,
+      "difference": "unsupported"
+    },
+    "errors": {
+      "overlay.symdifference": {
+        "kind": "timeout",
+        "message": "3 s"
+      },
+      "predicates.crosses": "IllegalArgumentException: ..."
+    },
+    "elapsed_ms": {
+      "relate": 0.2
+    }
+  },
+  {
+    "id": "canary-parse-echo",
+    "lib": "shapely@2.1.2",
+    "echo": {
+      "a": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            9007199254740992.0,
+            5e-324
+          ],
+          [
+            -0.0,
+            0.30000000000000004
+          ],
+          [
+            1.7976931348623157e+308,
+            2.2250738585072014e-308
+          ],
+          [
+            -1.7976931348623157e+308,
+            5e-324
+          ]
+        ]
+      },
+      "b": {
+        "type": "Point",
+        "coordinates": [
+          0.1,
+          -2.5e-310
+        ]
+      }
+    }
+  },
+  {
+    "id": "x",
+    "lib": "clipper2@2.0.1",
+    "relate": null,
+    "valid_a": "unsupported",
+    "errors": {
+      "*": {
+        "kind": "crash",
+        "message": "SIGSEGV"
+      }
+    }
+  }
+]

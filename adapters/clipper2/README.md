@@ -2,7 +2,7 @@
 
 Adapter for [AngusJohnson/Clipper2](https://github.com/AngusJohnson/Clipper2) (C++, int64
 boolean operations), built from git `main` at a pinned commit. It follows the contract in
-`../../FORMAT.md`.
+`../../harness/FORMAT-v1.md`.
 
 `lib` is `clipper2@<version>-<short commit>`, currently `clipper2@2.0.1-f9c5eb6`. Variants
 append a suffix: `+nonzero`, `+pathsd8`, `+strict`, `+scale<B>`.
@@ -12,13 +12,15 @@ append a suffix: `+nonzero`, `+pathsd8`, `+strict`, `+scale<B>`.
 | file | what |
 |---|---|
 | `clipper2_adapter.cpp` | the adapter (built-in JSON reader, exact scaling and areas, forked worker) |
+| `adapter.toml` | manifest (DESIGN.md §4.2): fields, precision model and δ, coordinate range, options |
 | `build.sh` | clones Clipper2 at the pinned commit and compiles with `g++ -O2` (`JOBS`, default 2) |
 | `run.sh` | runs the adapter: `run.sh [options] CASES.jsonl > RESULTS.jsonl` |
 | `gen_int_cases.py` | generator for `int_cases.jsonl` (`python gen_int_cases.py [N_PER_FAMILY] [SEED]`, defaults 12 and 1) |
 | `int_cases.jsonl` | 204 integer-coordinate near-degenerate cases, 17 families of 12 |
 | `repro_small_triangle.cpp` | stand-alone repro of the small-triangle finding below, calling only the Clipper2 API |
 
-The build tree is `$BUILD_ROOT` (default `/tmp/claude-0/gb-build/clipper2`), outside the repo:
+The build tree is `$BUILD_ROOT`, outside the repo. It defaults to `$GEOTRUTH_BUILD_DIR/clipper2`,
+where `GEOTRUTH_BUILD_DIR` (shared by every adapter) defaults to `~/.cache/geotruth`. It holds
 `src/` (the clone), `obj/` (library objects), and `bin/clipper2_adapter` plus
 `bin/repro_small_triangle`. `CLIPPER2_COMMIT=main build.sh` builds whatever `main` is now,
 and the `lib` string records the commit.
@@ -119,7 +121,8 @@ are at unit scale. The families:
   (`int-beyond-maxcoord`, outside the documented range);
 - **thin triangles:** long triangles whose short side is 1 unit (`int-thin-triangle`).
 
-Validity is checked with shapely. Exact answers come from `python oracle.py int_cases.jsonl`.
+Validity is checked with shapely. Exact answers come from
+`python tests/reference/oracle.py adapters/clipper2/int_cases.jsonl`.
 
 Results at `clipper2@2.0.1-f9c5eb6` (compare.py, all 204 cases):
 
@@ -165,11 +168,16 @@ exact thin-triangle areas and no result with exact area > 0 where Clipper return
 unpatched library has 35 of those. The seed is unchanged. Under smallest-k scaling, a double-coordinate triangle whose short
 side is one unit of 2^-k is affected as well. `--scale-bits` and ClipperD (which scales by
 2^27) avoid it, because the short side becomes >= 2 units. It is not reported upstream from
-here.
+here: triage found it is documented behaviour (the Robustness page removes any solution
+triangle with an edge under 2 units), so it is recorded as `by-design` in
+[`findings/registry.toml`](../../findings/registry.toml); the evidence is in
+[`findings/clipper2-thin-triangle-dropped/`](../../findings/clipper2-thin-triangle-dropped/ISSUE.md).
+The manifest's δ (2 grid units) covers it.
 
 ## Seed smoke test
 
-`run.sh cases/seed.jsonl` gives 1000 lines. compare.py reports 15 disagreements, all
+`run.sh corpus/cases/seed.jsonl` gives 1000 lines. `harness/compare.py` against
+`corpus/expected-v1/seed.jsonl` reports 15 disagreements, all
 `error unsupported`: `tiny-rotation` cases whose coordinates need k > 60. There are 0 `area`
 and 0 predicate disagreements. The same holds for `--fill nonzero`, `--strict-range`,
 `--no-fork` and `--scale-bits 61`. With `--pathsd8`, the 250 `shared-sloped-edge` cases are

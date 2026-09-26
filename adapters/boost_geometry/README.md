@@ -1,7 +1,7 @@
 # boost_geometry: Boost.Geometry 1.83 and develop
 
 This directory has one C++ adapter source, `bg_adapter.cpp`. It is compiled twice by
-`build.sh` and implements the adapter contract in `../../FORMAT.md`.
+`build.sh` and implements the adapter contract in `../../harness/FORMAT-v1.md`.
 
 | variant | headers | `lib` field | run wrapper |
 |---|---|---|---|
@@ -23,20 +23,22 @@ This directory has one C++ adapter source, `bg_adapter.cpp`. It is compiled twic
 | file | purpose |
 |---|---|
 | `bg_adapter.cpp` | the adapter: a small JSON reader, Boost.Geometry calls, and fork/timeout isolation |
+| `adapter.toml` | manifest (DESIGN.md §4.2) for both variants: fields, precision model, tolerances, options |
 | `build.sh` | fetches the pinned develop commit and builds both binaries (2 compilers at once, about 40 s) |
 | `run_1.83.sh`, `run_develop.sh` | run wrappers: `run_X.sh CASES.jsonl > RESULTS.jsonl` |
 | `compat/boost/core/invoke_swap.hpp` | a shim needed only by the develop build (see below) |
 
-The build tree stays outside the repo, under `$BUILD_ROOT`
-(default `/tmp/claude-0/gb-build/boost-geometry`). It holds `geometry/` (a shallow clone
-at the pinned commit) and `bin/bg_adapter_{1.83,develop}`.
+The build tree stays outside the repo, under `$BUILD_ROOT` (default
+`$GEOTRUTH_BUILD_DIR/boost-geometry`, where `GEOTRUTH_BUILD_DIR`, shared by every adapter,
+defaults to `~/.cache/geotruth`). It holds `geometry/` (a shallow clone at the pinned
+commit) and `bin/bg_adapter_{1.83,develop}`.
 
 ```sh
 sudo apt-get install libboost-dev          # Boost 1.83 on Ubuntu 24.04
 adapters/boost_geometry/build.sh
-adapters/boost_geometry/run_1.83.sh    cases/seed.jsonl > /tmp/bg183.jsonl
-adapters/boost_geometry/run_develop.sh cases/seed.jsonl > /tmp/bgdev.jsonl
-python compare.py cases/seed.jsonl results/oracle/seed.jsonl /tmp/bgdev.jsonl
+adapters/boost_geometry/run_1.83.sh    corpus/cases/seed.jsonl > /tmp/bg183.jsonl
+adapters/boost_geometry/run_develop.sh corpus/cases/seed.jsonl > /tmp/bgdev.jsonl
+python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl /tmp/bgdev.jsonl
 ```
 
 ### Develop headers on top of Boost 1.83
@@ -56,7 +58,7 @@ header is missing.
 ## What is computed
 
 Types: `bg::model::polygon<bg::model::d2::point_xy<double>, /*ClockWise=*/false, /*Closed=*/true>`
-and `bg::model::multi_polygon` of that polygon. Following FORMAT.md, a case with exactly
+and `bg::model::multi_polygon` of that polygon. Following FORMAT-v1.md, a case with exactly
 one part becomes a `polygon`, and anything else becomes a `multi_polygon`. The four
 type combinations are dispatched through `std::variant`.
 
@@ -120,7 +122,7 @@ The design is the same as in `../geos_main`:
 
 Speed: 1000 seed cases take about 0.5 s per variant, including one fork per case.
 
-## Seed smoke test (cases/seed.jsonl, 1000 cases)
+## Seed smoke test (corpus/cases/seed.jsonl, 1000 cases)
 
 | | 1.83 | develop |
 |---|---|---|
@@ -156,6 +158,6 @@ traversal alone.
   tolerance. `touches` and `overlaps` go through relate. `within` and `covered_by` use
   the relate-based areal/areal implementation.
 - An unclosed input ring is kept as it is, since the type says Closed=true. `bg::is_valid`
-  then reports it invalid. FORMAT.md requires closed rings anyway.
+  then reports it invalid. FORMAT-v1.md requires closed rings anyway.
 - NaN or infinite coordinates are accepted by the parser (`strtod`). `bg::is_valid` reports
   them invalid, and the other fields hold whatever Boost returns.

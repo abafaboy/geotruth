@@ -10,7 +10,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GEOS_REPO="${GEOS_REPO:-https://github.com/libgeos/geos}"
 GEOS_COMMIT="${GEOS_COMMIT:-ae9cdd98be4e0bae552b918d4d14c94a9ce99c58}"
-BUILD_ROOT="${BUILD_ROOT:-/tmp/claude-0/gb-build/geos-main}"
+BUILD_ROOT="${BUILD_ROOT:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/geos-main}"
 JOBS="${JOBS:-2}"
 CC="${CC:-cc}"
 

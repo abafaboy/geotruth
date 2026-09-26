@@ -1,0 +1,443 @@
+[
+  {
+    "why": "b is missing",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "why": "unknown geometry type",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Circle",
+        "coordinates": [
+          0,
+          0,
+          1
+        ]
+      },
+      "b": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "why": "a position needs two numbers",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Point",
+        "coordinates": [
+          1
+        ]
+      },
+      "b": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "why": "degeneracy class is an enum",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "nearly"
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "b": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "why": "no unknown top-level keys",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "b": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      },
+      "expected": {}
+    }
+  },
+  {
+    "why": "legacy v1 geometries are not v2",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": [
+        [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      ],
+      "b": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "why": "ordinates must be JSON numbers",
+    "instance": {
+      "id": "shared-edge-000001",
+      "family": "shared-edge",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal",
+        "n": 10,
+        "k": 2,
+        "types": [
+          "Polygon",
+          "Polygon"
+        ]
+      },
+      "provenance": {
+        "source": "generator",
+        "generator": "corpus/generators/families.py",
+        "generator_version": "2",
+        "seed": 3
+      },
+      "a": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "b": {
+        "type": "Point",
+        "coordinates": [
+          "1",
+          "2"
+        ]
+      }
+    }
+  }
+]

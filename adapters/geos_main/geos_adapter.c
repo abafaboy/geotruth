@@ -1,6 +1,6 @@
 /*
  * GEOS (git main) adapter for the geometry bug hunt, written against the reentrant
- * GEOS C API (geos_c.h, *_r functions).  Implements the contract in ../../FORMAT.md:
+ * GEOS C API (geos_c.h, *_r functions).  Implements the contract in ../../harness/FORMAT-v1.md:
  *
  *     geos_adapter CASES.jsonl > RESULTS.jsonl
  *

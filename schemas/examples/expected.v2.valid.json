@@ -1,0 +1,249 @@
+[
+  {
+    "id": "shared-edge-000001",
+    "case_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "engine": {
+      "version": "0.1.0",
+      "sha": "04e3918",
+      "backend": "gmpy2"
+    },
+    "status": "ok",
+    "dimensions": {
+      "a": {
+        "dimension": 2,
+        "real_dimension": 2
+      },
+      "b": {
+        "dimension": 2,
+        "real_dimension": 2
+      }
+    },
+    "relate": "212101212",
+    "predicates": {
+      "intersects": true,
+      "disjoint": false,
+      "touches": false,
+      "crosses": false,
+      "overlaps": true,
+      "contains": false,
+      "covers": false,
+      "within": false,
+      "covered_by": false,
+      "equals": false
+    },
+    "validity": {
+      "a": {
+        "valid": true,
+        "reasons": [],
+        "first_reason": null
+      },
+      "b": {
+        "valid": true,
+        "reasons": [],
+        "first_reason": null
+      }
+    },
+    "overlay": {
+      "intersection": {
+        "non_strict": {
+          "exact": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  "1",
+                  "1"
+                ],
+                [
+                  "2",
+                  "1"
+                ],
+                [
+                  "2",
+                  "2"
+                ],
+                [
+                  "1",
+                  "2"
+                ],
+                [
+                  "1",
+                  "1"
+                ]
+              ]
+            ]
+          },
+          "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+          "area": "1",
+          "num_vertices": 4
+        },
+        "areal": {
+          "exact": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  "1",
+                  "1"
+                ],
+                [
+                  "2",
+                  "1"
+                ],
+                [
+                  "2",
+                  "2"
+                ],
+                [
+                  "1",
+                  "2"
+                ],
+                [
+                  "1",
+                  "1"
+                ]
+              ]
+            ]
+          },
+          "wkt": "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
+          "area": "1"
+        }
+      }
+    },
+    "measures": {
+      "area_a": "4",
+      "area_b": "4",
+      "length_a": {
+        "lo": "8",
+        "hi": "8",
+        "rounded": 8.0
+      }
+    }
+  },
+  {
+    "id": "big-000002",
+    "engine": {
+      "version": "0.1.0",
+      "sha": "04e3918",
+      "backend": "gmpy2"
+    },
+    "status": "engine_skipped",
+    "reason": "n + k = 250000 exceeds the budget of 200000"
+  },
+  {
+    "id": "invalid-bowtie-000003",
+    "engine": {
+      "version": "0.1.0",
+      "sha": "04e3918",
+      "backend": "gmpy2"
+    },
+    "status": "ok",
+    "dimensions": {
+      "a": {
+        "dimension": 2,
+        "real_dimension": 2
+      },
+      "b": {
+        "dimension": 2,
+        "real_dimension": 2
+      }
+    },
+    "validity": {
+      "a": {
+        "valid": false,
+        "reasons": [
+          "self_intersection"
+        ],
+        "first_reason": "self_intersection",
+        "message": "Self-intersection"
+      },
+      "b": {
+        "valid": true,
+        "reasons": [],
+        "first_reason": null
+      }
+    }
+  },
+  {
+    "id": "tri-000004",
+    "engine": {
+      "version": "0.1.0",
+      "sha": "04e3918",
+      "backend": "gmpy2"
+    },
+    "status": "ok",
+    "dimensions": {
+      "a": {
+        "dimension": 2,
+        "real_dimension": 2
+      },
+      "b": {
+        "dimension": 2,
+        "real_dimension": 2
+      }
+    },
+    "relate": "212101212",
+    "predicates": {
+      "intersects": true,
+      "disjoint": false,
+      "touches": false,
+      "crosses": false,
+      "overlaps": true,
+      "contains": false,
+      "covers": false,
+      "within": false,
+      "covered_by": false,
+      "equals": false
+    },
+    "validity": {
+      "a": {
+        "valid": true,
+        "reasons": [],
+        "first_reason": null
+      },
+      "b": {
+        "valid": true,
+        "reasons": [],
+        "first_reason": null
+      }
+    },
+    "overlay": {
+      "intersection": {
+        "non_strict": {
+          "exact": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  "0",
+                  "0"
+                ],
+                [
+                  "2/3",
+                  "1/3"
+                ],
+                [
+                  "-1/7",
+                  "5"
+                ],
+                [
+                  "0",
+                  "0"
+                ]
+              ]
+            ]
+          },
+          "wkt": "POLYGON ((0 0, 0.6666666666666666 0.3333333333333333, -0.14285714285714285 5, 0 0))"
+        },
+        "areal": {
+          "exact": {
+            "type": "Polygon",
+            "coordinates": []
+          },
+          "wkt": "POLYGON EMPTY",
+          "area": "0"
+        }
+      }
+    }
+  }
+]

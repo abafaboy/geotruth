@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/adapter.v2.schema.json",
+  "title": "geotruth adapter manifest (manifest_version 1)",
+  "description": "adapters/<dir>/adapter.toml, parsed (TOML maps 1:1 onto this JSON); the format is documented in adapters/README.md. One [adapter] table describes the adapter program; one [[target]] per library build it runs (a directory may drive several, e.g. two Boost versions or four JS libraries). The runner, the scorer and the site read it (DESIGN §4.2). Statements not checked against the library's source or documentation carry an '# uncertain:' comment in the TOML.",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "adapter",
+    "target"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": 1
+    },
+    "adapter": {
+      "type": "object",
+      "required": [
+        "name",
+        "language",
+        "contract",
+        "build"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]*$",
+          "description": "The directory under adapters/."
+        },
+        "language": {
+          "type": "string",
+          "description": "e.g. \"C++17\"."
+        },
+        "contract": {
+          "enum": [
+            "v1",
+            "v2"
+          ],
+          "description": "v1: harness/FORMAT-v1.md; v2: DESIGN §4.1 (schemas/result.v2.schema.json)."
+        },
+        "owner": {
+          "type": "string",
+          "description": "Who maintains the adapter."
+        },
+        "build": {
+          "type": "string",
+          "description": "Build or install command/script."
+        },
+        "build_root": {
+          "type": "string",
+          "description": "Build tree, under $GEOTRUTH_BUILD_DIR (default ~/.cache/geotruth)."
+        },
+        "build_root_override": {
+          "type": "string",
+          "description": "Variable that moves this adapter's build tree on its own."
+        },
+        "build_recipe": {
+          "type": "string"
+        },
+        "isolation": {
+          "type": "string",
+          "description": "Crash, hang and memory isolation per case or operation."
+        }
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Target"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Field": {
+      "description": "A result field: a FORMAT-v1 field name, or a v2 field path (relate, valid_a, valid_b, echo, predicates.<name>, overlay.<op>).",
+      "anyOf": [
+        {
+          "enum": [
+            "valid_a",
+            "valid_b",
+            "intersects",
+            "disjoint",
+            "touches",
+            "overlaps",
+            "contains",
+            "covers",
+            "within",
+            "covered_by",
+            "equals",
+            "area_inter",
+            "area_union",
+            "area_diff",
+            "area_symdiff"
+          ]
+        },
+        {
+          "pattern": "^(relate|valid_a|valid_b|echo|predicates\\.[a-z_]+|overlay\\.[a-z]+)$"
+        }
+      ]
+    },
+    "Target": {
+      "type": "object",
+      "description": "One library build the adapter runs.",
+      "required": [
+        "id",
+        "library",
+        "lib",
+        "run",
+        "version_command",
+        "fields",
+        "precision",
+        "coordinates"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "description": "Name used by the runner and the results directories."
+        },
+        "library": {
+          "type": "string"
+        },
+        "upstream": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "description": "Release, or what the development branch reports."
+        },
+        "commit": {
+          "type": "string",
+          "description": "Pinned commit, when built from git."
+        },
+        "lib": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._+-]+@[^\\s]+$",
+          "description": "The lib field of its result lines."
+        },
+        "run": {
+          "type": "string"
+        },
+        "version_command": {
+          "type": "string"
+        },
+        "toolchain": {
+          "type": "string",
+          "description": "Compiler/runtime and flags."
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Every departure from the library's defaults."
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional modes run by hand; each appends a suffix to lib."
+        },
+        "fields": {
+          "type": "object",
+          "required": [
+            "supported"
+          ],
+          "properties": {
+            "supported": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Field"
+              },
+              "uniqueItems": true,
+              "description": "Computed by a library call of its own."
+            },
+            "derived": {
+              "type": "object",
+              "description": "Computed from other calls (field -> how), e.g. disjoint = \"not intersects\"; scored once.",
+              "propertyNames": {
+                "$ref": "#/$defs/Field"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "unsupported": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Field"
+              },
+              "uniqueItems": true,
+              "description": "Always null."
+            }
+          },
+          "additionalProperties": false
+        },
+        "precision": {
+          "type": "object",
+          "required": [
+            "model",
+            "delta",
+            "tolerance_predicates"
+          ],
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "Precision model of overlay and predicates."
+            },
+            "delta": {
+              "type": "object",
+              "description": "delta_lib, the overlay displacement budget. relative: value x M (M = largest |ordinate| of the case); grid: value grid steps (see grid); ulp: value ulps of M; absolute: value in input units; undocumented: no documented bound (graded only in tiers 1, 2, 4-6).",
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "relative",
+                    "grid",
+                    "ulp",
+                    "absolute",
+                    "undocumented"
+                  ]
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false,
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "undocumented"
+                  }
+                }
+              },
+              "then": {},
+              "else": {
+                "required": [
+                  "value"
+                ]
+              }
+            },
+            "grid": {
+              "type": "string",
+              "description": "For delta.kind = grid: the grid step."
+            },
+            "tolerance_predicates": {
+              "type": "boolean",
+              "description": "Does any predicate use a tolerance (Turf 1e-6, Boost equals)?"
+            },
+            "tolerances": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Which tolerances, and how large."
+            }
+          },
+          "additionalProperties": false,
+          "if": {
+            "properties": {
+              "delta": {
+                "properties": {
+                  "kind": {
+                    "const": "grid"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "grid"
+            ]
+          }
+        },
+        "coordinates": {
+          "type": "object",
+          "required": [
+            "range"
+          ],
+          "properties": {
+            "range": {
+              "type": "string",
+              "description": "The supported coordinate range."
+            },
+            "out_of_range": {
+              "enum": [
+                "unsupported",
+                "not detected"
+              ],
+              "description": "What the adapter reports beyond it."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

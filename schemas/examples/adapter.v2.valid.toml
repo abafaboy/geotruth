@@ -1,0 +1,69 @@
+# Example adapter manifest (adapters/<dir>/adapter.toml, manifest_version 1), validated
+# against schemas/adapter.v2.schema.json. The format is documented in adapters/README.md.
+# Illustrative values: one adapter program driving two builds of one library.
+
+manifest_version = 1
+
+[adapter]
+name = "example_lib"
+language = "C++17"
+contract = "v2"
+owner = "abafaboy"
+build = "adapters/example_lib/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/example-lib"
+build_root_override = "BUILD_ROOT"
+isolation = "each operation runs in a forked child with a 3 s timeout and a 4 GiB cap"
+
+[[target]]
+id = "example-release"
+library = "Example"
+upstream = "https://example.org/example"
+version = "2.0.1"
+lib = "example@2.0.1"
+run = "adapters/example_lib/run_release.sh"
+version_command = "adapters/example_lib/run_release.sh --version"
+toolchain = "g++ 13.3, -O2"
+options = []
+
+[target.fields]
+supported = ["relate", "valid_a", "valid_b", "predicates.intersects", "predicates.within",
+             "overlay.intersection", "overlay.union", "overlay.difference", "echo"]
+unsupported = ["predicates.crosses"]
+
+[target.fields.derived]
+"predicates.contains" = "within(B, A)"
+"overlay.symdifference" = "union of the two differences"
+
+[target.precision]
+model = "integer grid of 2^-k after scaling; output vertices snapped to the grid"
+delta = { kind = "grid", value = 2 }
+grid = "2^-k, k = --scale-bits"
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "|x| < 2^61 after scaling"
+out_of_range = "unsupported"
+
+[[target]]
+id = "example-develop"
+library = "Example"
+version = "develop"
+commit = "0123456789abcdef0123456789abcdef01234567"
+lib = "example@develop-0123456"
+run = "adapters/example_lib/run_develop.sh"
+version_command = "adapters/example_lib/run_develop.sh --version"
+variants = ["--strict-range (+strict)"]
+
+[target.fields]
+supported = ["area_inter", "area_union"]  # FORMAT-v1 field names are accepted too
+
+[target.precision]
+model = "floating"
+delta = { kind = "undocumented" }
+tolerance_predicates = true
+tolerances = ["equals compares collected vectors with a 1e-12 tolerance"]
+
+[target.coordinates]
+range = "any finite double"
+out_of_range = "not detected"

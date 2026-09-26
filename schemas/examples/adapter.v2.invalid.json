@@ -1,0 +1,228 @@
+[
+  {
+    "why": "at least one target",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": []
+    }
+  },
+  {
+    "why": "precision is required",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "relate"
+            ]
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "why": "a documented delta needs a value",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "relate"
+            ]
+          },
+          "precision": {
+            "model": "m",
+            "delta": {
+              "kind": "relative"
+            },
+            "tolerance_predicates": false
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "why": "a grid delta needs the grid step",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "relate"
+            ]
+          },
+          "precision": {
+            "model": "m",
+            "delta": {
+              "kind": "grid",
+              "value": 2
+            },
+            "tolerance_predicates": false
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "why": "unknown result field",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "area_everything"
+            ]
+          },
+          "precision": {
+            "model": "floating",
+            "delta": {
+              "kind": "ulp",
+              "value": 0.5
+            },
+            "tolerance_predicates": false
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "why": "contract is v1 or v2",
+    "instance": {
+      "manifest_version": 1,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v3",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "relate"
+            ]
+          },
+          "precision": {
+            "model": "floating",
+            "delta": {
+              "kind": "ulp",
+              "value": 0.5
+            },
+            "tolerance_predicates": false
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "why": "manifest_version is 1",
+    "instance": {
+      "manifest_version": 2,
+      "adapter": {
+        "name": "x",
+        "language": "C",
+        "contract": "v2",
+        "build": "build.sh"
+      },
+      "target": [
+        {
+          "id": "x",
+          "library": "X",
+          "lib": "x@1.0",
+          "run": "run.sh",
+          "version_command": "run.sh --version",
+          "fields": {
+            "supported": [
+              "relate"
+            ]
+          },
+          "precision": {
+            "model": "floating",
+            "delta": {
+              "kind": "ulp",
+              "value": 0.5
+            },
+            "tolerance_predicates": false
+          },
+          "coordinates": {
+            "range": "any finite double"
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,56 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from README.md in this directory unless marked "uncertain".
+manifest_version = 1
+
+[adapter]
+name = "clipper2"
+language = "C++17"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/clipper2/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/clipper2"
+build_root_override = "BUILD_ROOT"
+build_recipe = "shallow fetch of the pinned commit into src/, library objects in obj/, adapter and repro_small_triangle in bin/ (CLIPPER2_COMMIT=main builds the current main)"
+isolation = "reads all cases, then a forked worker runs them in order; a crash gives errors.crash (the signal) and a new worker continues; a case over --timeout (default 10 s) is killed and gets errors.timeout"
+
+[[target]]
+id = "clipper2"
+library = "Clipper2"
+upstream = "https://github.com/AngusJohnson/Clipper2"
+version = "2.0.1"
+commit = "f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd"
+lib = "clipper2@2.0.1-f9c5eb6"
+run = "adapters/clipper2/run.sh"
+version_command = "adapters/clipper2/run.sh --version"
+toolchain = "g++ 13.3 (Ubuntu 24.04), -O2 -g -std=c++17 -Wall"
+options = [
+    "Clipper64 on integer coordinates: each case is scaled by 2^k (the smallest k in 0..60 that makes every ordinate an integer), which is exact for doubles, instead of the double API ClipperD/PathsD with a decimal precision",
+    "FillRule::EvenOdd (the API has no default fill rule; EvenOdd is correct for valid OGC input)",
+    "areas are measured by the adapter: exact shoelace over the output Paths64 (int128 products, 192-bit accumulator), rounded once, divided by 4^k",
+]
+# variants run by hand, not by harness/hunt.sh; each appends a suffix to `lib`
+variants = ["--fill nonzero (+nonzero)", "--pathsd8 (+pathsd8)", "--strict-range (+strict)", "--scale-bits B (+scale<B>)"]
+
+[target.fields]
+supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]
+unsupported = [
+    "valid_a", "valid_b",  # Clipper2 has no validity check
+    "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+]
+
+[target.fields.derived]
+intersects = "Intersect area > 0, or the boundaries meet: PointInPolygon(...) == IsOn for every vertex against every ring of the other operand, or a proper edge crossing by CrossProductSign (int128, exact below 2^62)"
+disjoint = "not intersects"
+
+[target.precision]
+model = "exact integer arithmetic on the input scaled by 2^k; every new intersection point is rounded to the integer grid; result triangles with an edge shorter than 2 grid units are deleted (IsVerySmallTriangle, documented on the Robustness page)"
+delta = { kind = "grid", value = 2 }  # the small-triangle rule removes components up to 2 units wide; rounding alone moves a vertex by at most sqrt(2)/2 unit
+grid = "2^-k, k the smallest integer in 0..60 that makes every ordinate of both operands an integer (--scale-bits B uses the largest k keeping every scaled ordinate below 2^B)"
+tolerance_predicates = false
+tolerances = [
+    "documented: a solution triangle with an edge < 2 units is treated as zero area and removed, whatever its other edges (findings/registry.toml: by-design)",
+]
+
+[target.coordinates]
+range = "every ordinate times 2^k must be an integer of magnitude below 2^62, with k <= 60; Clipper2 documents MAX_COORD = INT64_MAX >> 2 = 2^61 - 1, and cases in [2^61, 2^62) are accepted with over_max_coord = true (unsupported with --strict-range)"
+out_of_range = "unsupported"  # errors.unsupported = "non-dyadic or out of range"; seed: 15 tiny-rotation cases need k > 60

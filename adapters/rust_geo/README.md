@@ -1,7 +1,7 @@
 # rust_geo: the georust `geo` crate
 
 Adapter for [georust/geo](https://github.com/georust/geo), the Rust crate, built from
-crates.io. It follows the contract in `../../FORMAT.md`.
+crates.io. It follows the contract in `../../harness/FORMAT-v1.md`.
 
 - `lib` is `geo@<version>`, currently `geo@0.33.1` (the latest on crates.io on 2026-09-26).
   `build.rs` reads the version from `Cargo.lock`, so the string always matches the build.
@@ -19,20 +19,22 @@ crates.io. It follows the contract in `../../FORMAT.md`.
 |---|---|
 | `Cargo.toml`, `Cargo.lock` | the crate, with pinned dependencies |
 | `build.rs` | puts the locked geo and i_overlay versions into the binary |
+| `adapter.toml` | manifest (DESIGN.md §4.2): fields, precision model and δ, coordinate range, options |
 | `src/main.rs` | the adapter: a supervisor process plus a worker process (the same binary) |
 | `build.sh` | `cargo build --release --locked -j2`. `UPDATE=1` runs `cargo update` first |
 | `run.sh` | run wrapper: `run.sh [--in-process] CASES.jsonl > RESULTS.jsonl` |
 | `examples/repro_thin_triangle.rs` | stand-alone repro of the thin-triangle collapse described below |
 
-The build tree is `$CARGO_TARGET_DIR`, which defaults to `/tmp/claude-0/gb-build/rust-geo/target`
-and sits outside the repo. The binary is `$CARGO_TARGET_DIR/release/geo_adapter`.
+The build tree is `$CARGO_TARGET_DIR`, which defaults to `$GEOTRUTH_BUILD_DIR/rust-geo/target`
+(`GEOTRUTH_BUILD_DIR`, shared by every adapter, defaults to `~/.cache/geotruth`) and sits
+outside the repo. The binary is `$CARGO_TARGET_DIR/release/geo_adapter`.
 
 ```sh
 adapters/rust_geo/build.sh
-adapters/rust_geo/run.sh cases/seed.jsonl > results/rust-geo/seed.jsonl
-python compare.py cases/seed.jsonl results/oracle/seed.jsonl results/rust-geo/seed.jsonl
+adapters/rust_geo/run.sh corpus/cases/seed.jsonl > /tmp/rust-geo-seed.jsonl
+python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl /tmp/rust-geo-seed.jsonl
 # the repro:
-(cd adapters/rust_geo && CARGO_TARGET_DIR=/tmp/claude-0/gb-build/rust-geo/target \
+(cd adapters/rust_geo && CARGO_TARGET_DIR=${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/rust-geo/target \
    cargo run --release --locked --example repro_thin_triangle)
 ```
 
@@ -141,7 +143,7 @@ Speed: the 1000 seed cases take about 0.2 s.
 
 ## Smoke test (seed.jsonl)
 
-`run.sh cases/seed.jsonl`, then `compare.py` against `results/oracle/seed.jsonl`:
+`run.sh corpus/cases/seed.jsonl`, then `compare.py` against `corpus/expected-v1/seed.jsonl`:
 **1000 cases, 0 disagreements** of any kind (predicate, area, validity or error), no
 `alt` entries, and no errors. The 13 hand-made hole and multipolygon cases (holes,
 filled holes, a polygon inside a hole, multi against poly both ways, equal multipolygons in

@@ -1,0 +1,81 @@
+[
+  {
+    "why": "tier applies to overlay only",
+    "instance": {
+      "id": "shared-edge-000001",
+      "lib": "geos@3.13.1",
+      "family": "shared-edge",
+      "capability": "relate",
+      "verdict": "wrong",
+      "fields": [
+        "relate"
+      ],
+      "expected": "212101212",
+      "got": "212111212",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal"
+      },
+      "versions": {
+        "corpus": "1",
+        "expected": "1",
+        "engine": "0.1.0",
+        "lib": "3.13.1"
+      },
+      "cluster": "geos|shared-edge|BB",
+      "tier": "exact"
+    }
+  },
+  {
+    "why": "verdict is an enum",
+    "instance": {
+      "id": "shared-edge-000001",
+      "lib": "geos@3.13.1",
+      "family": "shared-edge",
+      "capability": "relate",
+      "verdict": "bad",
+      "fields": [
+        "relate"
+      ],
+      "expected": "212101212",
+      "got": "212111212",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal"
+      },
+      "versions": {
+        "corpus": "1",
+        "expected": "1",
+        "engine": "0.1.0",
+        "lib": "3.13.1"
+      },
+      "cluster": "geos|shared-edge|BB"
+    }
+  },
+  {
+    "why": "capability is an enum",
+    "instance": {
+      "id": "shared-edge-000001",
+      "lib": "geos@3.13.1",
+      "family": "shared-edge",
+      "capability": "area",
+      "verdict": "wrong",
+      "fields": [
+        "relate"
+      ],
+      "expected": "212101212",
+      "got": "212111212",
+      "tags": {
+        "degeneracy": "lattice",
+        "range": "normal"
+      },
+      "versions": {
+        "corpus": "1",
+        "expected": "1",
+        "engine": "0.1.0",
+        "lib": "3.13.1"
+      },
+      "cluster": "geos|shared-edge|BB"
+    }
+  }
+]

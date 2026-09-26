@@ -1,0 +1,97 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from README.md in this directory unless marked "uncertain". One adapter source,
+# bg_adapter.cpp, is compiled twice: against the system Boost 1.83 and against develop.
+manifest_version = 1
+
+[adapter]
+name = "boost_geometry"
+language = "C++17"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/boost_geometry/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/boost-geometry"
+build_root_override = "BUILD_ROOT"
+build_recipe = "needs the system Boost 1.83 headers (apt libboost-dev); shallow fetch of boostorg/geometry develop at the pinned commit into geometry/; both binaries in bin/; the develop build is checked to include no Boost.Geometry header from /usr/include"
+isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (BG_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation and a fresh child continues; child address space capped at BG_ADAPTER_MEM_MB (default 4096)"
+
+[[target]]
+id = "boost-1.83"
+library = "Boost.Geometry"
+upstream = "https://github.com/boostorg/geometry"
+version = "1.83 (Ubuntu 24.04 libboost-dev 1.83.0.1ubuntu2)"
+lib = "boost-geometry@1.83"
+run = "adapters/boost_geometry/run_1.83.sh"
+version_command = "adapters/boost_geometry/run_1.83.sh --version"
+toolchain = "g++ 13.3 (Ubuntu 24.04), -std=c++17 -O2 -g0 -DNDEBUG"
+options = [
+    "polygon type: bg::model::polygon<point_xy<double>, ClockWise = false, Closed = true> (Boost's default model is clockwise)",
+    "every ring is re-oriented to that type by an exact orientation test (cpp_rational), not by bg::correct(), which decides with the floating-point area",
+    "-DNDEBUG: release semantics, Boost asserts off",
+]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # bg::is_valid
+    "intersects", "disjoint", "touches", "overlaps", "within", "covered_by",
+    "equals",  # bg::equals: areas and collected vectors, with a tolerance
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # bg::area of bg::intersection etc.
+]
+unsupported = []
+
+[target.fields.derived]
+contains = "bg::within(b, a): Boost.Geometry has no contains"
+covers = "bg::covered_by(b, a): Boost.Geometry has no covers"
+
+[target.precision]
+model = "IEEE double throughout, BOOST_GEOMETRY_NO_ROBUSTNESS (the 1.83 default: no rescaling to integers)"
+delta = { kind = "undocumented" }  # Boost.Geometry documents no bound on overlay output
+tolerance_predicates = true
+tolerances = [
+    "bg::equals on Cartesian polygons compares the areas and then the sorted collected vectors (edge directions) with a tolerance; it is not DE-9IM equality",
+]
+
+[target.coordinates]
+range = "any finite double"  # uncertain: no documented limit
+out_of_range = "not detected"  # NaN and infinity parse (strtod); bg::is_valid reports them invalid
+
+[[target]]
+id = "boost-develop"
+library = "Boost.Geometry"
+upstream = "https://github.com/boostorg/geometry"
+version = "develop"
+commit = "196d04c614c12a8d788212b63fa65d25c8b7ea86"
+lib = "boost-geometry@develop-196d04c"
+run = "adapters/boost_geometry/run_develop.sh"
+version_command = "adapters/boost_geometry/run_develop.sh --version"
+toolchain = "g++ 13.3 (Ubuntu 24.04), -std=c++17 -O2 -g0 -DNDEBUG; develop headers first on the include path, then compat/ (a shim for <boost/core/invoke_swap.hpp>), then the system Boost 1.83"
+options = [
+    "polygon type: bg::model::polygon<point_xy<double>, ClockWise = false, Closed = true> (Boost's default model is clockwise)",
+    "every ring is re-oriented to that type by an exact orientation test (cpp_rational), not by bg::correct(), which decides with the floating-point area",
+    "-DNDEBUG: release semantics, Boost asserts off",
+    "every Boost library other than Geometry comes from the system 1.83",
+]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "within", "covered_by",
+    "equals",
+    "area_inter", "area_union", "area_diff", "area_symdiff",
+]
+unsupported = []
+
+[target.fields.derived]
+contains = "bg::within(b, a): Boost.Geometry has no contains"
+covers = "bg::covered_by(b, a): Boost.Geometry has no covers"
+
+[target.precision]
+model = "IEEE double throughout; develop has removed the rescaling code altogether; the overlay traversal is the new graph-based code (algorithms/detail/overlay/graph/)"
+delta = { kind = "undocumented" }
+tolerance_predicates = true
+tolerances = [
+    "bg::equals on Cartesian polygons compares the areas and then the sorted collected vectors (edge directions) with a tolerance; it is not DE-9IM equality",
+]
+
+[target.coordinates]
+range = "any finite double"  # uncertain: no documented limit
+out_of_range = "not detected"

@@ -1,0 +1,58 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from README.md in this directory unless marked "uncertain".
+manifest_version = 1
+
+[adapter]
+name = "rust_geo"
+language = "Rust (edition 2021)"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/rust_geo/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/rust-geo/target"
+build_root_override = "CARGO_TARGET_DIR"
+build_recipe = "cargo build --release --locked -j2; Cargo.lock pins geo and every transitive crate (UPDATE=1 runs cargo update first)"
+isolation = "a supervisor feeds cases to a worker child (the same binary); every operation runs under catch_unwind; an operation over GEO_ADAPTER_TIMEOUT (default 10 s) or a dead worker fails that one operation and a new worker continues; worker address space capped at GEO_ADAPTER_MEM_MB (default 4096)"
+
+[[target]]
+id = "rust-geo"
+library = "geo (georust), with i_overlay for boolean operations"
+upstream = "https://github.com/georust/geo"
+version = "geo 0.33.1, i_overlay 4.5.2, i_float 1.16.0"
+lib = "geo@0.33.1"
+run = "adapters/rust_geo/run.sh"
+version_command = "adapters/rust_geo/run.sh --version"
+toolchain = "rustc/cargo 1.94.1, release profile (panic = unwind, debug = 1)"
+options = [
+    "geo with its default features (earcut, spade, multithreading); run.sh sets RAYON_NUM_THREADS=1",
+    "serde_json with float_roundtrip, so every coordinate parses to the exact double (the default fast path can be 1 ulp off)",
+]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # Validation::check_validation; does not check interior connectivity (rule R5)
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # unsigned_area of BooleanOps (even-odd, OverlayOptions::ogc())
+]
+unsupported = []
+
+[target.fields.derived]
+# one a.relate(&b) call (the GeometryGraph port of JTS RelateOp) gives every predicate
+intersects = "relate(a, b).is_intersects()"
+disjoint = "relate(a, b).is_disjoint()"
+touches = "relate(a, b).is_touches()"
+overlaps = "relate(a, b).is_overlaps()"
+contains = "relate(a, b).is_contains()"
+covers = "relate(a, b).is_covers()"
+within = "relate(a, b).is_within()"
+covered_by = "relate(a, b).is_coveredby()"
+equals = "relate(a, b).is_equal_topo()"
+
+[target.precision]
+model = "Predicates: Relate with floating-point intersection points and robust orientation (the pre-RelateNG JTS design), no tolerance and no grid. Overlay: i_overlay maps every input point to an i32 grid centred on the joint bounding box, rounding half away from zero, overlays exactly on the integers and maps output vertices back"
+delta = { kind = "grid", value = 2 }  # uncertain: input rounding (<= sqrt(2)/2 step) plus rounding of intersection points (<= sqrt(2)/2 step); i_overlay documents no bound. Features thinner than a step vanish
+grid = "2^(round(log2(H)) - 29), H = the largest half-extent of the joint bounding box of A and B (scale = 2^(29 - round(log2 H)))"
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # the grid adapts to the extent; uncertain: behaviour near the double range limits is untested
+out_of_range = "not detected"

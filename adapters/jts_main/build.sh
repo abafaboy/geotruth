@@ -4,7 +4,7 @@
 #   adapters/jts_main/build.sh            # clone (if needed) and build
 #   adapters/jts_main/build.sh --update   # fetch the latest master first
 #
-# Build tree: $JTS_BUILD_DIR (default /tmp/claude-0/gb-build/jts-main), outside the repo:
+# Build tree: $JTS_BUILD_DIR (default $GEOTRUTH_BUILD_DIR/jts-main, GEOTRUTH_BUILD_DIR defaulting to ~/.cache/geotruth), outside the repo:
 #   src/           shallow clone of https://github.com/locationtech/jts (master)
 #   m2/            private Maven repository
 #   out/jts-core.jar, out/classes/JtsAdapter*.class, out/lib.txt
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BUILD="${JTS_BUILD_DIR:-/tmp/claude-0/gb-build/jts-main}"
+BUILD="${JTS_BUILD_DIR:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/jts-main}"
 SRC="$BUILD/src"
 OUT="$BUILD/out"
 JOBS="${JOBS:-2}"

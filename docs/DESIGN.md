@@ -127,7 +127,7 @@ Validity follows GEOS IsValidOp for every type:
 - **GC:** validity is checked per element.
 - **LineString:** valid if it has at least 2 distinct points.
 - **Empty geometries:** always valid.
-- **Polygons and multipolygons:** rules R0-R6 from `oracle_review/validity.py`:
+- **Polygons and multipolygons:** rules R0-R6 from `tests/reference/validity.py`:
   - invalid coordinate;
   - ring closure;
   - too few points;

@@ -1,0 +1,48 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from geos_adapter.c, the built tree and the GEOS sources at the pinned commit,
+# unless marked "uncertain".
+manifest_version = 1
+
+[adapter]
+name = "geos_main"
+language = "C (GEOS reentrant C API, geos_c.h *_r functions)"
+contract = "v1"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/geos_main/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/geos-main"
+build_root_override = "BUILD_ROOT"
+build_recipe = "GEOS git main at the pinned commit in src/, CMake build in build/, installed to install/, adapter binary in bin/geos_adapter"
+isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (GEOS_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation and a fresh child continues; child address space capped at GEOS_ADAPTER_MEM_MB (default 4096)"
+
+[[target]]
+id = "geos-main"
+library = "GEOS"
+upstream = "https://github.com/libgeos/geos"
+version = "3.16.0dev"
+commit = "ae9cdd98be4e0bae552b918d4d14c94a9ce99c58"
+lib = "geos@3.16.0dev-ae9cdd9"
+run = "adapters/geos_main/run.sh"
+version_command = "adapters/geos_main/run.sh --version"
+toolchain = "c++ = g++ 13.3, CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG)"  # uncertain: from build/CMakeCache.txt; the adapter's own compile flags are in build.sh
+options = []  # library defaults throughout: floating PrecisionModel, OverlayNG, RelateNG
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # GEOSisValid_r (IsValidOp, isInvertedRingValid = false)
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",  # GEOSEquals_r: topological equality
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # GEOSArea_r of GEOSIntersection_r etc.
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double, floating PrecisionModel. Overlay: OverlayNG through OverlayNGRobust (floating noder, then snapping noder with tolerance M/1e12 multiplied by 10 on each of 5 tries, then snap-rounding at about 14 significant digits). Predicates: RelateNG (GEOS >= 3.13), robust orientation, no tolerance"
+delta = { kind = "relative", value = 1e-8 }  # uncertain: the loosest documented fallback, the 5th snapping try (OverlayNGRobust.cpp: SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5, x10 per try); a snapping noder moves a vertex by at most its tolerance
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: GEOS documents no limit; areas overflow to infinity above about 1.3e154
+out_of_range = "not detected"

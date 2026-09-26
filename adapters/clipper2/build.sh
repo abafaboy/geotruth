@@ -11,7 +11,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="${CLIPPER2_REPO:-https://github.com/AngusJohnson/Clipper2}"
 COMMIT="${CLIPPER2_COMMIT:-f9c5eb6e14a59f6f5d65fbfb3564519a561cf4fd}"
-BUILD_ROOT="${BUILD_ROOT:-/tmp/claude-0/gb-build/clipper2}"
+BUILD_ROOT="${BUILD_ROOT:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/clipper2}"
 JOBS="${JOBS:-2}"
 CXX="${CXX:-g++}"
 

@@ -5,7 +5,7 @@
 #   adapters/jts_main/run.sh --relate ng CASES.jsonl > RESULTS.jsonl   # RelateNG predicates
 #   adapters/jts_main/run.sh --timeout 30 CASES.jsonl > RESULTS.jsonl  # per-case budget, s
 set -euo pipefail
-BUILD="${JTS_BUILD_DIR:-/tmp/claude-0/gb-build/jts-main}"
+BUILD="${JTS_BUILD_DIR:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/jts-main}"
 OUT="$BUILD/out"
 if [ ! -f "$OUT/lib.txt" ] || [ ! -f "$OUT/classes/JtsAdapter.class" ]; then
   echo "run.sh: adapter not built; run $(dirname "$0")/build.sh" >&2

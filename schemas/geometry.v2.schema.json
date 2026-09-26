@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/geometry.v2.schema.json",
+  "title": "geotruth geometry v2",
+  "description": "Shared definitions: typed (GeoJSON-style) geometries with double or exact rational ordinates. Validate an instance against #/$defs/Geometry or #/$defs/ExactGeometry.",
+  "$defs": {
+    "Number": {
+      "type": "number",
+      "description": "A JSON number, read with float() semantics: it denotes the double that float()/strtod gives (so 9007199254740993 is 2^53). Writers use the shortest round-trip form. NaN/Infinity are not JSON but are accepted by geotruth's reader for invalid-coordinate cases."
+    },
+    "Position": {
+      "type": "array",
+      "description": "[x, y] with optional Z and M ordinates, which are ignored.",
+      "items": {
+        "$ref": "#/$defs/Number"
+      },
+      "minItems": 2,
+      "maxItems": 4
+    },
+    "Rational": {
+      "type": "string",
+      "description": "An exact rational: \"n\" for an integer or \"n/d\" in lowest terms with d > 1 (canonical form; no sign on zero, no leading zeros).",
+      "pattern": "^(0|-?[1-9][0-9]*)(/([2-9]|[1-9][0-9]+))?$"
+    },
+    "ExactPosition": {
+      "type": "array",
+      "description": "[x, y] as exact rationals.",
+      "items": {
+        "$ref": "#/$defs/Rational"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "GeometryType": {
+      "enum": [
+        "Point",
+        "LineString",
+        "Polygon",
+        "MultiPoint",
+        "MultiLineString",
+        "MultiPolygon",
+        "GeometryCollection"
+      ]
+    },
+    "LegacyMultiPolygon": {
+      "type": "array",
+      "description": "FORMAT-v1 case geometry: MultiPolygon coordinates (a list of polygons, each a list of closed rings); a single part means a Polygon.",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Position"
+          }
+        }
+      }
+    },
+    "Point": {
+      "type": "object",
+      "description": "Point ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "Point"
+        },
+        "coordinates": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Position"
+            },
+            {
+              "type": "array",
+              "maxItems": 0
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LineString": {
+      "type": "object",
+      "description": "LineString ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "LineString"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Position"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Polygon": {
+      "type": "object",
+      "description": "Polygon: shell first, then holes; rings closed ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "Polygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Position"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "MultiPoint": {
+      "type": "object",
+      "description": "MultiPoint ([] marks an empty point)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiPoint"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Position"
+              },
+              {
+                "type": "array",
+                "maxItems": 0
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "MultiLineString": {
+      "type": "object",
+      "description": "MultiLineString",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiLineString"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Position"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "MultiPolygon": {
+      "type": "object",
+      "description": "MultiPolygon",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiPolygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Position"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "GeometryCollection": {
+      "type": "object",
+      "description": "GeometryCollection (may nest)",
+      "required": [
+        "type",
+        "geometries"
+      ],
+      "properties": {
+        "type": {
+          "const": "GeometryCollection"
+        },
+        "geometries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Geometry"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Geometry": {
+      "description": "Typed geometry with double ordinates (adapter input and output, case operands).",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Point"
+        },
+        {
+          "$ref": "#/$defs/LineString"
+        },
+        {
+          "$ref": "#/$defs/Polygon"
+        },
+        {
+          "$ref": "#/$defs/MultiPoint"
+        },
+        {
+          "$ref": "#/$defs/MultiLineString"
+        },
+        {
+          "$ref": "#/$defs/MultiPolygon"
+        },
+        {
+          "$ref": "#/$defs/GeometryCollection"
+        }
+      ]
+    },
+    "ExactPoint": {
+      "type": "object",
+      "description": "Point ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "Point"
+        },
+        "coordinates": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ExactPosition"
+            },
+            {
+              "type": "array",
+              "maxItems": 0
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactLineString": {
+      "type": "object",
+      "description": "LineString ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "LineString"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExactPosition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactPolygon": {
+      "type": "object",
+      "description": "Polygon: shell first, then holes; rings closed ([] when empty)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "Polygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ExactPosition"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactMultiPoint": {
+      "type": "object",
+      "description": "MultiPoint ([] marks an empty point)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiPoint"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ExactPosition"
+              },
+              {
+                "type": "array",
+                "maxItems": 0
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactMultiLineString": {
+      "type": "object",
+      "description": "MultiLineString",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiLineString"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ExactPosition"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactMultiPolygon": {
+      "type": "object",
+      "description": "MultiPolygon",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "const": "MultiPolygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ExactPosition"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactGeometryCollection": {
+      "type": "object",
+      "description": "GeometryCollection (may nest)",
+      "required": [
+        "type",
+        "geometries"
+      ],
+      "properties": {
+        "type": {
+          "const": "GeometryCollection"
+        },
+        "geometries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExactGeometry"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExactGeometry": {
+      "description": "Typed geometry with exact rational ordinates (the rational side-car of expected answers).",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ExactPoint"
+        },
+        {
+          "$ref": "#/$defs/ExactLineString"
+        },
+        {
+          "$ref": "#/$defs/ExactPolygon"
+        },
+        {
+          "$ref": "#/$defs/ExactMultiPoint"
+        },
+        {
+          "$ref": "#/$defs/ExactMultiLineString"
+        },
+        {
+          "$ref": "#/$defs/ExactMultiPolygon"
+        },
+        {
+          "$ref": "#/$defs/ExactGeometryCollection"
+        }
+      ]
+    }
+  },
+  "$ref": "#/$defs/Geometry"
+}

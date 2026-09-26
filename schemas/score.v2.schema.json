@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abafaboy/geotruth/schemas/score.v2.schema.json",
+  "title": "geotruth score record v2",
+  "description": "The grade of one (case, library, capability). Relate and predicates are scored per case (a derived field is not counted twice); validity on the boolean; overlay in tiers against the library's displacement budget.",
+  "type": "object",
+  "required": [
+    "id",
+    "lib",
+    "capability",
+    "verdict"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9._:+/-]+$",
+      "description": "Case id, unique within the corpus (e.g. \"near-collinear-000123\")."
+    },
+    "lib": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._+-]+@[^\\s]+$",
+      "description": "<library>@<version or commit>, e.g. geos@3.14.0dev-1a2b3c4."
+    },
+    "family": {
+      "type": "string"
+    },
+    "capability": {
+      "enum": [
+        "echo",
+        "relate",
+        "predicates",
+        "validity",
+        "overlay.intersection",
+        "overlay.union",
+        "overlay.difference",
+        "overlay.symdifference"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "correct",
+        "wrong",
+        "convention",
+        "unsupported",
+        "not_reported",
+        "error",
+        "engine_skipped",
+        "engine_error"
+      ],
+      "description": "correct/wrong: graded; convention: disagrees only on a convention-dependent field; unsupported: outside the library's contract; not_reported: the field is null; error: exception, crash or hang (see tier 6 for overlay); engine_*: no exact answer, never counted against the library."
+    },
+    "tier": {
+      "enum": [
+        "exact",
+        "rounding",
+        "budget",
+        "gross",
+        "topological",
+        "exception"
+      ],
+      "description": "Overlay tiers 1-6 (DESIGN §4.3); the headline counts gross, topological and exception."
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Field paths that disagree (e.g. predicates.touches)."
+    },
+    "derived": {
+      "type": "boolean",
+      "description": "The capability is derived from another per the adapter manifest."
+    },
+    "expected": {
+      "description": "The exact answer (or a digest of it)."
+    },
+    "got": {
+      "description": "The library's answer (or a digest of it)."
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Overlay grading metrics.",
+      "properties": {
+        "hausdorff2": {
+          "$ref": "geometry.v2.schema.json#/$defs/Rational"
+        },
+        "symdiff_area": {
+          "$ref": "geometry.v2.schema.json#/$defs/Rational"
+        },
+        "delta": {
+          "type": "number"
+        },
+        "area_budget": {
+          "type": "number"
+        },
+        "output_valid": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "tags": {
+      "type": "object",
+      "description": "Copy of the case tags (degeneracy, range, types) for stratified reporting."
+    },
+    "versions": {
+      "type": "object",
+      "properties": {
+        "corpus": {
+          "type": "string"
+        },
+        "expected": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "lib": {
+          "type": "string"
+        },
+        "adapter": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cluster": {
+      "type": "string",
+      "description": "Failure-cluster signature (library x family x signature), the registry key."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "capability": {
+            "pattern": "^overlay\\."
+          }
+        },
+        "required": [
+          "capability"
+        ]
+      },
+      "then": {},
+      "else": {
+        "not": {
+          "required": [
+            "tier"
+          ]
+        }
+      }
+    }
+  ]
+}

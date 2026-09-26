@@ -1,4 +1,4 @@
-// Shared helpers for the JavaScript adapters (contract: ../../FORMAT.md).
+// Shared helpers for the JavaScript adapters (contract: ../../harness/FORMAT-v1.md).
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -29,7 +29,7 @@ export function pkgDir(name, req = localRequire) {
   throw new Error(`package ${name} not found (run install.sh)`);
 }
 
-// Case coordinates are GeoJSON MultiPolygon coordinates. FORMAT.md: one part -> Polygon.
+// Case coordinates are GeoJSON MultiPolygon coordinates. FORMAT-v1.md: one part -> Polygon.
 // Returns a fresh deep copy, so a library that mutates its input cannot affect later operations.
 export function geometryOf(mp) {
   if (!Array.isArray(mp)) throw new TypeError('multipolygon coordinates must be an array');
