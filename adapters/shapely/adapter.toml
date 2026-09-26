@@ -1,15 +1,19 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
 # Facts from shapely_adapter.py and the installed Shapely, unless marked "uncertain".
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands or "ops",
+# schemas/result.v2) get the v2 field paths; legacy FORMAT-v1 lines get the v1 field names,
+# byte-identical to the v1 adapter on the seed corpus. Both are listed.
 manifest_version = 1
 
 [adapter]
 name = "shapely"
 language = "Python (Shapely 2 over the GEOS C API)"
-contract = "v1"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "pip install 'shapely==2.1.2'"  # the wheel bundles GEOS 3.13.1; nothing is built here
 build_recipe = "none: the installed Shapely wheel and its bundled GEOS are used as they are"
-isolation = "exceptions are caught per operation; there is no process isolation and no timeout, so a GEOS crash or hang stops the run"
+isolation = "src/geotruth/harness/pyadapter.py: a forked worker process streams each operation's result; an operation over GEOTRUTH_OP_TIMEOUT / SHAPELY_ADAPTER_TIMEOUT (default 10 s) is killed ({kind: timeout}; v1: a 'timeout: ...' message and errors.timeout), a worker killed by a signal fails that operation ({kind: crash}) and a new worker continues; worker address space capped at GEOTRUTH_ADAPTER_MEM_MB (default 4096; MemoryError is {kind: memory}); --no-fork runs in-process"
 
 [[target]]
 id = "shapely"
@@ -18,16 +22,28 @@ upstream = "https://github.com/shapely/shapely"
 version = "GEOS 3.13.1, Shapely 2.1.2"
 lib = "geos@3.13.1+shapely@2.1.2"
 run = "python3 adapters/shapely/shapely_adapter.py"
-version_command = "harness/lib_string.sh python3 adapters/shapely/shapely_adapter.py"
+version_command = "python3 adapters/shapely/shapely_adapter.py --version"
 toolchain = "the PyPI wheel"
-options = []  # library defaults throughout
+options = []  # library defaults throughout (grid_size=None: OverlayNG floating with its fallbacks)
+# run by hand: --v2 answers legacy lines with the v2 contract; --timing adds elapsed_ms
+variants = ["--v2 (v2 output for legacy input, same lib)"]
 
 [target.fields]
 supported = [
     "valid_a", "valid_b",  # is_valid (GEOS IsValidOp)
+    # v1 names (legacy lines)
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
     "equals",  # topological equality (GEOSEquals)
     "area_inter", "area_union", "area_diff", "area_symdiff",  # .area of intersection etc.
+    # v2 paths (typed lines); every type, empty elements included, goes in as hand-written WKB
+    "echo",  # the operands read back with shapely.to_wkb (2-D) and decoded by the adapter
+    "relate",  # shapely.relate (GEOSRelate, RelateNG, Mod-2 boundary node rule)
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",  # shapely.<name>(a, b), unprepared
+    # shapely.intersection / union / difference / symmetric_difference: non-strict OverlayNG;
+    # the result goes out through shapely.to_wkb and is written by the adapter (json.dumps)
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 

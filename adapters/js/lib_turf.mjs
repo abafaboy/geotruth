@@ -8,7 +8,7 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import * as turf from '@turf/turf';
-import { geometryOf, areaOf, pkgDir, pkgVersion } from './common.mjs';
+import { geometryOf, areaOf, pkgDir, pkgVersion, typedOf, hasEmpty, allFinite, multiPolygonOf, Unsupported } from './common.mjs';
 
 export const LIB = `turf@${pkgVersion('@turf/turf')}`;
 // The polyclip-ts that @turf/intersect actually resolves (reported on stderr at startup).
@@ -45,3 +45,57 @@ export const OPS = [
   ['area_diff', (c) => areaOf(turf.difference(fc(c.a, c.b)))],
   ['area_symdiff', (c) => areaOf(turf.difference(fc(c.a, c.b))) + areaOf(turf.difference(fc(c.b, c.a)))],
 ];
+
+// Contract v2. Turf has no relate and no covers / coveredBy (null). Its boolean functions
+// throw "... not supported" for type pairs they do not implement: that is "unsupported", as
+// are operands with empty elements or non-finite coordinates (GeoJSON has neither). Overlays
+// take Polygon / MultiPolygon operands only; symdifference is derived from two differences
+// (their polygons concatenated: they have disjoint interiors).
+function operand(x) {
+  const g = typedOf(x);
+  if (hasEmpty(g) || !allFinite(g)) throw new Unsupported('empty elements or non-finite coordinates');
+  return turf.feature(g);
+}
+
+function boolean(fn) {
+  return (c) => {
+    const a = operand(c.a), b = operand(c.b);
+    try {
+      return fn(a, b);
+    } catch (e) {
+      if (/not supported|unsupported|is not a supported/i.test(String(e && e.message))) throw new Unsupported(e.message);
+      throw e;
+    }
+  };
+}
+
+function polygonal(x) {
+  const f = operand(x);
+  if (f.geometry.type !== 'Polygon' && f.geometry.type !== 'MultiPolygon') throw new Unsupported('Turf overlays take polygons only');
+  return f;
+}
+
+const clip = (fn) => (c) => multiPolygonOf(fn(turf.featureCollection([polygonal(c.a), polygonal(c.b)])));
+
+export const OPS_V2 = {
+  echo: (c) => ({ a: typedOf(c.a), b: typedOf(c.b) }),
+  'predicates.intersects': boolean((a, b) => turf.booleanIntersects(a, b)),
+  'predicates.disjoint': boolean((a, b) => turf.booleanDisjoint(a, b)),
+  'predicates.touches': boolean((a, b) => turf.booleanTouches(a, b)),
+  'predicates.crosses': boolean((a, b) => turf.booleanCrosses(a, b)),
+  'predicates.overlaps': boolean((a, b) => turf.booleanOverlap(a, b)),
+  'predicates.contains': boolean((a, b) => turf.booleanContains(a, b)),
+  'predicates.within': boolean((a, b) => turf.booleanWithin(a, b)),
+  'predicates.equals': boolean((a, b) => turf.booleanEqual(a, b, { precision: EQ_PRECISION })),
+  valid_a: (c) => turf.booleanValid(operand(c.a)),
+  valid_b: (c) => turf.booleanValid(operand(c.b)),
+  'overlay.intersection': clip((fc) => turf.intersect(fc)),
+  'overlay.union': clip((fc) => turf.union(fc)),
+  'overlay.difference': clip((fc) => turf.difference(fc)),
+  'overlay.symdifference': (c) => {
+    const a = polygonal(c.a), b = polygonal(c.b);
+    const ab = multiPolygonOf(turf.difference(turf.featureCollection([a, b])));
+    const ba = multiPolygonOf(turf.difference(turf.featureCollection([b, a])));
+    return { type: 'MultiPolygon', coordinates: [...ab.coordinates, ...ba.coordinates] };
+  },
+};

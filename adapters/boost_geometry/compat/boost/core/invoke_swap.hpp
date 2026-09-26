@@ -5,7 +5,7 @@
 // Boost 1.83 only has <boost/core/swap.hpp>.  This shim provides invoke_swap on top of
 // the 1.83 implementation, with the same semantics (ADL swap, falling back to std::swap,
 // element-wise for arrays).  build.sh puts this directory on the include path *after*
-// the develop headers, and only for the develop build.
+// the develop (or release) headers, and only for the develop and release builds.
 #ifndef BOOST_CORE_INVOKE_SWAP_HPP
 #define BOOST_CORE_INVOKE_SWAP_HPP
 

@@ -1,0 +1,5 @@
+# Curated leads (corpus/curated/leads.toml) that GEOS main and JTS RelateNG get wrong, with
+# the tests that fail, as "case id<TAB>failing ops" (xmltester op names, lower case).
+relateng-multipolygon-touching-parts:t-touch-part-min	relate,overlaps,contains,covers
+relateng-gc-polygon-with-exterior-point:gc-poly-exterior-point	relate,overlaps,within,coveredby
+relateng-empty-operand-type-dimension:empty-vs-gc-with-empty-polygon	relate

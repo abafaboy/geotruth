@@ -1,8 +1,16 @@
 /*
- * GEOS (git main) adapter for the geometry bug hunt, written against the reentrant
- * GEOS C API (geos_c.h, *_r functions).  Implements the contract in ../../harness/FORMAT-v1.md:
+ * GEOS adapter for geotruth, written against the reentrant GEOS C API (geos_c.h, *_r
+ * functions).  It is built twice by build.sh, against GEOS git main and against the latest
+ * GEOS release, and answers both adapter contracts:
  *
- *     geos_adapter CASES.jsonl > RESULTS.jsonl
+ *     geos_adapter [--v2] [--timing] [--no-fork] CASES.jsonl > RESULTS.jsonl
+ *
+ * - v2 (docs/DESIGN.md §4.1, schemas/result.v2.schema.json): lines with typed operands or
+ *   "ops".  Answered by geos_adapter_v2.cpp (relate, every named predicate, validity,
+ *   overlay output geometry written as round-trip doubles, the parse-echo canary).
+ *   --v2 answers legacy lines with the v2 contract too; --timing adds elapsed_ms.
+ * - v1 (../../harness/FORMAT-v1.md): legacy lines, answered by the code in this file,
+ *   unchanged, so legacy results stay byte-identical.
  *
  * One output line per non-blank input line, in order.
  *
@@ -16,7 +24,8 @@
  * Environment:
  *   GEOS_ADAPTER_TIMEOUT   per-operation wall-clock limit in seconds (default 10)
  *   GEOS_ADAPTER_MEM_MB    address-space limit of each child in MiB (default 4096, 0 = none)
- *   GEOS_ADAPTER_TEST_FAULT  "crash:<key>" / "hang_:<key>": inject a fault (self-test only)
+ *   GEOS_ADAPTER_TEST_FAULT  "crash:<key>" / "hang_:<key>": inject a fault (self-test only);
+ *                          <key> is a v1 field name or a v2 field path (v2 also: "throw:")
  */
 #define _GNU_SOURCE
 #include <errno.h>
@@ -608,17 +617,29 @@ static void run_ops(const Case *c, int start, EmitFn emit, void *ectx)
 
 /* ------------------------------------------------------------------ driver */
 
+/* contract v2, in geos_adapter_v2.cpp */
+int geos_v2_is_case(const char *line, size_t len);
+void geos_v2_answer(const char *lib, const char *line, size_t len, int use_fork, double timeout_s,
+                    long mem_mb, int timing, const char *test_fault);
+
 static char LIB[128];
 
 static void init_lib_string(void)
 {
     /* GEOSversion(): "3.16.0dev-CAPI-1.23.0"; GEOSrevision(): "ae9cdd9" or
-       "3.15.0rc1-3-g952699419 (dirty)" depending on how the tree was cloned. */
+       "3.15.0rc1-3-g952699419 (dirty)" depending on how the tree was cloned.
+       GEOSrevision() first shipped with C API 1.22 (3.16 development); a release without it
+       is identified by its version alone, e.g. geos@3.15.0. */
     char ver[64], rev[64];
     snprintf(ver, sizeof ver, "%s", GEOSversion());
     char *cut = strstr(ver, "-CAPI");
     if (cut)
         *cut = '\0';
+#if GEOS_CAPI_VERSION_MAJOR == 1 && GEOS_CAPI_VERSION_MINOR < 22
+    (void)rev;
+    snprintf(LIB, sizeof LIB, "geos@%s", ver);
+    return;
+#else
     snprintf(rev, sizeof rev, "%s", GEOSrevision());
     int dirty = strstr(rev, "(dirty)") != NULL;
     char *sp = strchr(rev, ' ');
@@ -629,6 +650,7 @@ static void init_lib_string(void)
     char shorthash[16];
     snprintf(shorthash, sizeof shorthash, "%.7s", hash);
     snprintf(LIB, sizeof LIB, "geos@%s-%s%s", ver, shorthash, dirty ? "-dirty" : "");
+#endif
 }
 
 static void emit_store(int op, const OpResult *r, void *ctx)
@@ -831,19 +853,23 @@ static void print_result(const char *id_json, const OpResult *res, const char *t
 
 static void usage(void)
 {
-    fprintf(stderr, "usage: geos_adapter [--no-fork] CASES.jsonl > RESULTS.jsonl\n"
+    fprintf(stderr, "usage: geos_adapter [--v2] [--timing] [--no-fork] CASES.jsonl > RESULTS.jsonl\n"
                     "       geos_adapter --version\n");
     exit(2);
 }
 
 int main(int argc, char **argv)
 {
-    int use_fork = 1;
+    int use_fork = 1, force_v2 = 0, timing = 0;
     const char *path = NULL;
     init_lib_string();
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--no-fork"))
             use_fork = 0;
+        else if (!strcmp(argv[i], "--v2"))
+            force_v2 = 1;
+        else if (!strcmp(argv[i], "--timing"))
+            timing = 1;
         else if (!strcmp(argv[i], "--version")) {
             printf("%s\n", LIB);
             return 0;
@@ -880,6 +906,10 @@ int main(int argc, char **argv)
             s++;
         if (s == n)
             continue; /* blank line: no output, like the reference adapter */
+        if (force_v2 || geos_v2_is_case(line + s, n - s)) {
+            geos_v2_answer(LIB, line + s, n - s, use_fork, TIMEOUT_S, MEM_MB, timing, TEST_FAULT);
+            continue;
+        }
 
         Case c;
         OpResult res[NOPS];

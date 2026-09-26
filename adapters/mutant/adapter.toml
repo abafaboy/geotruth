@@ -1,0 +1,61 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# The mutant (DESIGN.md §7): the engine control with deliberate faults, which the scorer
+# must catch: every 17th predicate negated, every 17th polygonal overlay output perturbed. From
+# src/geotruth/harness/control.py and src/geotruth/harness/engine.py.
+manifest_version = 1
+
+[adapter]
+name = "mutant"
+language = "Python 3 (geotruth, from this source tree)"
+contract = "v2"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "pip install -e '.[dev]'"  # nothing is built: run.sh imports src/geotruth directly
+build_recipe = "none: run.sh puts src/ of this checkout on sys.path"
+isolation = "src/geotruth/harness/pyadapter.py: a forked worker streams each operation's result; an operation over GEOTRUTH_OP_TIMEOUT / MUTANT_ADAPTER_TIMEOUT (default 10 s) is killed ({kind: timeout}), a dead worker fails that operation ({kind: crash}) and a new worker continues; address space capped at GEOTRUTH_ADAPTER_MEM_MB (default 4096; MemoryError is {kind: memory})"
+
+[[target]]
+id = "mutant"
+library = "geotruth exact engine with deliberate faults (mutant)"
+upstream = "https://github.com/abafaboy/geotruth"
+version = "engine 0.1.0"  # geotruth.ENGINE_VERSION
+lib = "geotruth-mutant@0.1.0"
+run = "adapters/mutant/run.sh"
+version_command = "adapters/mutant/run.sh --version"
+toolchain = "CPython 3.10+, gmpy2"
+options = [
+    "MUTATIONS (the point of this adapter): the 1st, 18th, 35th, ... reported predicate (counted over the whole run in field order) is negated; the 1st, 18th, ... non-empty polygonal overlay output has its second vertex moved by 1/256 of its extent",
+    "exact answers through the shim of geotruth.harness.engine: geotruth.relate / geotruth.overlay when they exist, else the witness relate and the fallback overlay of tests/reference/indep.py (GEOTRUTH_EXACT_BACKEND selects)",
+    "overlay output: the non-strict exact result, every coordinate correctly rounded to a double; parts that rounding collapses into invalid geometry are dropped",
+    "relate, predicates and overlay are 'unsupported' for invalid input and null where the engine abstains",
+]
+
+[target.fields]
+supported = [
+    "echo",  # the operands as parsed (float() semantics) written back with json.dumps
+    "relate",  # the exact DE-9IM matrix
+    "valid_a", "valid_b",  # geotruth.validity (GEOS IsValidOp rules, exact)
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = []
+
+[target.fields.derived]
+"predicates.intersects" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.disjoint" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.touches" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.crosses" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.overlaps" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.contains" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.covers" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.within" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.covered_by" = "geotruth.predicates.predicates(relate matrix, real dimensions)"
+"predicates.equals" = "geotruth.predicates.predicates(relate matrix, real dimensions), convention table applied"
+
+[target.precision]
+model = "exact rational arithmetic on the input doubles; overlay output vertices are the exact ones correctly rounded to doubles (ties to even); where rounding breaks validity the rounded rings are regularized exactly (even-odd) and rounded again, at most 4 rounds"
+delta = { kind = "ulp", value = 3 }  # each rounding moves a vertex by at most sqrt(2)/2 ulp(M); 4 rounds at most
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double (non-finite coordinates are invalid)"
+out_of_range = "unsupported"

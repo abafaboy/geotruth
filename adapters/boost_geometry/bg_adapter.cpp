@@ -1,12 +1,22 @@
-// Boost.Geometry adapter for the geometry bug hunt.  Implements ../../harness/FORMAT-v1.md:
+// Boost.Geometry adapter for geotruth. The same source is compiled three times by build.sh:
+// against the system Boost 1.83 headers, and with the Boost.Geometry `develop` or latest
+// release headers first on the include path (all other Boost libraries from the system).
+// It answers both adapter contracts:
 //
-//     bg_adapter CASES.jsonl > RESULTS.jsonl
+//     bg_adapter [--v2] [--timing] [--no-fork] [--reasons] CASES.jsonl > RESULTS.jsonl
 //
-// One output line per non-blank input line, in order.  The same source is compiled twice
-// by build.sh: against the system Boost 1.83 headers, and with the Boost.Geometry
-// `develop` headers first on the include path (all other Boost libraries from the system).
+// - v2 (docs/DESIGN.md §4.1, schemas/result.v2.schema.json): lines with typed operands or
+//   "ops" (--v2 also answers legacy lines this way); see "contract v2" below. Point,
+//   LineString, Polygon and their Multi types; relate = bg::relation; every named predicate
+//   whose type pair Boost implements (decided at compile time from Boost's own
+//   not_implemented dispatch tags; other pairs are "unsupported"); bg::is_valid; overlay
+//   output geometry for areal/areal pairs (the regularized areal overlay), written as
+//   round-trip doubles; the parse-echo canary. GeometryCollections and empty points (which
+//   Boost cannot represent) are "unsupported". Isolation is per operation
+//   (../geos_main/adapter_v2.hpp).
+// - v1 (../../harness/FORMAT-v1.md): legacy lines, answered by the unchanged v1 code.
 //
-// Geometry types: bg::model::polygon<point_xy<double>, ClockWise=false, Closed=true> and
+// v1 geometry types: bg::model::polygon<point_xy<double>, ClockWise=false, Closed=true> and
 // bg::model::multi_polygon of it.  The case rings are closed; GeoJSON (RFC 7946) shells are
 // counter-clockwise, which is why the counter-clockwise type was chosen.  Rings in the case
 // files may still have either orientation, so each ring's orientation is decided *exactly*
@@ -27,10 +37,18 @@
 //   BG_ADAPTER_MEM_MB      address-space limit of each child in MiB (default 4096, 0 = none)
 //   BG_ADAPTER_ORIENT      exact (default) | correct | none, see above
 //   BG_ADAPTER_TEST_FAULT  "crash:<key>" / "hang_:<key>" / "throw:<key>": inject a fault
-//                          in front of one operation (self-test of the isolation only)
+//                          in front of one operation (self-test of the isolation only);
+//                          <key> is a v1 field name or a v2 field path
 //
-// Flags: --no-fork, --reasons (adds "valid_reasons" with bg::is_valid's message and
-// "reversed_rings" with how many rings were reoriented), --version.
+// Flags: --no-fork, --reasons (v1: adds "valid_reasons" with bg::is_valid's message and
+// "reversed_rings" with how many rings were reoriented), --v2, --timing (v2: elapsed_ms),
+// --version.
+
+// Makes Boost's not_implemented<...> a complete, harmless type instead of a static_assert,
+// so that the v2 code can ask at compile time which type pairs an algorithm implements
+// (std::is_base_of<nyi::not_implemented_tag, dispatch::X<G1, G2>>). Code that compiled
+// before is unaffected: the macro only disables that one assertion.
+#define BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD true
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
@@ -38,6 +56,8 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/version.hpp>
+
+#include "adapter_v2.hpp"
 
 #include <algorithm>
 #include <array>
@@ -52,13 +72,16 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <type_traits>
 #include <typeinfo>
 #include <unistd.h>
 #include <variant>
@@ -751,6 +774,316 @@ static void run_case_forked(const Case &c, OpResult *res, std::string &timeouts,
     }
 }
 
+
+// ------------------------------------------------------------------ contract v2
+
+namespace v2 {
+
+using LS = bg::model::linestring<Pt>;
+using MPt = bg::model::multi_point<Pt>;
+using MLS = bg::model::multi_linestring<LS>;
+using Any = std::variant<Pt, LS, Poly, MPt, MLS, MPoly>;
+
+// Does Boost implement algorithm X for (G1, G2)? Its dispatch struct then does not derive
+// from not_implemented (crosses, overlaps and touches go through relate_impl, which derives
+// from not_implemented exactly when relate does).
+template <class T> constexpr bool nyi = std::is_base_of<bg::nyi::not_implemented_tag, T>::value;
+template <class A, class B> constexpr bool has_relate = !nyi<bg::dispatch::relate<A, B>>;
+template <class A, class B> constexpr bool has_disjoint = !nyi<bg::dispatch::disjoint<A, B>>;
+template <class A, class B> constexpr bool has_touches = !nyi<bg::dispatch::touches<A, B>>;
+template <class A, class B> constexpr bool has_crosses = !nyi<bg::dispatch::crosses<A, B>>;
+template <class A, class B> constexpr bool has_overlaps = !nyi<bg::dispatch::overlaps<A, B>>;
+template <class A, class B> constexpr bool has_within = !nyi<bg::dispatch::within<A, B>>;
+template <class A, class B> constexpr bool has_covered_by = !nyi<bg::dispatch::covered_by<A, B>>;
+template <class A, class B> constexpr bool has_equals = !nyi<bg::dispatch::equals<A, B>>;
+template <class A> constexpr bool is_areal = std::is_same<A, Poly>::value || std::is_same<A, MPoly>::value;
+
+struct Unsupported : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+static Pt point(const gt::XY &p) { return Pt(p[0], p[1]); }
+
+static Poly polygon(const gt::Geom &g)
+{
+    PolyIn in;
+    for (auto &r : g.rings) {
+        RingIn ri;
+        for (auto &p : r)
+            ri.push_back(XY{p[0], p[1]});
+        in.push_back(std::move(ri));
+    }
+    int reversed = 0;
+    Poly pg = build_poly(in, reversed); // exact reorientation, as in v1
+    if (ORIENT == OrientMode::correct)
+        bg::correct(pg);
+    return pg;
+}
+
+static LS linestring(const gt::Geom &g)
+{
+    LS ls;
+    for (auto &p : g.coords)
+        ls.push_back(point(p));
+    return ls;
+}
+
+// A typed geometry as the Boost type of the same kind; throws Unsupported for what Boost
+// cannot represent (GeometryCollection, an empty Point).
+static Any build(const gt::Geom &g)
+{
+    switch (g.type) {
+    case gt::GType::Point:
+        if (g.coords.empty())
+            throw Unsupported("Boost.Geometry has no empty point");
+        return point(g.coords[0]);
+    case gt::GType::LineString: return linestring(g);
+    case gt::GType::Polygon: {
+        if (gt::is_empty(g))
+            return Poly();
+        return polygon(g);
+    }
+    case gt::GType::MultiPoint: {
+        MPt mp;
+        for (auto &p : g.parts) {
+            if (p.coords.empty())
+                throw Unsupported("Boost.Geometry has no empty point");
+            mp.push_back(point(p.coords[0]));
+        }
+        return mp;
+    }
+    case gt::GType::MultiLineString: {
+        MLS ml;
+        for (auto &p : g.parts)
+            ml.push_back(linestring(p));
+        return ml;
+    }
+    case gt::GType::MultiPolygon: {
+        MPoly mp;
+        for (auto &p : g.parts)
+            mp.push_back(gt::is_empty(p) ? Poly() : polygon(p));
+        if (ORIENT == OrientMode::correct)
+            bg::correct(mp);
+        return mp;
+    }
+    default: throw Unsupported("GeometryCollection is not supported");
+    }
+}
+
+// ---- Boost geometry -> typed geometry (coordinates written by the adapter)
+
+static gt::XY xy(const Pt &p) { return gt::XY{bg::get<0>(p), bg::get<1>(p)}; }
+
+template <class Range> static std::vector<gt::XY> seq(const Range &r)
+{
+    std::vector<gt::XY> out;
+    for (auto &p : r)
+        out.push_back(xy(p));
+    return out;
+}
+
+static gt::Geom geom_of(const Poly &pg)
+{
+    gt::Geom g;
+    g.type = gt::GType::Polygon;
+    if (pg.outer().empty() && pg.inners().empty())
+        return g;
+    g.rings.push_back(seq(pg.outer()));
+    for (auto &h : pg.inners())
+        g.rings.push_back(seq(h));
+    return g;
+}
+
+static gt::Geom geom_of(const Any &a)
+{
+    gt::Geom g;
+    std::visit(
+        [&](const auto &x) {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (std::is_same<T, Pt>::value) {
+                g.type = gt::GType::Point;
+                g.coords.push_back(xy(x));
+            } else if constexpr (std::is_same<T, LS>::value) {
+                g.type = gt::GType::LineString;
+                g.coords = seq(x);
+            } else if constexpr (std::is_same<T, Poly>::value) {
+                g = geom_of(x);
+            } else if constexpr (std::is_same<T, MPt>::value) {
+                g.type = gt::GType::MultiPoint;
+                for (auto &p : x) {
+                    gt::Geom e;
+                    e.type = gt::GType::Point;
+                    e.coords.push_back(xy(p));
+                    g.parts.push_back(e);
+                }
+            } else if constexpr (std::is_same<T, MLS>::value) {
+                g.type = gt::GType::MultiLineString;
+                for (auto &l : x) {
+                    gt::Geom e;
+                    e.type = gt::GType::LineString;
+                    e.coords = seq(l);
+                    g.parts.push_back(e);
+                }
+            } else {
+                g.type = gt::GType::MultiPolygon;
+                for (auto &p : x)
+                    g.parts.push_back(geom_of(p));
+            }
+        },
+        a);
+    return g;
+}
+
+// overlay output: one polygon -> Polygon, none -> POLYGON EMPTY, else MultiPolygon
+static std::string overlay_json(const MPoly &out)
+{
+    if (out.size() == 1)
+        return gt::write_geometry(geom_of(out[0]));
+    gt::Geom g;
+    g.type = out.empty() ? gt::GType::Polygon : gt::GType::MultiPolygon;
+    for (auto &p : out)
+        g.parts.push_back(geom_of(p));
+    return gt::write_geometry(g);
+}
+
+static std::string exception_text(const std::exception &e)
+{
+    return demangle(typeid(e).name()) + ": " + e.what();
+}
+
+template <class A, class B> static std::string predicate(int op, const A &a, const B &b)
+{
+    auto v = [](bool x) { return std::string(gt::jbool(x)); };
+    const std::string unsupported = gt::UNSUPPORTED;
+    switch (op) {
+    case gt::OP_INTERSECTS:
+        if constexpr (has_disjoint<A, B>) return v(bg::intersects(a, b)); else return unsupported;
+    case gt::OP_DISJOINT:
+        if constexpr (has_disjoint<A, B>) return v(bg::disjoint(a, b)); else return unsupported;
+    case gt::OP_TOUCHES:
+        if constexpr (has_touches<A, B>) return v(bg::touches(a, b)); else return unsupported;
+    case gt::OP_CROSSES:
+        if constexpr (has_crosses<A, B>) return v(bg::crosses(a, b)); else return unsupported;
+    case gt::OP_OVERLAPS:
+        if constexpr (has_overlaps<A, B>) return v(bg::overlaps(a, b)); else return unsupported;
+    // Boost.Geometry has no contains / covers: A contains B == B within A, etc.
+    case gt::OP_CONTAINS:
+        if constexpr (has_within<B, A>) return v(bg::within(b, a)); else return unsupported;
+    case gt::OP_COVERS:
+        if constexpr (has_covered_by<B, A>) return v(bg::covered_by(b, a)); else return unsupported;
+    case gt::OP_WITHIN:
+        if constexpr (has_within<A, B>) return v(bg::within(a, b)); else return unsupported;
+    case gt::OP_COVERED_BY:
+        if constexpr (has_covered_by<A, B>) return v(bg::covered_by(a, b)); else return unsupported;
+    case gt::OP_EQUALS:
+        if constexpr (has_equals<A, B>) return v(bg::equals(a, b)); else return unsupported;
+    }
+    return "null";
+}
+
+template <class A, class B> static std::string relation(const A &a, const B &b)
+{
+    if constexpr (has_relate<A, B>)
+        return gt::json_quote(bg::relation(a, b).str());
+    else
+        return gt::UNSUPPORTED;
+}
+
+template <class A, class B> static std::string overlay(int op, const A &a, const B &b)
+{
+    if constexpr (is_areal<A> && is_areal<B>) {
+        MPoly out;
+        switch (op) {
+        case gt::OP_INTERSECTION: bg::intersection(a, b, out); break;
+        case gt::OP_UNION: bg::union_(a, b, out); break;
+        case gt::OP_DIFFERENCE: bg::difference(a, b, out); break;
+        default: bg::sym_difference(a, b, out); break;
+        }
+        return overlay_json(out);
+    } else {
+        return gt::UNSUPPORTED; // lines and points: not in this adapter's overlay contract
+    }
+}
+
+class Session : public gt::Session {
+  public:
+    explicit Session(const gt::Case &c) : c_(c)
+    {
+        make(c.a, A_, err_a_);
+        make(c.b, B_, err_b_);
+    }
+
+    gt::OpOut run(int op) override
+    {
+        gt::OpOut o;
+        if (op == gt::OP_ECHO) { // the operands as Boost holds them; else as parsed
+            gt::Geom ea = A_ ? geom_of(*A_) : c_.a, eb = B_ ? geom_of(*B_) : c_.b;
+            o.value = gt::echo_of(ea, eb);
+            return o;
+        }
+        const bool need_a = op != gt::OP_VALID_B, need_b = op != gt::OP_VALID_A;
+        for (auto [need, g, err] : {std::make_tuple(need_a, &A_, &err_a_), std::make_tuple(need_b, &B_, &err_b_)})
+            if (need && !*g) {
+                if (err->rfind("unsupported", 0) == 0)
+                    o.value = gt::UNSUPPORTED;
+                else
+                    o.error = gt::json_quote(*err);
+                return o;
+            }
+        try {
+            if (op == gt::OP_VALID_A || op == gt::OP_VALID_B) {
+                std::string msg;
+                bool v = std::visit([&](const auto &g) { return bg::is_valid(g, msg); },
+                                    op == gt::OP_VALID_A ? *A_ : *B_);
+                o.value = gt::jbool(v);
+            } else if (op == gt::OP_RELATE) {
+                o.value = std::visit([](const auto &a, const auto &b) { return relation(a, b); }, *A_, *B_);
+            } else if (gt::is_overlay(op)) {
+                o.value = std::visit([op](const auto &a, const auto &b) { return overlay(op, a, b); }, *A_, *B_);
+            } else {
+                o.value = std::visit([op](const auto &a, const auto &b) { return predicate(op, a, b); }, *A_, *B_);
+            }
+        } catch (const std::bad_alloc &e) {
+            o.value = "null";
+            o.error = gt::error_kind("memory", exception_text(e));
+        } catch (const std::exception &e) {
+            o.value = "null";
+            o.error = gt::json_quote(exception_text(e));
+        }
+        return o;
+    }
+
+  private:
+    const gt::Case &c_;
+    std::optional<Any> A_, B_;
+    std::string err_a_, err_b_;
+
+    static void make(const gt::Geom &g, std::optional<Any> &out, std::string &err)
+    {
+        try {
+            out = build(g);
+        } catch (const Unsupported &e) {
+            err = std::string("unsupported: ") + e.what();
+        } catch (const std::exception &e) {
+            err = std::string("building the geometry: ") + exception_text(e);
+        }
+    }
+};
+
+static std::string answer(const std::string &lib, const std::string &line, bool use_fork, bool timing)
+{
+    gt::RunConfig cfg;
+    cfg.fork = use_fork;
+    cfg.timeout_s = TIMEOUT_S;
+    cfg.mem_mb = MEM_MB;
+    cfg.timing = timing;
+    cfg.test_fault = TEST_FAULT;
+    gt::SessionFactory make = [](const gt::Case &c) { return std::make_unique<Session>(c); };
+    return gt::answer_v2(lib, line, make, cfg);
+}
+
+} // namespace v2
+
 // ------------------------------------------------------------------ driver
 
 static void print_result(const std::string &lib, const std::string &id_json, const OpResult *res,
@@ -792,7 +1125,7 @@ static void print_result(const std::string &lib, const std::string &id_json, con
 
 [[noreturn]] static void usage()
 {
-    std::fprintf(stderr, "usage: bg_adapter [--no-fork] [--reasons] CASES.jsonl > RESULTS.jsonl\n"
+    std::fprintf(stderr, "usage: bg_adapter [--v2] [--timing] [--no-fork] [--reasons] CASES.jsonl > RESULTS.jsonl\n"
                          "       bg_adapter --version\n");
     std::exit(2);
 }
@@ -800,13 +1133,17 @@ static void print_result(const std::string &lib, const std::string &id_json, con
 int main(int argc, char **argv)
 {
     const std::string lib = lib_string();
-    bool use_fork = true, reasons = false;
+    bool use_fork = true, reasons = false, force_v2 = false, timing = false;
     const char *path = nullptr;
     for (int i = 1; i < argc; i++) {
         if (!std::strcmp(argv[i], "--no-fork"))
             use_fork = false;
         else if (!std::strcmp(argv[i], "--reasons"))
             reasons = true;
+        else if (!std::strcmp(argv[i], "--v2"))
+            force_v2 = true;
+        else if (!std::strcmp(argv[i], "--timing"))
+            timing = true;
         else if (!std::strcmp(argv[i], "--version")) {
             std::printf("%s\n", lib.c_str());
             return 0;
@@ -855,6 +1192,10 @@ int main(int argc, char **argv)
             continue; // blank line: no output, like the reference adapter
         size_t t = line.find_last_not_of(" \t\r\n");
         line = line.substr(s, t - s + 1);
+        if (force_v2 || gt::looks_v2(line)) {
+            gt::emit_line(v2::answer(lib, line, use_fork, timing), "bg_adapter");
+            continue;
+        }
 
         OpResult res[NOPS];
         std::string timeouts, parse_err, id_json = "null";

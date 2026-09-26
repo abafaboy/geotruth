@@ -1,0 +1,92 @@
+# geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
+# Facts from cgal_adapter.cpp and the CGAL 5.6 headers unless marked "uncertain".
+#
+# CGAL is the exact control (DESIGN.md §0.2): Epeck constructs every intersection point
+# exactly, so its overlay should equal the engine's regularized areal overlay as a point
+# set, and its exact areas equal the oracle's (checked: all 1000 seed cases, README.md).
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands, schemas/result.v2)
+# get the v2 field paths (plus, with --exact, a side-car line of exact rationals per case);
+# legacy FORMAT-v1 lines get the v1 field names plus an extra "exact" field. Both are listed.
+# Every v2 field but echo is "unsupported" when an operand is not a Polygon/MultiPolygon.
+manifest_version = 1
+
+[adapter]
+name = "cgal"
+language = "C++17"
+contract = "v2"
+owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
+build = "adapters/cgal/build.sh"
+build_root = "$GEOTRUTH_BUILD_DIR/cgal"
+build_root_override = "BUILD_ROOT"
+build_recipe = "needs the system CGAL headers (apt libcgal-dev: CGAL 5.6, header-only) with GMP and MPFR; compiles cgal_adapter.cpp into bin/cgal_adapter (about 45 s); CGAL's own checks stay on"
+isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (CGAL_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation ({kind: crash|timeout}) and a fresh child continues; child address space capped at CGAL_ADAPTER_MEM_MB (default 4096; std::bad_alloc is {kind: memory})"
+
+[[target]]
+id = "cgal"
+library = "CGAL"
+upstream = "https://github.com/CGAL/cgal"
+version = "5.6 (Ubuntu 24.04 libcgal-dev 5.6-1build3)"
+lib = "cgal@5.6"
+run = "adapters/cgal/run.sh"
+version_command = "adapters/cgal/run.sh --version"
+toolchain = "g++ 13.3 (Ubuntu 24.04), -std=c++17 -O2 -g0 -frounding-math, CGAL assertions and preconditions on (no NDEBUG), GMP 6.3, MPFR 4.2"
+options = [
+    "kernel: CGAL::Exact_predicates_exact_constructions_kernel (Epeck), not the default Epick of many CGAL examples",
+    "overlay: CGAL::Polygon_set_2 (Boolean_set_operations_2) on polygons with holes: the regularized areal overlay only",
+    "rings are rebuilt for CGAL: closing point and repeated consecutive points dropped, shells turned counter-clockwise and holes clockwise by the exact signed area (CGAL requires this orientation; it does not change the point set)",
+    "a MultiPolygon operand is the join of its polygons (Polygon_set_2::join); a polygon whose holes touch its shell or each other (OGC-valid, a CGAL precondition violation for Polygon_with_holes_2) enters as its shell minus its holes, the same point set",
+    "output doubles: the double nearest to each exact rational coordinate (ties to even, subnormals included), computed by the adapter with GMP; not CGAL::to_double",
+    "--exact FILE writes the exact results (every ordinate as canonical \"n/d\", the exact area, the vertex count) to a side-car line per case",
+]
+variants = ["--v2 (v2 output for legacy input, same lib)", "--exact FILE (side-car of exact rationals, same lib)"]
+
+[target.fields]
+supported = [
+    # Polygon: adapter pre-checks (finite ordinates, closed rings of >= 4 positions), then
+    # CGAL::is_valid_polygon of the shell (strictly simple) and, with holes,
+    # CGAL::is_valid_polygon_with_holes; MultiPolygon: always null (no comparable CGAL rule).
+    # Not comparable with OGC where a hole touches the shell or another hole at a point
+    # inside an edge (CGAL: invalid) or holes disconnect the interior (CGAL: not checked)
+    "valid_a", "valid_b",
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # v1: exact area of the Polygon_set_2 result, correctly rounded
+    "echo",  # each position as an exact CGAL point and back through the exact rational -> double rounding
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = ["relate"]  # CGAL has no DE-9IM
+
+[target.fields.derived]
+# derived for Polygon/MultiPolygon pairs from exact regularized overlays (II = A∩*B ≠ ∅,
+# AB = A−*B ≠ ∅, BA = B−*A ≠ ∅) and exact boundary-segment contacts (K::Do_intersect_2);
+# exact for valid (regular closed) inputs; null when an operand is empty
+intersects = "II or some boundary segments of A and B meet"
+disjoint = "not intersects"
+touches = "not II and some boundary segments meet"
+overlaps = "II and AB and BA"
+contains = "not BA"
+covers = "not BA"
+within = "not AB"
+covered_by = "not AB"
+equals = "not AB and not BA"
+"predicates.intersects" = "II or some boundary segments of A and B meet"
+"predicates.disjoint" = "not predicates.intersects"
+"predicates.touches" = "not II and some boundary segments meet"
+"predicates.crosses" = "false: areal/areal"
+"predicates.overlaps" = "II and AB and BA"
+"predicates.contains" = "not BA"
+"predicates.covers" = "not BA"
+"predicates.within" = "not AB"
+"predicates.covered_by" = "not AB"
+"predicates.equals" = "not AB and not BA"
+
+[target.precision]
+model = "exact: Epeck (lazy exact rationals over GMP) for every predicate and construction; the only rounding is the adapter's final exact-rational -> nearest-double step for the v2 output coordinates and v1 areas"
+# each output ordinate is within 1/2 ulp of the exact one, so a vertex is within sqrt(2)/2 ulp(M)
+# <= sqrt(2)/2 * 2^-52 * M = 1.5701e-16 * M (output ordinates lie in the input's bounding box)
+delta = { kind = "relative", value = 1.58e-16 }
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double (every double is an exact rational; subnormals included)"
+out_of_range = "unsupported"  # non-finite ordinates: valid_* false, every other field "unsupported"; a shell or hole that is not a simple polygon: overlays and predicates "unsupported"

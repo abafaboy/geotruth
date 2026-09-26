@@ -1,17 +1,24 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
-# Facts from JtsAdapter.java and the built tree, unless marked "uncertain".
+# Facts from JtsAdapter.java, build.sh and the built trees (JTS sources at the pinned
+# commits), unless marked "uncertain". One adapter source is built twice by build.sh:
+# against JTS git master and against the latest JTS release (1.20.0, from its git tag).
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands, schemas/result.v2)
+# get the v2 field paths (RelateNG by default); legacy FORMAT-v1 lines get the v1 field
+# names (RelateOp by default), byte-identical to the v1 adapter on the seed corpus. Both
+# are listed.
 manifest_version = 1
 
 [adapter]
 name = "jts_main"
-language = "Java (jts-core)"
-contract = "v1"
+language = "Java 11+ (jts-core only; tested with OpenJDK 21)"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "adapters/jts_main/build.sh"
 build_root = "$GEOTRUTH_BUILD_DIR/jts-main"
 build_root_override = "JTS_BUILD_DIR"
-build_recipe = "JTS git master at the pinned commit in src/, jts-core compiled to out/jts-core.jar, adapter classes in out/"  # uncertain: summarised from the build tree layout
-isolation = "per-case wall-clock budget (--timeout, default 10 s): on timeout every field is null and errors.timeout is set; exceptions are caught per operation. One JVM runs every case, so a JVM crash ends the run"  # uncertain: no process isolation is visible in JtsAdapter.java
+build_recipe = "build.sh main | build.sh release: shallow fetch of the pinned commit into <root>/src, jts-core compiled to out/jts-core.jar (Maven for master, javac otherwise; FORCE_JAVAC=1 always javac), adapter classes in out/classes, lib string in out/lib.txt; <root> is $GEOTRUTH_BUILD_DIR/jts-main (JTS_BUILD_DIR) or $GEOTRUTH_BUILD_DIR/jts-release (JTS_RELEASE_BUILD_DIR); jts-core is built once per commit"
+isolation = "v2: the operations run in a worker JVM that streams each result; an operation over JTS_ADAPTER_TIMEOUT / GEOTRUTH_OP_TIMEOUT (--timeout, default 10 s) kills the worker ({kind: timeout}), a dead worker fails that operation ({kind: crash}), a new worker continues; worker heap -Xmx JTS_ADAPTER_MEM_MB (default 2048; OutOfMemoryError is {kind: memory}). v1: a per-case thread with a --timeout budget (default 10 s; JTS ignores interrupts, so a timed-out case is abandoned, not killed)"
 
 [[target]]
 id = "jts-main"
@@ -21,29 +28,82 @@ version = "1.21.0-SNAPSHOT"
 commit = "3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd"
 lib = "jts@1.21.0-SNAPSHOT-3ea61f8"
 run = "adapters/jts_main/run.sh"
-version_command = "harness/lib_string.sh adapters/jts_main/run.sh"
-toolchain = "OpenJDK 21.0.10"  # uncertain: the JDK on the build machine; build.sh has the details
+version_command = "adapters/jts_main/run.sh --version"
+toolchain = "OpenJDK 21.0.10, jts-core built by Maven (-DskipTests) or javac --release 8"  # uncertain: the JDK on the build machine
 options = [
-    "areas through OverlayNGRobust.overlay(a, b, op) directly; Geometry.intersection() and friends still default to the legacy OverlayOp unless -Djts.overlay=ng",  # uncertain: JTS default of GeometryOverlay
+    "v2 relate and predicates through RelateNG (RelateNG.relate(a, b) and RelateNG.relate(a, b, RelatePredicate.x())); the Geometry methods still default to the old RelateOp (jts.relate unset), which the v1 contract keeps",
+    "overlays through OverlayNGRobust.overlay(a, b, op) directly; Geometry.intersection() and friends still default to the legacy OverlayOp unless -Djts.overlay=ng",
 ]
-# `--relate ng` sets jts.relate=ng (RelateNG) and appends "+relateng" to `lib`; the default
-# `--relate old` is RelateOp, which is also JTS's own default
-variants = ["--relate ng (+relateng)"]
+# `--relate old` runs v2 relate and predicates through RelateOp (lib suffix +relateop);
+# `--relate ng` switches the v1 contract to RelateNG (lib suffix +relateng for v1 lines)
+variants = ["--relate old (+relateop)", "--v2 (v2 output for legacy input, same lib)"]
 
 [target.fields]
 supported = [
-    "valid_a", "valid_b",  # IsValidOp
+    "valid_a", "valid_b",  # IsValidOp.isValid()
+    # v1 names (legacy lines): Geometry.<predicate>, RelateOp by default
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
     "equals",  # Geometry.equalsTopo
     "area_inter", "area_union", "area_diff", "area_symdiff",  # OverlayNGRobust.overlay(...).getArea()
+    # v2 paths (typed lines): every type, empty elements included
+    "echo",  # the operands as built, written back from their CoordinateSequences
+    "relate",  # RelateNG.relate(a, b).toString() (Mod-2 boundary node rule)
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",  # RelateNG.relate(a, b, RelatePredicate.x())
+    # OverlayNGRobust.overlay(a, b, INTERSECTION / UNION / DIFFERENCE / SYMDIFFERENCE): non-strict;
+    # GeometryCollection operands OverlayNG rejects are "unsupported"; coordinates written by the adapter
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 
 [target.fields.derived]
 
 [target.precision]
-model = "IEEE double, default GeometryFactory (floating PrecisionModel), coordinates parsed by Double.parseDouble. Overlay: OverlayNGRobust (floating noder, snapping with tolerance M/1e12 x10 per try, 5 tries, then snap-rounding). Predicates: RelateOp (GeometryGraph, floating-point intersection points with robust orientation), no tolerance"
-delta = { kind = "relative", value = 1e-8 }  # uncertain: same constants as the GEOS port (SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5); verify against OverlayNGRobust.java
+model = "IEEE double, default GeometryFactory (floating PrecisionModel), coordinates parsed by Double.parseDouble. Overlay: OverlayNGRobust (floating noder, then snapping noder with tolerance M/1e12 x10 per try, 5 tries, then snap-rounding); non-strict result semantics. Relate and predicates (v2): RelateNG, robust orientation, no tolerance; v1: RelateOp (GeometryGraph, floating-point intersection points)"
+delta = { kind = "relative", value = 1e-8 }  # uncertain: the loosest documented fallback, the 5th snapping try (OverlayNGRobust.java: SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5, x10 per try)
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: JTS documents no limit
+out_of_range = "not detected"
+
+[[target]]
+id = "jts-release"
+library = "JTS Topology Suite"
+upstream = "https://github.com/locationtech/jts"
+version = "1.20.0"  # the latest release tag on 2026-09-26 (git ls-remote --tags: 1.20.0 is the newest)
+commit = "6e95fe82feb986a7aa657f4ffa406d8c290af509"
+lib = "jts@1.20.0"
+run = "adapters/jts_main/run_release.sh"
+version_command = "adapters/jts_main/run_release.sh --version"
+toolchain = "OpenJDK 21.0.10, jts-core compiled with javac --release 8"  # uncertain: the JDK on the build machine
+options = [
+    "v2 relate and predicates through RelateNG (first shipped in 1.20.0); the Geometry methods default to RelateOp, which the v1 contract keeps",
+    "overlays through OverlayNGRobust.overlay(a, b, op) directly",
+]
+variants = ["--relate old (+relateop)", "--v2 (v2 output for legacy input, same lib)"]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",
+    "area_inter", "area_union", "area_diff", "area_symdiff",
+    "echo", "relate",
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "as jts-main: IEEE double, floating PrecisionModel, OverlayNGRobust fallbacks, non-strict overlay, RelateNG relate and predicates (v2)"
+delta = { kind = "relative", value = 1e-8 }  # same constants in 1.20.0 (OverlayNGRobust.java); uncertain as for jts-main
 tolerance_predicates = false
 tolerances = []
 

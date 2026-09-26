@@ -1,17 +1,21 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
 # Facts from README.md in this directory unless marked "uncertain".
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands, schemas/result.v2;
+# src/v2.rs) get the v2 field paths; legacy FORMAT-v1 lines get the v1 field names,
+# byte-identical to the v1 adapter on the seed corpus. Both are listed.
 manifest_version = 1
 
 [adapter]
 name = "rust_geo"
 language = "Rust (edition 2021)"
-contract = "v1"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "adapters/rust_geo/build.sh"
 build_root = "$GEOTRUTH_BUILD_DIR/rust-geo/target"
 build_root_override = "CARGO_TARGET_DIR"
 build_recipe = "cargo build --release --locked -j2; Cargo.lock pins geo and every transitive crate (UPDATE=1 runs cargo update first)"
-isolation = "a supervisor feeds cases to a worker child (the same binary); every operation runs under catch_unwind; an operation over GEO_ADAPTER_TIMEOUT (default 10 s) or a dead worker fails that one operation and a new worker continues; worker address space capped at GEO_ADAPTER_MEM_MB (default 4096)"
+isolation = "a supervisor feeds cases to a worker child (the same binary); every operation runs under catch_unwind; an operation over GEO_ADAPTER_TIMEOUT / GEOTRUTH_OP_TIMEOUT (default 10 s) kills the worker (v2: {kind: timeout}), a dead worker fails that one operation (v2: {kind: crash}) and a new worker continues; worker address space capped at GEO_ADAPTER_MEM_MB (default 4096)"
 
 [[target]]
 id = "rust-geo"
@@ -22,6 +26,7 @@ lib = "geo@0.33.1"
 run = "adapters/rust_geo/run.sh"
 version_command = "adapters/rust_geo/run.sh --version"
 toolchain = "rustc/cargo 1.94.1, release profile (panic = unwind, debug = 1)"
+variants = ["--v2 (v2 output for legacy input, same lib)"]
 options = [
     "geo with its default features (earcut, spade, multithreading); run.sh sets RAYON_NUM_THREADS=1",
     "serde_json with float_roundtrip, so every coordinate parses to the exact double (the default fast path can be 1 ulp off)",
@@ -29,8 +34,14 @@ options = [
 
 [target.fields]
 supported = [
-    "valid_a", "valid_b",  # Validation::check_validation; does not check interior connectivity (rule R5)
+    "valid_a", "valid_b",  # Validation::check_validation / is_valid; does not check interior connectivity (rule R5)
     "area_inter", "area_union", "area_diff", "area_symdiff",  # unsigned_area of BooleanOps (even-odd, OverlayOptions::ogc())
+    # v2 paths (typed lines); unsupported: empty points and unclosed rings (geo cannot hold them)
+    "echo",  # the operands as built, written back by src/v2.rs
+    "relate",  # a.relate(&b) on geo::Geometry (Relate: the GeometryGraph port of JTS RelateOp)
+    # BooleanOps::intersection / union / difference / xor of Polygon / MultiPolygon operands
+    # (other types are unsupported); the MultiPolygon result is written by src/v2.rs
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 
@@ -45,11 +56,21 @@ covers = "relate(a, b).is_covers()"
 within = "relate(a, b).is_within()"
 covered_by = "relate(a, b).is_coveredby()"
 equals = "relate(a, b).is_equal_topo()"
+"predicates.intersects" = "relate(a, b).is_intersects()"
+"predicates.disjoint" = "relate(a, b).is_disjoint()"
+"predicates.touches" = "relate(a, b).is_touches()"
+"predicates.crosses" = "relate(a, b).is_crosses()"
+"predicates.overlaps" = "relate(a, b).is_overlaps()"
+"predicates.contains" = "relate(a, b).is_contains()"
+"predicates.covers" = "relate(a, b).is_covers()"
+"predicates.within" = "relate(a, b).is_within()"
+"predicates.covered_by" = "relate(a, b).is_coveredby()"
+"predicates.equals" = "relate(a, b).is_equal_topo()"
 
 [target.precision]
 model = "Predicates: Relate with floating-point intersection points and robust orientation (the pre-RelateNG JTS design), no tolerance and no grid. Overlay: i_overlay maps every input point to an i32 grid centred on the joint bounding box, rounding half away from zero, overlays exactly on the integers and maps output vertices back"
 delta = { kind = "grid", value = 2 }  # uncertain: input rounding (<= sqrt(2)/2 step) plus rounding of intersection points (<= sqrt(2)/2 step); i_overlay documents no bound. Features thinner than a step vanish
-grid = "2^(round(log2(H)) - 29), H = the largest half-extent of the joint bounding box of A and B (scale = 2^(29 - round(log2 H)))"
+grid = "2^-28 * H: i_overlay's step is 2^(round(log2 H) - 29) <= 2^-28.5 H, H = the largest half-extent of the joint bounding box of A and B (scale = 2^(29 - round(log2 H)))"
 tolerance_predicates = false
 tolerances = []
 

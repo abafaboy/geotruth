@@ -1,18 +1,26 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
 # Facts from README.md in this directory unless marked "uncertain". One adapter source,
-# bg_adapter.cpp, is compiled twice: against the system Boost 1.83 and against develop.
+# bg_adapter.cpp, is compiled three times: against the system Boost 1.83, against
+# Boost.Geometry develop and against the latest Boost.Geometry release (1.92.0).
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands, schemas/result.v2)
+# get the v2 field paths; legacy FORMAT-v1 lines get the v1 field names, byte-identical to
+# the v1 adapter. Both are listed. A field listed as supported is still "unsupported" for a
+# type pair that Boost does not implement (decided at compile time from Boost's own
+# not_implemented dispatch tags), for GeometryCollections and for empty points (Boost has
+# neither); overlay is only in contract for Polygon/MultiPolygon pairs.
 manifest_version = 1
 
 [adapter]
 name = "boost_geometry"
 language = "C++17"
-contract = "v1"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "adapters/boost_geometry/build.sh"
 build_root = "$GEOTRUTH_BUILD_DIR/boost-geometry"
 build_root_override = "BUILD_ROOT"
-build_recipe = "needs the system Boost 1.83 headers (apt libboost-dev); shallow fetch of boostorg/geometry develop at the pinned commit into geometry/; both binaries in bin/; the develop build is checked to include no Boost.Geometry header from /usr/include"
-isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (BG_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation and a fresh child continues; child address space capped at BG_ADAPTER_MEM_MB (default 4096)"
+build_recipe = "needs the system Boost 1.83 headers (apt libboost-dev); shallow fetch of boostorg/geometry develop at the pinned commit into geometry/ and of the release tag into geometry-release/; the three binaries in bin/ (at most JOBS=2 compilers at once); the develop and release builds are checked to include no Boost.Geometry header from /usr/include"
+isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (BG_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation ({kind: crash|timeout} in v2) and a fresh child continues; child address space capped at BG_ADAPTER_MEM_MB (default 4096; std::bad_alloc is {kind: memory} in v2)"
 
 [[target]]
 id = "boost-1.83"
@@ -27,23 +35,36 @@ options = [
     "polygon type: bg::model::polygon<point_xy<double>, ClockWise = false, Closed = true> (Boost's default model is clockwise)",
     "every ring is re-oriented to that type by an exact orientation test (cpp_rational), not by bg::correct(), which decides with the floating-point area",
     "-DNDEBUG: release semantics, Boost asserts off",
+    "BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD=true: Boost's not_implemented is a complete type instead of a static_assert, so the adapter can tell supported type pairs at compile time; it changes no algorithm",
 ]
+variants = ["--v2 (v2 output for legacy input, same lib)"]
 
 [target.fields]
 supported = [
     "valid_a", "valid_b",  # bg::is_valid
+    # v1 names (legacy lines)
     "intersects", "disjoint", "touches", "overlaps", "within", "covered_by",
     "equals",  # bg::equals: areas and collected vectors, with a tolerance
     "area_inter", "area_union", "area_diff", "area_symdiff",  # bg::area of bg::intersection etc.
+    # v2 paths (typed lines): Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
+    "echo",  # operands as Boost geometries, coordinates read back with bg::get
+    "relate",  # bg::relation(a, b).str()
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.within", "predicates.covered_by", "predicates.equals",
+    # bg::intersection / union_ / difference / sym_difference into a multi_polygon: the
+    # regularized areal overlay, Polygon/MultiPolygon pairs only
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 
 [target.fields.derived]
 contains = "bg::within(b, a): Boost.Geometry has no contains"
 covers = "bg::covered_by(b, a): Boost.Geometry has no covers"
+"predicates.contains" = "bg::within(b, a)"
+"predicates.covers" = "bg::covered_by(b, a)"
 
 [target.precision]
-model = "IEEE double throughout, BOOST_GEOMETRY_NO_ROBUSTNESS (the 1.83 default: no rescaling to integers)"
+model = "IEEE double throughout, BOOST_GEOMETRY_NO_ROBUSTNESS (the 1.83 default: no rescaling to integers). Overlay: regularized areal (polygons only). Predicates: relate with static DE-9IM masks on the static type dimension (crosses, overlaps, touches), dedicated code for within/covered_by/disjoint, collected vectors for equals"
 delta = { kind = "undocumented" }  # Boost.Geometry documents no bound on overlay output
 tolerance_predicates = true
 tolerances = [
@@ -68,8 +89,10 @@ options = [
     "polygon type: bg::model::polygon<point_xy<double>, ClockWise = false, Closed = true> (Boost's default model is clockwise)",
     "every ring is re-oriented to that type by an exact orientation test (cpp_rational), not by bg::correct(), which decides with the floating-point area",
     "-DNDEBUG: release semantics, Boost asserts off",
+    "BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD=true (compile-time detection of supported type pairs; changes no algorithm)",
     "every Boost library other than Geometry comes from the system 1.83",
 ]
+variants = ["--v2 (v2 output for legacy input, same lib)"]
 
 [target.fields]
 supported = [
@@ -77,15 +100,71 @@ supported = [
     "intersects", "disjoint", "touches", "overlaps", "within", "covered_by",
     "equals",
     "area_inter", "area_union", "area_diff", "area_symdiff",
+    "echo", "relate",
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.within", "predicates.covered_by", "predicates.equals",
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 
 [target.fields.derived]
 contains = "bg::within(b, a): Boost.Geometry has no contains"
 covers = "bg::covered_by(b, a): Boost.Geometry has no covers"
+"predicates.contains" = "bg::within(b, a)"
+"predicates.covers" = "bg::covered_by(b, a)"
 
 [target.precision]
-model = "IEEE double throughout; develop has removed the rescaling code altogether; the overlay traversal is the new graph-based code (algorithms/detail/overlay/graph/)"
+model = "IEEE double throughout; develop has removed the rescaling code altogether; the overlay traversal is the new graph-based code (algorithms/detail/overlay/graph/). Overlay: regularized areal (polygons only)"
+delta = { kind = "undocumented" }
+tolerance_predicates = true
+tolerances = [
+    "bg::equals on Cartesian polygons compares the areas and then the sorted collected vectors (edge directions) with a tolerance; it is not DE-9IM equality",
+]
+
+[target.coordinates]
+range = "any finite double"  # uncertain: no documented limit
+out_of_range = "not detected"
+
+[[target]]
+id = "boost-release"
+library = "Boost.Geometry"
+upstream = "https://github.com/boostorg/geometry"
+version = "1.92.0"  # tag boost-1.92.0, the latest release tag on 2026-09-26
+commit = "90c27ef0bf9d1700f553b85f890f43461eced529"
+lib = "boost-geometry@1.92"
+run = "adapters/boost_geometry/run_release.sh"
+version_command = "adapters/boost_geometry/run_release.sh --version"
+toolchain = "g++ 13.3 (Ubuntu 24.04), -std=c++17 -O2 -g0 -DNDEBUG; boost-1.92.0 Boost.Geometry headers first on the include path, then compat/ (a shim for <boost/core/invoke_swap.hpp>), then the system Boost 1.83"
+options = [
+    "polygon type: bg::model::polygon<point_xy<double>, ClockWise = false, Closed = true> (Boost's default model is clockwise)",
+    "every ring is re-oriented to that type by an exact orientation test (cpp_rational), not by bg::correct(), which decides with the floating-point area",
+    "-DNDEBUG: release semantics, Boost asserts off",
+    "BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD=true (compile-time detection of supported type pairs; changes no algorithm)",
+    "every Boost library other than Geometry comes from the system 1.83, not from Boost 1.92",
+]
+variants = ["--v2 (v2 output for legacy input, same lib)"]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "within", "covered_by",
+    "equals",
+    "area_inter", "area_union", "area_diff", "area_symdiff",
+    "echo", "relate",
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.within", "predicates.covered_by", "predicates.equals",
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = []
+
+[target.fields.derived]
+contains = "bg::within(b, a): Boost.Geometry has no contains"
+covers = "bg::covered_by(b, a): Boost.Geometry has no covers"
+"predicates.contains" = "bg::within(b, a)"
+"predicates.covers" = "bg::covered_by(b, a)"
+
+[target.precision]
+model = "IEEE double throughout, no rescaling (the 1.92.0 tree has no rescale policy left); the graph-based overlay traversal of develop (algorithms/detail/overlay/graph/). Overlay: regularized areal (polygons only)"
 delta = { kind = "undocumented" }
 tolerance_predicates = true
 tolerances = [

@@ -1,6 +1,8 @@
-//! Adapter for the georust `geo` crate (see ../../harness/FORMAT-v1.md and README.md).
+//! Adapter for the georust `geo` crate: adapter contract v2 (docs/DESIGN.md §4.1, see
+//! v2.rs) for typed lines, and the legacy FORMAT-v1 contract (../../harness/FORMAT-v1.md)
+//! for legacy lines. See README.md.
 //!
-//! usage: geo_adapter [--in-process] CASES.jsonl > RESULTS.jsonl
+//! usage: geo_adapter [--in-process] [--v2] [--timing] CASES.jsonl|- > RESULTS.jsonl
 //!        geo_adapter --version
 //!
 //! By default the process is a supervisor: it feeds each case to a worker child (this same
@@ -26,6 +28,8 @@ use geo::{
     MultiPolygon, Polygon, PreparedGeometry, Relate, Validation, Within,
 };
 use serde_json::{json, Map, Value};
+
+mod v2;
 
 const LIB: &str = concat!("geo@", env!("GEO_VERSION"));
 const LIB_DETAIL: &str = concat!("geo@", env!("GEO_VERSION"), " (i_overlay@", env!("I_OVERLAY_VERSION"), ")");
@@ -427,6 +431,16 @@ fn worker_main() -> io::Result<()> {
     let mut out = stdout.lock();
     for line in stdin.lock().lines() {
         let line = line?;
+        if let Some(rest) = line.strip_prefix("v2:") {
+            let Some((start, js)) = rest.split_once('\t') else { continue };
+            let start: usize = start.parse().unwrap_or(0);
+            let guard = |f: &mut dyn FnMut() -> v2::Outcome| match guarded(f) {
+                Ok(o) => o,
+                Err(m) => v2::Outcome::Error(v2::quote(&m)),
+            };
+            v2::worker_answer(&mut out, start, js, &guard, &inject_fault)?;
+            continue;
+        }
         let Some((start, js)) = line.split_once('\t') else { continue };
         let start: usize = start.parse().unwrap_or(0);
         let case: Value = serde_json::from_str(js).unwrap_or(Value::Null);
@@ -690,18 +704,117 @@ fn assemble(id: Value, mut fields: Map<String, Value>, mut errors: Map<String, V
     Value::Object(out)
 }
 
-fn supervisor_main(path: &str, in_process: bool) -> io::Result<()> {
+/// Runs the requested v2 field paths of one case in the worker (re-spawned after a
+/// timeout or a crash), in the same way as the v1 units.
+fn run_case_v2_isolated(
+    worker: &mut Option<Worker>,
+    line: &str,
+    paths: &[String],
+    timeout: Duration,
+) -> Vec<v2::OpResult> {
+    let mut res: Vec<Option<v2::OpResult>> = vec![None; paths.len()];
+    let mut next = 0;
+    let mut write_failures = 0;
+    while next < paths.len() {
+        if worker.is_none() {
+            match Worker::spawn() {
+                Ok(w) => *worker = Some(w),
+                Err(e) => {
+                    for r in res.iter_mut().skip(next) {
+                        *r = Some(v2::OpResult::failed(v2::crash_error(&format!("cannot start worker: {e}"))));
+                    }
+                    break;
+                }
+            }
+        }
+        let w = worker.as_mut().unwrap();
+        if writeln!(w.stdin, "v2:{next}\t{line}").and_then(|_| w.stdin.flush()).is_err() {
+            let how = worker.take().unwrap().finish(true);
+            write_failures += 1;
+            if write_failures >= 2 {
+                for r in res.iter_mut().skip(next) {
+                    *r = Some(v2::OpResult::failed(v2::crash_error(&format!("worker unusable: {how}"))));
+                }
+                break;
+            }
+            continue;
+        }
+        while next < paths.len() {
+            match worker.as_ref().unwrap().rx.recv_timeout(timeout) {
+                Ok(msg) => match v2::parse_worker_line(&msg) {
+                    Some((k, r)) if k < paths.len() => {
+                        res[k] = Some(r);
+                        next = k + 1;
+                    }
+                    _ => {
+                        let how = worker.take().unwrap().finish(true);
+                        res[next] = Some(v2::OpResult::failed(v2::crash_error(&format!("bad worker output ({how}): {msg}"))));
+                        next += 1;
+                        break;
+                    }
+                },
+                Err(RecvTimeoutError::Timeout) => {
+                    let _ = worker.take().unwrap().finish(true);
+                    res[next] = Some(v2::OpResult::failed(v2::timeout_error(timeout)));
+                    next += 1;
+                    break;
+                }
+                Err(RecvTimeoutError::Disconnected) => {
+                    let how = worker.take().unwrap().finish(false);
+                    res[next] = Some(v2::OpResult::failed(v2::crash_error(&format!("worker died: {how}"))));
+                    next += 1;
+                    break;
+                }
+            }
+        }
+    }
+    res.into_iter().map(|r| r.unwrap_or_else(|| v2::OpResult::failed(v2::crash_error("no result")))).collect()
+}
+
+/// The v2 result line of one case.
+fn answer_v2(worker: &mut Option<Worker>, line: &str, case: &Value, in_process: bool, timeout: Duration, timing: bool) -> String {
+    let id = case.get("id").cloned().unwrap_or(Value::Null);
+    let paths = match v2::requested(case) {
+        Ok(p) if case.get("a").is_some() && case.get("b").is_some() => p,
+        Ok(_) => return v2::render_failed(LIB, &id, "input parse error: missing \"a\" or \"b\""),
+        Err(e) => return v2::render_failed(LIB, &id, &format!("input parse error: {e}")),
+    };
+    let res = if in_process {
+        let mut session = v2::Session::new(case);
+        paths
+            .iter()
+            .map(|p| {
+                let t0 = std::time::Instant::now();
+                let o = match guarded(|| session.run(p)) {
+                    Ok(o) => o,
+                    Err(m) => v2::Outcome::Error(v2::quote(&m)),
+                };
+                v2::outcome_result(o, t0.elapsed().as_secs_f64() * 1000.0)
+            })
+            .collect()
+    } else {
+        run_case_v2_isolated(worker, line, &paths, timeout)
+    };
+    v2::render(LIB, &id, &paths, &res, timing)
+}
+
+fn supervisor_main(path: &str, in_process: bool, force_v2: bool, timing: bool) -> io::Result<()> {
     let timeout = Duration::from_secs_f64(
-        std::env::var("GEO_ADAPTER_TIMEOUT")
-            .ok()
-            .and_then(|s| s.parse::<f64>().ok())
-            .filter(|t| *t > 0.0)
+        ["GEO_ADAPTER_TIMEOUT", "GEOTRUTH_OP_TIMEOUT"]
+            .iter()
+            .filter_map(|v| std::env::var(v).ok())
+            .filter_map(|s| s.parse::<f64>().ok())
+            .find(|t| *t > 0.0)
             .unwrap_or(10.0),
     );
     if in_process {
         install_panic_hook();
     }
-    let input = BufReader::new(std::fs::File::open(path)?);
+    let input: Box<dyn BufRead> = if path == "-" {
+        Box::new(BufReader::new(io::stdin()))
+    } else {
+        Box::new(BufReader::new(std::fs::File::open(path)?))
+    };
     let stdout = io::stdout();
     let mut out = BufWriter::new(stdout.lock());
     let mut worker: Option<Worker> = None;
@@ -721,6 +834,11 @@ fn supervisor_main(path: &str, in_process: bool) -> io::Result<()> {
                 }
                 r.insert("errors".into(), json!({"parse": e.to_string()}));
                 Value::Object(r)
+            }
+            Ok(case) if force_v2 || v2::is_v2(&case) => {
+                writeln!(out, "{}", answer_v2(&mut worker, line, &case, in_process, timeout, timing))?;
+                out.flush()?;
+                continue;
             }
             Ok(case) => {
                 let id = case.get("id").cloned().unwrap_or(Value::Null);
@@ -758,12 +876,14 @@ fn main() {
         return;
     }
     let in_process = args.iter().any(|a| a == "--in-process");
+    let force_v2 = args.iter().any(|a| a == "--v2");
+    let timing = args.iter().any(|a| a == "--timing");
     let files: Vec<&String> = args.iter().filter(|a| !a.starts_with("--")).collect();
     if files.len() != 1 {
-        eprintln!("usage: geo_adapter [--in-process] CASES.jsonl > RESULTS.jsonl");
+        eprintln!("usage: geo_adapter [--in-process] [--v2] [--timing] CASES.jsonl|- > RESULTS.jsonl");
         std::process::exit(2);
     }
-    if let Err(e) = supervisor_main(files[0], in_process) {
+    if let Err(e) = supervisor_main(files[0], in_process, force_v2, timing) {
         eprintln!("geo_adapter: {e}");
         std::process::exit(1);
     }

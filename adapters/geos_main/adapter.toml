@@ -1,18 +1,23 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
-# Facts from geos_adapter.c, the built tree and the GEOS sources at the pinned commit,
-# unless marked "uncertain".
+# Facts from geos_adapter.c / geos_adapter_v2.cpp, the built trees and the GEOS sources at the
+# pinned commits, unless marked "uncertain". One adapter source is built twice by build.sh:
+# against GEOS git main and against the latest GEOS release (3.15.0).
+#
+# Fields: the adapter answers both contracts. v2 lines (typed operands, schemas/result.v2)
+# get the v2 field paths; legacy FORMAT-v1 lines get the v1 field names, byte-identical to
+# the v1 adapter. Both are listed.
 manifest_version = 1
 
 [adapter]
 name = "geos_main"
-language = "C (GEOS reentrant C API, geos_c.h *_r functions)"
-contract = "v1"
+language = "C11 (driver, legacy v1 contract) and C++17 (contract v2, adapter_v2.hpp), both on the GEOS reentrant C API (geos_c.h *_r functions)"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "adapters/geos_main/build.sh"
 build_root = "$GEOTRUTH_BUILD_DIR/geos-main"
 build_root_override = "BUILD_ROOT"
-build_recipe = "GEOS git main at the pinned commit in src/, CMake build in build/, installed to install/, adapter binary in bin/geos_adapter"
-isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (GEOS_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation and a fresh child continues; child address space capped at GEOS_ADAPTER_MEM_MB (default 4096)"
+build_recipe = "build.sh main | build.sh release: shallow fetch of the pinned commit into <root>/src, CMake Release build in build/ (-DBUILD_TESTING=OFF, JOBS=2), installed to install/, adapter in bin/geos_adapter; <root> is $GEOTRUTH_BUILD_DIR/geos-main or $GEOTRUTH_BUILD_DIR/geos-release; the library is built once per commit"
+isolation = "each case runs in a forked child that streams each operation's result; a crash or a hang (GEOS_ADAPTER_TIMEOUT, default 10 s per operation) fails that one operation ({kind: crash|timeout} in v2) and a fresh child continues; child address space capped at GEOS_ADAPTER_MEM_MB (default 4096; std::bad_alloc is {kind: memory} in v2)"
 
 [[target]]
 id = "geos-main"
@@ -23,26 +28,77 @@ commit = "ae9cdd98be4e0bae552b918d4d14c94a9ce99c58"
 lib = "geos@3.16.0dev-ae9cdd9"
 run = "adapters/geos_main/run.sh"
 version_command = "adapters/geos_main/run.sh --version"
-toolchain = "c++ = g++ 13.3, CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG)"  # uncertain: from build/CMakeCache.txt; the adapter's own compile flags are in build.sh
-options = []  # library defaults throughout: floating PrecisionModel, OverlayNG, RelateNG
+toolchain = "library: g++ 13.3, CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG); adapter: cc -O2 -std=c11 and c++ -O2 -std=c++17"  # uncertain: library flags from build/CMakeCache.txt
+options = []  # library defaults throughout: floating PrecisionModel, OverlayNG, RelateNG, Mod-2 boundary node rule, GEOSisValid_r
+# run by hand: --v2 answers legacy lines with the v2 contract; --timing adds elapsed_ms
+variants = ["--v2 (v2 output for legacy input, same lib)"]
 
 [target.fields]
 supported = [
     "valid_a", "valid_b",  # GEOSisValid_r (IsValidOp, isInvertedRingValid = false)
+    # v1 names (legacy lines)
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
     "equals",  # GEOSEquals_r: topological equality
     "area_inter", "area_union", "area_diff", "area_symdiff",  # GEOSArea_r of GEOSIntersection_r etc.
+    # v2 paths (typed lines); every type, including GeometryCollection and empty elements
+    "echo",  # operands built as GEOS geometries and read back with GEOSCoordSeq_copyToBuffer_r
+    "relate",  # GEOSRelate_r (Mod-2 boundary node rule)
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",  # the plain GEOS<Pred>_r calls, A then B
+    # GEOSIntersection_r / GEOSUnion_r / GEOSDifference_r / GEOSSymDifference_r: non-strict
+    # OverlayNG, so the result may be a GeometryCollection; coordinates written by the adapter
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
 
 [target.fields.derived]
 
 [target.precision]
-model = "IEEE double, floating PrecisionModel. Overlay: OverlayNG through OverlayNGRobust (floating noder, then snapping noder with tolerance M/1e12 multiplied by 10 on each of 5 tries, then snap-rounding at about 14 significant digits). Predicates: RelateNG (GEOS >= 3.13), robust orientation, no tolerance"
+model = "IEEE double, floating PrecisionModel. Overlay: OverlayNG through OverlayNGRobust (floating noder, then snapping noder with tolerance M/1e12 multiplied by 10 on each of 5 tries, then snap-rounding at about 14 significant digits); non-strict result semantics (lines and points of boundary touches are kept). Predicates and relate: RelateNG (GEOS >= 3.13), robust orientation, no tolerance"
 delta = { kind = "relative", value = 1e-8 }  # uncertain: the loosest documented fallback, the 5th snapping try (OverlayNGRobust.cpp: SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5, x10 per try); a snapping noder moves a vertex by at most its tolerance
 tolerance_predicates = false
 tolerances = []
 
 [target.coordinates]
 range = "any finite double"  # uncertain: GEOS documents no limit; areas overflow to infinity above about 1.3e154
+out_of_range = "not detected"
+
+[[target]]
+id = "geos-release"
+library = "GEOS"
+upstream = "https://github.com/libgeos/geos"
+version = "3.15.0"  # the latest release tag on 2026-09-26 (git ls-remote --tags: 3.15.0 is the newest non-beta/rc tag)
+commit = "d0228513abb0c29c185443cf2bfb06c9281024b5"
+lib = "geos@3.15.0"  # GEOSrevision() first ships with C API 1.22 (3.16dev), so a release is named by its version alone
+run = "adapters/geos_main/run_release.sh"
+version_command = "adapters/geos_main/run_release.sh --version"
+toolchain = "library: g++ 13.3, CMake 3.28, CMAKE_BUILD_TYPE=Release (-O3 -DNDEBUG); adapter: cc -O2 -std=c11 and c++ -O2 -std=c++17"  # uncertain: library flags from build/CMakeCache.txt
+options = []
+variants = ["--v2 (v2 output for legacy input, same lib)"]
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",
+    "area_inter", "area_union", "area_diff", "area_symdiff",
+    "echo", "relate",
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "as geos-main: IEEE double, floating PrecisionModel, OverlayNGRobust fallbacks, non-strict overlay, RelateNG predicates and relate"
+delta = { kind = "relative", value = 1e-8 }  # same constants in 3.15.0 (OverlayNGRobust.h: SNAP_TOL_FACTOR = 1e12, NUM_SNAP_TRIES = 5); uncertain as for geos-main
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: GEOS documents no limit
 out_of_range = "not detected"

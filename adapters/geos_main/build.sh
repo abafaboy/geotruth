@@ -2,13 +2,15 @@
 # Reproducible build of the GEOS adapter, for GEOS git main or the latest GEOS release:
 #   1. fetch GEOS at the pinned commit (shallow) into $BUILD_ROOT/src
 #   2. cmake Release build with -DBUILD_TESTING=OFF, install into $BUILD_ROOT/install
-#   3. compile geos_adapter.c against the installed geos_c into $BUILD_ROOT/bin/geos_adapter
+#   3. compile the adapter (geos_adapter.c: driver and legacy v1 contract; geos_adapter_v2.cpp
+#      with adapter_v2.hpp: contract v2) against the installed geos_c into
+#      $BUILD_ROOT/bin/geos_adapter
 #
 # usage: build.sh [main|release]      (default main)
 #   main     GEOS git main at the pinned commit            -> $GEOTRUTH_BUILD_DIR/geos-main
 #   release  the latest GEOS release, tag 3.15.0 (d022851)  -> $GEOTRUTH_BUILD_DIR/geos-release
 #
-# Env overrides: GEOS_COMMIT (full sha), BUILD_ROOT (this variant's tree), JOBS (default 2), CC.
+# Env overrides: GEOS_COMMIT (full sha), BUILD_ROOT (this variant's tree), JOBS (default 2), CC, CXX.
 # The library is built once per commit; later runs only recompile the adapter (a few seconds).
 set -euo pipefail
 
@@ -32,6 +34,7 @@ esac
 BUILD_ROOT="${BUILD_ROOT:-${GEOTRUTH_BUILD_DIR:-$HOME/.cache/geotruth}/$DIRNAME}"
 JOBS="${JOBS:-2}"
 CC="${CC:-cc}"
+CXX="${CXX:-c++}"
 
 SRC="$BUILD_ROOT/src"
 BLD="$BUILD_ROOT/build"
@@ -60,7 +63,12 @@ if [ ! -f "$PREFIX/include/geos_c.h" ]; then
 fi
 
 # 3. adapter (links with rpath so no LD_LIBRARY_PATH is needed)
-"$CC" -O2 -g -std=c11 -Wall -Wextra -o "$BIN/geos_adapter.tmp" "$HERE/geos_adapter.c" \
-      -I"$PREFIX/include" -L"$PREFIX/lib" -lgeos_c -lm -Wl,-rpath,"$PREFIX/lib"
+OBJ="$BUILD_ROOT/obj"
+mkdir -p "$OBJ"
+"$CC" -O2 -g -std=c11 -Wall -Wextra -I"$PREFIX/include" -c -o "$OBJ/geos_adapter.o" "$HERE/geos_adapter.c"
+"$CXX" -O2 -g -std=c++17 -Wall -Wextra -I"$PREFIX/include" -I"$HERE" -c -o "$OBJ/geos_adapter_v2.o" \
+       "$HERE/geos_adapter_v2.cpp"
+"$CXX" -o "$BIN/geos_adapter.tmp" "$OBJ/geos_adapter.o" "$OBJ/geos_adapter_v2.o" \
+       -L"$PREFIX/lib" -lgeos_c -lm -Wl,-rpath,"$PREFIX/lib"
 mv "$BIN/geos_adapter.tmp" "$BIN/geos_adapter"
 echo "built $BIN/geos_adapter ($("$BIN/geos_adapter" --version))"

@@ -1,0 +1,309 @@
+{
+ "manifest_version": 1,
+ "corpus_version": "2.0.0",
+ "case_format": "https://github.com/abafaboy/geotruth/schemas/case.v2.schema.json",
+ "generator_version": "2",
+ "licence": "CC0-1.0",
+ "parameters": {
+  "seed": 1,
+  "n_per_family": 1000,
+  "core_per_family": 200
+ },
+ "tiers": {
+  "seed": {
+   "format": "v1",
+   "in_git": true,
+   "cases": 1000,
+   "files": {
+    "cases/seed.jsonl": {
+     "sha256": "a54667b01209182c2cdd4130f860fdd56f9d5f5704cf61c9bb565d4c483ad053",
+     "bytes": 522293,
+     "cases": 1000
+    }
+   }
+  },
+  "core": {
+   "format": "v2",
+   "in_git": true,
+   "cases": 3400,
+   "files": {
+    "cases/core/empty.jsonl": {
+     "sha256": "ada34f4516685de7df87ec22e4be5aa76c9132c68c4dde3423ec3690b34a002e",
+     "bytes": 118491,
+     "cases": 200
+    },
+    "cases/core/gc.jsonl": {
+     "sha256": "18ef803694308f4f8cfaa6cb3e3092dc301fd36be17b70d292d951743810308d",
+     "bytes": 214090,
+     "cases": 200
+    },
+    "cases/core/hole-contact.jsonl": {
+     "sha256": "4bc092cab17aa0c2ef3e4a3651e00ea8f0c2f4fa5222e5ef4d606a30c3b97f10",
+     "bytes": 229448,
+     "cases": 200
+    },
+    "cases/core/int-grid.jsonl": {
+     "sha256": "ae1b799ed11295b9d46e42284a3df2125683aad1f3bf5527f67bda997d3a6fd3",
+     "bytes": 191670,
+     "cases": 200
+    },
+    "cases/core/invalid-zero-length-line.jsonl": {
+     "sha256": "6f7869748eea5ebebc049a3b97f01b8de558350d0cfdb5f0e847597711c12df3",
+     "bytes": 157732,
+     "cases": 200
+    },
+    "cases/core/line-line.jsonl": {
+     "sha256": "0e03f3ad3924956d9de29726b6721bff7dc781ff25a4e13c16f98d0b2e056de7",
+     "bytes": 154799,
+     "cases": 200
+    },
+    "cases/core/line-mod2.jsonl": {
+     "sha256": "4ac5f47fc09ce0b2cfded4d2365ebfbe657ef7ccab78620b881ae4c907aa96fa",
+     "bytes": 169727,
+     "cases": 200
+    },
+    "cases/core/line-polygon.jsonl": {
+     "sha256": "b26968f2eba0599c3221ccf30b79b2cb22d80248c2a94bcbdd9163a67192d05e",
+     "bytes": 172345,
+     "cases": 200
+    },
+    "cases/core/multi-touch.jsonl": {
+     "sha256": "98f5a379504f92ac8a2b4c7c91a9dac4189b6fd23f06f7fa2a961e4efd04e500",
+     "bytes": 228681,
+     "cases": 200
+    },
+    "cases/core/near-collinear.jsonl": {
+     "sha256": "ee14b7d4814f71841e3607c06172473d426118e84bb72e708d25ab4b9b90c38d",
+     "bytes": 173846,
+     "cases": 200
+    },
+    "cases/core/point-geometry.jsonl": {
+     "sha256": "ffaaafcdb38224c2dadf1e52dab424540c531f7654569d1ff1e26a480b32e9ff",
+     "bytes": 149293,
+     "cases": 200
+    },
+    "cases/core/scaled.jsonl": {
+     "sha256": "4718da328ec015b6a77f0d7990e6574eff3e83f1a1d943c303d9fd6553969720",
+     "bytes": 207005,
+     "cases": 200
+    },
+    "cases/core/shared-edge.jsonl": {
+     "sha256": "47fbb1046b42c1c4d75d6f35b9ae3308009beac3a7d2ad9c9bf33dcff6a4b1e0",
+     "bytes": 160874,
+     "cases": 200
+    },
+    "cases/core/sliver-spike.jsonl": {
+     "sha256": "05fd60a50262cd041f19aa357d9ecc4404f584627b126f0af86ec63a74a3f4f4",
+     "bytes": 169517,
+     "cases": 200
+    },
+    "cases/core/tiling-contact.jsonl": {
+     "sha256": "0fb4898855f6fe08e706ae1461885873d2dbaa5b573c124e58c17e9b3d54be76",
+     "bytes": 168003,
+     "cases": 200
+    },
+    "cases/core/tiny-transform.jsonl": {
+     "sha256": "6bcb36a5f4e1bd02319010a2e49f082706ec3c25de8b3ae01d27a3514250086d",
+     "bytes": 183066,
+     "cases": 200
+    },
+    "cases/core/vertex-on-edge.jsonl": {
+     "sha256": "513962956278b2c0b99e2b8b931f485984e523a42a527331419f0f4c39ce5131",
+     "bytes": 154581,
+     "cases": 200
+    }
+   }
+  },
+  "curated": {
+   "format": "v2",
+   "in_git": true,
+   "cases": 34,
+   "files": {
+    "cases/curated.jsonl": {
+     "sha256": "fef8aed34b8429a328562ae057a6dfe378905d6c1afeb6a5e59abd26e44531ce",
+     "bytes": 54531,
+     "cases": 34
+    }
+   }
+  },
+  "full": {
+   "format": "v2",
+   "in_git": false,
+   "cases": 17000,
+   "files": {
+    "cases/full/empty.jsonl": {
+     "sha256": "cfa2de8409cacf7ffb27e2e502ef07db1ebb70fe380ce44aed87ab239d0faca4",
+     "bytes": 627680,
+     "cases": 1000
+    },
+    "cases/full/gc.jsonl": {
+     "sha256": "492f09921b68666254dbf392cce82dcc823e218cc1fcd50863265cfedfcde208",
+     "bytes": 1049802,
+     "cases": 1000
+    },
+    "cases/full/hole-contact.jsonl": {
+     "sha256": "af250163f7819fb1e25b722352827ec238cdfa964944b06aad06e696ac01c5ac",
+     "bytes": 1149287,
+     "cases": 1000
+    },
+    "cases/full/int-grid.jsonl": {
+     "sha256": "e5e75022633e96574cfa238c3d3ec25af06c1d5d1efe22a5b9ca5d6cfc5881c3",
+     "bytes": 926247,
+     "cases": 1000
+    },
+    "cases/full/invalid-zero-length-line.jsonl": {
+     "sha256": "f20cf0e97b827daf1da3ff0e64db596b3e812ae4cdc17af2e491fae4fa64ead2",
+     "bytes": 769239,
+     "cases": 1000
+    },
+    "cases/full/line-line.jsonl": {
+     "sha256": "91c3d362905b031ee7527eb7b5855beba7342262be2bbe4ace25d3533d6bd5fc",
+     "bytes": 736484,
+     "cases": 1000
+    },
+    "cases/full/line-mod2.jsonl": {
+     "sha256": "b5d67306b554a48057fa1567e358f9ae5b8e1b58a9efa03f37255c0c7e011582",
+     "bytes": 838622,
+     "cases": 1000
+    },
+    "cases/full/line-polygon.jsonl": {
+     "sha256": "e8676431da5ed7c5448f97207cadb2a529c39c3d75fcb17e1d67828d46aea397",
+     "bytes": 780818,
+     "cases": 1000
+    },
+    "cases/full/multi-touch.jsonl": {
+     "sha256": "9a7a6eb9818e53601cce45187dd701afb1bfeac1cd3b9f6e5d6664d6e16aa52c",
+     "bytes": 1126443,
+     "cases": 1000
+    },
+    "cases/full/near-collinear.jsonl": {
+     "sha256": "07e8725605cd120802d14ca208dcb7d9b02b07df35864eff9ba43bfda8d93b64",
+     "bytes": 868321,
+     "cases": 1000
+    },
+    "cases/full/point-geometry.jsonl": {
+     "sha256": "f2b5ea1cb63bc8c7d44d18bab8b5011875e8ce337a262576036bc2371cca7183",
+     "bytes": 710007,
+     "cases": 1000
+    },
+    "cases/full/scaled.jsonl": {
+     "sha256": "a8e0b8d185b538542253094934e5db7923746a1f232f8ad703653747f2830b33",
+     "bytes": 1025012,
+     "cases": 1000
+    },
+    "cases/full/shared-edge.jsonl": {
+     "sha256": "5b600e7cf7b6f14e7db6be4d3bb0fdd890c96d0f2eb4cf7ba77e5526734fc29d",
+     "bytes": 809572,
+     "cases": 1000
+    },
+    "cases/full/sliver-spike.jsonl": {
+     "sha256": "5d73310f22693c8aed9ccecc62d069935bc09eca522e83c700b08b9c3d5fd88e",
+     "bytes": 844510,
+     "cases": 1000
+    },
+    "cases/full/tiling-contact.jsonl": {
+     "sha256": "b7245f39a3ada8f3c58206cf6cfe97ec627787b61d2728b546f36b718b0cc40b",
+     "bytes": 836301,
+     "cases": 1000
+    },
+    "cases/full/tiny-transform.jsonl": {
+     "sha256": "39d8ab21a9b5dd2592b60717f6f855e7f5fefbb5039eb8d5c239f85cff7e4411",
+     "bytes": 906821,
+     "cases": 1000
+    },
+    "cases/full/vertex-on-edge.jsonl": {
+     "sha256": "a1291a480770c253648db6af7c7c2b2291f74c0a2ed9bf6ac253e3b322d8194f",
+     "bytes": 776843,
+     "cases": 1000
+    }
+   }
+  }
+ },
+ "families": {
+  "near-collinear": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "vertex-on-edge": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "shared-edge": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "tiny-transform": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "sliver-spike": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "hole-contact": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "multi-touch": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "tiling-contact": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "int-grid": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "scaled": {
+   "generator": "corpus/generators/families.py",
+   "core": 200,
+   "full": 1000
+  },
+  "line-line": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "line-mod2": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "point-geometry": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "line-polygon": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "gc": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "empty": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  },
+  "invalid-zero-length-line": {
+   "generator": "corpus/generators/families_v2.py",
+   "core": 200,
+   "full": 1000
+  }
+ }
+}

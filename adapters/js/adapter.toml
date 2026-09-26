@@ -1,21 +1,28 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
 # Facts from README.md in this directory unless marked "uncertain". One driver
-# (adapter.mjs, worker.mjs, common.mjs) runs four libraries through lib_<name>.mjs.
+# (adapter.mjs, worker.mjs, common.mjs) runs five libraries through lib_<name>.mjs.
+#
+# Fields: the driver answers both contracts. v2 lines (typed operands, schemas/result.v2;
+# OPS_V2 of each lib_<name>.mjs) get the v2 field paths; legacy FORMAT-v1 lines get the v1
+# field names (OPS), byte-identical to the v1 adapters on the seed corpus. Both are listed.
 manifest_version = 1
 
 [adapter]
 name = "js"
 language = "JavaScript (Node.js >= 18; tested with v22.22.2)"
-contract = "v1"
+contract = "v2"
 owner = "abafaboy"  # uncertain: the repository owner; no per-adapter maintainer is assigned yet
 build = "adapters/js/install.sh"
 build_root = "$GEOTRUTH_BUILD_DIR/js-libs"
 build_root_override = "BUILD_ROOT"
 build_recipe = "npm ci of package.json / package-lock.json in the build root; adapters/js/node_modules links to it (run_lib.sh re-creates the link)"
-isolation = "the library runs in a worker_threads worker that sends back each result as it has it; an operation over JS_ADAPTER_TIMEOUT (default 10 s) terminates the worker, fails that field and a new worker continues; worker heap capped at JS_ADAPTER_MEM_MB (default 2048)"
+isolation = "the library runs in a worker_threads worker that sends back each result as it has it; an operation over JS_ADAPTER_TIMEOUT / GEOTRUTH_OP_TIMEOUT (default 10 s) terminates the worker, fails that field (v2: {kind: timeout}) and a new worker continues; a dying worker fails that field (v2: {kind: crash}); worker heap capped at JS_ADAPTER_MEM_MB (default 2048)"
 
-# Areas of every library are measured by the adapter (common.mjs): planar shoelace, each
+# v1 areas of every library are measured by the adapter (common.mjs): planar shoelace, each
 # ring translated to its first vertex, Neumaier-compensated; |shell| - sum |holes|.
+# v2 overlay output is the library's geometry, written by jsonOut (common.mjs): shortest
+# round-trip numbers, -0.0 kept. Empty elements and non-finite coordinates (which GeoJSON
+# cannot carry) are "unsupported" for Turf and the three clippers.
 
 [[target]]
 id = "turf"
@@ -24,7 +31,7 @@ upstream = "https://github.com/Turfjs/turf"
 version = "7.4.0 (@turf/turf)"
 lib = "turf@7.4.0"
 run = "adapters/js/run_turf.sh"
-version_command = "harness/lib_string.sh adapters/js/run_turf.sh"
+version_command = "adapters/js/run_turf.sh --version"
 toolchain = "Node.js v22.22.2"
 options = [
     "booleanEqual precision = 323.3 (10^-323.3 = 5e-324, so coordinates match only when they are the same double) instead of Turf's default 6; TURF_EQUAL_PRECISION=6 restores the default",
@@ -36,11 +43,22 @@ supported = [
     "intersects", "disjoint", "touches", "overlaps", "contains", "within",  # boolean* with default options
     "equals",  # booleanEqual: structural vertex comparison after cleanCoords, not topological equality
     "area_inter", "area_union", "area_diff",  # turf.intersect / union / difference (polyclip-ts 0.16.8 inside)
+    # v2 paths (typed lines); the boolean functions' "... not supported" type pairs are "unsupported"
+    "echo",  # the operands as parsed (JSON.parse), written back by jsonOut
+    "predicates.intersects", "predicates.disjoint", "predicates.touches",
+    "predicates.crosses",  # booleanCrosses (not implemented for polygon/polygon: "unsupported")
+    "predicates.overlaps", "predicates.contains", "predicates.within",
+    "predicates.equals",  # booleanEqual with the exact precision (see options)
+    "overlay.intersection", "overlay.union", "overlay.difference",  # of Polygon / MultiPolygon features
 ]
-unsupported = ["covers", "covered_by"]  # Turf has no covers predicate
+unsupported = [
+    "covers", "covered_by",  # Turf has no covers predicate
+    "relate", "predicates.covers", "predicates.covered_by",  # no relate, no covers: null
+]
 
 [target.fields.derived]
 area_symdiff = "area(difference(A, B)) + area(difference(B, A)): Turf has no symmetric difference"
+"overlay.symdifference" = "the polygons of difference(A, B) and difference(B, A) together: Turf has no symmetric difference"
 
 [target.precision]
 model = "Overlays: polyclip-ts 0.16.8 (bignumber.js arithmetic on the decimal string of each double, divisions rounded to 20 decimal places, no snapping epsilon). Predicates: Turf's own point-in-polygon, line-intersect and geojson-equality code, with fixed tolerances"
@@ -64,15 +82,23 @@ upstream = "https://github.com/mfogel/polygon-clipping"
 version = "0.15.7"
 lib = "polygon-clipping@0.15.7"
 run = "adapters/js/run_polygon_clipping.sh"
-version_command = "harness/lib_string.sh adapters/js/run_polygon_clipping.sh"
+version_command = "adapters/js/run_polygon_clipping.sh --version"
 toolchain = "Node.js v22.22.2"
 options = []
 
 [target.fields]
-supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, difference, xor
+supported = [
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # intersection, union, difference, xor
+    # v2: Polygon / MultiPolygon operands only (anything else is "unsupported")
+    "echo",  # the operands as parsed (JSON.parse), written back by jsonOut
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
 unsupported = [
     "valid_a", "valid_b",
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+    "relate", "predicates.intersects", "predicates.disjoint", "predicates.touches",
+    "predicates.crosses", "predicates.overlaps", "predicates.contains", "predicates.covers",
+    "predicates.within", "predicates.covered_by", "predicates.equals",
 ]
 
 [target.fields.derived]
@@ -94,15 +120,23 @@ upstream = "https://github.com/luizbarboza/polyclip-ts"
 version = "0.16.8"
 lib = "polyclip-ts@0.16.8"
 run = "adapters/js/run_polyclip_ts.sh"
-version_command = "harness/lib_string.sh adapters/js/run_polyclip_ts.sh"
+version_command = "adapters/js/run_polyclip_ts.sh --version"
 toolchain = "Node.js v22.22.2"
 options = []  # default precision: no setPrecision call, no snapping epsilon
 
 [target.fields]
-supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, difference, xor
+supported = [
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # intersection, union, difference, xor
+    # v2: Polygon / MultiPolygon operands only (anything else is "unsupported")
+    "echo",  # the operands as parsed (JSON.parse), written back by jsonOut
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
 unsupported = [
     "valid_a", "valid_b",
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+    "relate", "predicates.intersects", "predicates.disjoint", "predicates.touches",
+    "predicates.crosses", "predicates.overlaps", "predicates.contains", "predicates.covers",
+    "predicates.within", "predicates.covered_by", "predicates.equals",
 ]
 
 [target.fields.derived]
@@ -124,17 +158,25 @@ upstream = "https://github.com/w8r/martinez"
 version = "0.8.1"
 lib = "martinez@0.8.1"
 run = "adapters/js/run_martinez.sh"
-version_command = "harness/lib_string.sh adapters/js/run_martinez.sh"
+version_command = "adapters/js/run_martinez.sh --version"
 toolchain = "Node.js v22.22.2"
 options = [
     "imports the ESM build (dist/martinez.js): the CommonJS build of 0.8.1 fails on Node 22 (its dependency tinyqueue 3 is ESM-only)",
 ]
 
 [target.fields]
-supported = ["area_inter", "area_union", "area_diff", "area_symdiff"]  # intersection, union, diff, xor
+supported = [
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # intersection, union, diff, xor
+    # v2: Polygon / MultiPolygon operands only (anything else is "unsupported")
+    "echo",  # the operands as parsed (JSON.parse), written back by jsonOut
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
 unsupported = [
     "valid_a", "valid_b",
     "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by", "equals",
+    "relate", "predicates.intersects", "predicates.disjoint", "predicates.touches",
+    "predicates.crosses", "predicates.overlaps", "predicates.contains", "predicates.covers",
+    "predicates.within", "predicates.covered_by", "predicates.equals",
 ]
 
 [target.fields.derived]
@@ -142,6 +184,46 @@ unsupported = [
 [target.precision]
 model = "IEEE double sweep line (Martinez-Rueda-Feito); output rings may be left unclosed (measured as closed)"
 delta = { kind = "undocumented" }
+tolerance_predicates = false
+tolerances = []
+
+[target.coordinates]
+range = "any finite double"  # uncertain: undocumented
+out_of_range = "not detected"
+
+[[target]]
+id = "jsts"
+library = "JSTS (the JavaScript port of JTS)"
+upstream = "https://github.com/bjornharrtell/jsts"
+version = "2.12.1 (ports JTS 1.17: RelateOp and the classic OverlayOp; no RelateNG, no OverlayNG)"
+lib = "jsts@2.12.1"
+run = "adapters/js/run_jsts.sh"
+version_command = "adapters/js/run_jsts.sh --version"
+toolchain = "Node.js v22.22.2"
+options = []  # library defaults: floating GeometryFactory, Geometry methods (RelateOp), OverlayOp through SnapIfNeededOverlayOp
+
+[target.fields]
+supported = [
+    "valid_a", "valid_b",  # IsValidOp.isValid
+    "intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within", "covered_by",
+    "equals",  # Geometry.equalsTopo (RelateOp)
+    "area_inter", "area_union", "area_diff", "area_symdiff",  # shoelace (common.mjs) of the v2 overlay geometries
+    # v2 paths (typed lines); every type is built with the GeometryFactory, empties included
+    "echo",  # the operands as built, written back from getCoordinates()
+    "relate",  # Geometry.relate (RelateOp); GeometryCollection operands are unsupported, as in JTS
+    "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
+    "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
+    "predicates.covered_by", "predicates.equals",  # the Geometry methods (RelateOp)
+    # OverlayOp.intersection / Geometry.union (UnionOp) / OverlayOp.difference / symDifference
+    "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
+]
+unsupported = []
+
+[target.fields.derived]
+
+[target.precision]
+model = "IEEE double, floating PrecisionModel. Overlay: the classic JTS OverlayOp (GeometryGraph, floating-point intersection points), retried through SnapIfNeededOverlayOp with a snap tolerance of 1e-9 of the smaller envelope dimension on a TopologyException. Predicates and relate: RelateOp (GeometryGraph), no tolerance"
+delta = { kind = "relative", value = 2e-9 }  # uncertain: GeometrySnapper.computeSizeBasedSnapTolerance (SNAP_PRECISION_FACTOR = 1e-9 of the smaller envelope dimension, <= 2M); the unsnapped path documents no bound
 tolerance_predicates = false
 tolerances = []
 

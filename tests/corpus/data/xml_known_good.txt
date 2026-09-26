@@ -1,0 +1,33 @@
+# Core-tier cases whose exported JTS/GEOS XML tests all pass on GEOS main ae9cdd9
+# (xmltester), JTS master 3ea61f8 with RelateNG and with the old RelateOp (GeometryCollection
+# arguments excepted: unsupported there). Chosen 2026-09-26 from a stratified sample of 84
+# core cases, 82 of which passed; the 2 others are the curated leads
+# relateng-gc-polygon-with-exterior-point and relateng-empty-operand-type-dimension.
+empty-1-000749-empty-empty.int
+empty-1-000264-empty-vs-MultiLineString-with-empty.unit
+gc-1-000420-line-in-poly.poly.lonlat
+gc-1-000608-overlap-2poly.poly-part.ba.lonlat
+hole-contact-1-000819-fill.n64.lonlat
+hole-contact-1-000369-fill-ulp-out.n8.int
+int-grid-1-000816-polyomino-merged.dyadic-rot
+int-grid-1-000298-lattice-poly.small-rot
+invalid-zero-length-line-1-000598-two-points.same.int
+invalid-zero-length-line-1-000281-mls-mixed.point.projected
+line-line-1-000596-vertex-touch.ba.projected
+line-line-1-000264-endpoint-endpoint.ba.unit
+line-mod2-1-000643-closed.same.ba.unit
+line-mod2-1-000284-shared2.same.projected
+line-polygon-1-000784-crossing.lonlat
+line-polygon-1-000387-inside-touch-endpoint.int
+multi-touch-1-000765-checker-center.int
+multi-touch-1-000296-fan4-part-rot.projected
+near-collinear-1-000809-extension.origin
+near-collinear-1-000320-extension.projected
+point-geometry-1-000621-hole-edge.int
+point-geometry-1-000289-multipoint-duplicate.lonlat
+shared-edge-1-000758-float-full.moderate
+shared-edge-1-000330-full-opp.n16.int
+tiny-transform-1-000463-same.parcel.projected
+tiny-transform-1-000633-rot-far.parcel.projected
+vertex-on-edge-1-000795-inscribed.n19.int
+vertex-on-edge-1-000321-on-vertex.n8.lonlat

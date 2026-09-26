@@ -1,8 +1,15 @@
 # Clipper2 adapter (`clipper2`)
 
 Adapter for [AngusJohnson/Clipper2](https://github.com/AngusJohnson/Clipper2) (C++, int64
-boolean operations), built from git `main` at a pinned commit. It follows the contract in
-`../../harness/FORMAT-v1.md`.
+boolean operations), built from git `main` at a pinned commit. It answers both adapter
+contracts, line by line:
+
+- **v2** ([DESIGN.md §4.1](../../docs/DESIGN.md), `schemas/result.v2.schema.json`): a line
+  whose operands are typed geometries or that has `"ops"`; `--v2` answers legacy lines this
+  way too. See "Contract v2" below.
+- **v1** (`../../harness/FORMAT-v1.md`): a legacy line, answered by the v1 code, unchanged:
+  v1 output is byte-identical to the adapter before the v2 upgrade (checked on 1804 cases,
+  default options and `--fill nonzero --dump-paths`).
 
 `lib` is `clipper2@<version>-<short commit>`, currently `clipper2@2.0.1-f9c5eb6`. Variants
 append a suffix: `+nonzero`, `+pathsd8`, `+strict`, `+scale<B>`.
@@ -11,7 +18,7 @@ append a suffix: `+nonzero`, `+pathsd8`, `+strict`, `+scale<B>`.
 
 | file | what |
 |---|---|
-| `clipper2_adapter.cpp` | the adapter (built-in JSON reader, exact scaling and areas, forked worker) |
+| `clipper2_adapter.cpp` | the adapter (built-in JSON reader, exact scaling and areas, forked worker; the v2 session on top of `../geos_main/adapter_v2.hpp`, the runtime shared by the native adapters) |
 | `adapter.toml` | manifest (DESIGN.md §4.2): fields, precision model and δ, coordinate range, options |
 | `build.sh` | clones Clipper2 at the pinned commit and compiles with `g++ -O2` (`JOBS`, default 2) |
 | `run.sh` | runs the adapter: `run.sh [options] CASES.jsonl > RESULTS.jsonl` |
@@ -25,7 +32,58 @@ where `GEOTRUTH_BUILD_DIR` (shared by every adapter) defaults to `~/.cache/geotr
 `bin/repro_small_triangle`. `CLIPPER2_COMMIT=main build.sh` builds whatever `main` is now,
 and the `lib` string records the commit.
 
-## What each field is
+## Contract v2
+
+Clipper2 is a polygon clipper: it has boolean operations and nothing else (no DE-9IM, no
+named predicates, no validity), and it works on int64 coordinates.
+
+| field | how |
+|---|---|
+| `overlay.intersection` … `overlay.symdifference` | `Clipper64::Execute(Intersection / Union / Difference / Xor, EvenOdd, PolyTree64)`: the **regularized areal** overlay. The tree becomes typed polygons: an outer node is a shell, its children are its holes, and a hole's children are outer nodes again (islands), which become polygons of their own. One polygon is a Polygon, none is `POLYGON EMPTY`, more are a MultiPolygon. Rings are written as Clipper orients them, closed by the adapter |
+| `predicates.intersects`, `predicates.disjoint` | derived exactly as in v1 (below): Intersect area > 0, or the boundaries meet |
+| `relate`, `valid_a`, `valid_b`, the other eight predicates | `null`: Clipper2 has none |
+| `echo` | the adapter's own reading of the operands, written back (Clipper2 has no double geometry to read back); it works for every type and range, since it is only the parse |
+
+**Output coordinates are written by the adapter**: each result vertex is an int64 grid
+point x of the case scaled by 2^k, written as the double nearest to x · 2^-k (exact unless
+|x| > 2^53) in the shortest round-trip form (`std::to_chars`). With `--pathsd8` the tree is
+a `PolyTreeD` and its doubles are written as they are.
+
+**Out of contract**, every field but `echo` is `"unsupported"` (with no `errors` entry):
+
+- an operand that is not a Polygon or MultiPolygon (Clipper2 clips polygons only);
+- a case with no scale 2^k (k <= 60) making every ordinate an integer, or with a scaled
+  ordinate of magnitude >= 2^62 (>= 2^61 with `--strict-range`), exactly the v1 rule;
+- with `--pathsd8`, a case ClipperD(8) cannot represent exactly.
+
+The options (`--fill`, `--strict-range`, `--scale-bits`, `--pathsd8`) mean the same as in v1
+and append the same `lib` suffixes. Isolation in v2 is per operation (one forked child per
+case, streaming each result; a crash or a hang over `--timeout` seconds fails that one
+operation with `{"kind": "crash" | "timeout", ...}` and a fresh child continues; the child's
+address space is capped at `CLIPPER2_ADAPTER_MEM_MB`, default 4096 MiB), and
+`CLIPPER2_ADAPTER_TEST_FAULT=crash:<path>|hang_:<path>|throw:<path>` injects a fault. `--timing`
+adds `elapsed_ms`. Mixed files work: runs of legacy lines go to the v1 worker, v2 lines are
+answered one by one, and the output keeps the input order.
+
+**PolyTree nesting on touching rings (observation, untriaged).** On the 1804-case broader
+check (seed + 60 cases of each generator family + `int_cases.jsonl`), in 5 cases (8 outputs)
+the PolyTree nesting disagrees with the flat `Paths64` result of the same operation, while
+the rings themselves are right:
+
+- `vertex-on-edge-7-000026-inscribed.n4.lonlat`, `vertex-on-edge-7-000047-inscribed.n8.projected`
+  and `vertex-on-edge-7-000056-inscribed.n4.int` (difference and xor) return a hole inscribed
+  in its shell, touching it at every vertex, as a second top-level (`IsHole() == false`)
+  polygon with clockwise orientation;
+- `hole-contact-7-000005-cross-near.n6.int` and `hole-contact-7-000044-cross-near.n6.unit`
+  (xor) return an island whose vertices all lie on its hole's boundary as a second hole of
+  the shell.
+
+Read as the even-odd point set of all output rings (DESIGN.md §4.3), each of these outputs
+has the same area as the flat result (the v1 area, which agrees with the exact answer); read
+as OGC polygons they are invalid. The adapter writes what the PolyTree says; nothing here
+has been reported or triaged (`findings/registry.toml`).
+
+## What each field is (v1)
 
 **Scaling.** Clipper64 works on int64, so each case is scaled by 2^k: the smallest k
 (0 <= k <= 60) that makes every coordinate of both operands an integer. That is exact for
@@ -79,7 +137,7 @@ extra field `boundaries_meet`.
 - `--strict-range`: unsupported beyond `MAX_COORD` (2^61 - 1).
 - `--timeout S` (default 10), `--no-fork`, `--dump-paths`, `--version`.
 
-**Isolation.** The adapter reads all cases, then a forked worker runs them in order and pipes
+**Isolation (v1).** The adapter reads all cases, then a forked worker runs them in order and pipes
 each line back. If the worker crashes, that case gets `errors.crash` (the signal), and a new
 worker continues with the next case. A case running over the budget is killed and gets
 `errors.timeout`. `--no-fork` runs in-process and gives identical output. Two self-test hooks
@@ -175,6 +233,15 @@ triangle with an edge under 2 units), so it is recorded as `by-design` in
 The manifest's δ (2 grid units) covers it.
 
 ## Seed smoke test
+
+`--v2` (`tests/harness/test_native_seed.py`): the same 15 `tiny-rotation` cases are
+`"unsupported"`; for the other 985, `intersects`/`disjoint` equal their v1 values, the exact
+(even-odd) area of every overlay output geometry is the v1 area, and the disagreements with
+the exact answer are exactly the v1 ones (none). On 1804 cases (seed + generator families +
+`int_cases.jsonl`) the v1 and v2 disagreement sets are identical (187 each: the documented
+snapping and small-triangle behaviour).
+
+v1:
 
 `run.sh corpus/cases/seed.jsonl` gives 1000 lines. `harness/compare.py` against
 `corpus/expected-v1/seed.jsonl` reports 15 disagreements, all

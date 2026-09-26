@@ -104,3 +104,106 @@ export function fmtErr(e) {
   else { try { s = `thrown non-Error: ${JSON.stringify(e)}`; } catch { s = `thrown non-Error: ${String(e)}`; } }
   return s.length > 500 ? s.slice(0, 500) + '...' : s;
 }
+
+// =============================================================================================
+// Adapter contract v2 (docs/DESIGN.md §4.1, schemas/result.v2.schema.json)
+// =============================================================================================
+
+export const PREDICATES_V2 = ['intersects', 'disjoint', 'touches', 'crosses', 'overlaps', 'contains',
+  'covers', 'within', 'covered_by', 'equals'];
+export const OVERLAYS_V2 = ['intersection', 'union', 'difference', 'symdifference'];
+export const V2_PATHS = ['echo', 'relate', ...PREDICATES_V2.map((p) => `predicates.${p}`), 'valid_a',
+  'valid_b', ...OVERLAYS_V2.map((o) => `overlay.${o}`)];
+
+// Thrown by an operation when the input is outside the library's contract ("unsupported").
+export class Unsupported extends Error {
+  constructor(why) { super(why || 'unsupported'); this.name = 'Unsupported'; }
+}
+
+// A v2 case: an operand is a typed geometry (an object) or "ops" is present.
+export function isV2(kase) {
+  return kase !== null && typeof kase === 'object' && ('ops' in kase
+    || (kase.a !== null && typeof kase.a === 'object' && !Array.isArray(kase.a))
+    || (kase.b !== null && typeof kase.b === 'object' && !Array.isArray(kase.b)));
+}
+
+function groupOf(path) {
+  return path === 'valid_a' || path === 'valid_b' ? 'validity' : path.split('.')[0];
+}
+
+// The field paths a case asks for ("ops"; absent = everything but echo).
+export function requestedPaths(kase) {
+  let groups = ['relate', 'predicates', 'validity', 'overlay'];
+  if ('ops' in kase) {
+    if (!Array.isArray(kase.ops)) throw new TypeError('"ops" must be an array');
+    for (const o of kase.ops) {
+      if (!['echo', 'relate', 'predicates', 'validity', 'overlay'].includes(o)) throw new TypeError(`unknown op ${JSON.stringify(o)}`);
+    }
+    groups = kase.ops;
+  }
+  return V2_PATHS.filter((p) => groups.includes(groupOf(p)));
+}
+
+// A typed geometry for an operand (legacy FORMAT-v1 arrays become Polygon / MultiPolygon).
+export function typedOf(x) {
+  if (Array.isArray(x)) return geometryOf(x);
+  if (x === null || typeof x !== 'object' || typeof x.type !== 'string') throw new TypeError('not a typed geometry');
+  return structuredClone(x);
+}
+
+// Does the typed geometry contain an empty element (or an empty coordinate list)?
+export function hasEmpty(g) {
+  switch (g.type) {
+    case 'GeometryCollection': return g.geometries.length === 0 || g.geometries.some(hasEmpty);
+    case 'Point': return g.coordinates.length === 0;
+    case 'LineString': case 'MultiPoint': return g.coordinates.length === 0 || (g.type === 'MultiPoint' && g.coordinates.some((p) => p.length === 0));
+    case 'Polygon': case 'MultiLineString': return g.coordinates.length === 0 || g.coordinates.some((r) => r.length === 0);
+    case 'MultiPolygon': return g.coordinates.length === 0 || g.coordinates.some((p) => p.length === 0 || p.some((r) => r.length === 0));
+    default: throw new TypeError(`unknown geometry type ${JSON.stringify(g.type)}`);
+  }
+}
+
+// Every number of a typed geometry is finite (GeoJSON has no NaN / Infinity).
+export function allFinite(g) {
+  if (g.type === 'GeometryCollection') return g.geometries.every(allFinite);
+  const walk = (x) => (typeof x === 'number' ? Number.isFinite(x) : x.every(walk));
+  return walk(g.coordinates);
+}
+
+// MultiPolygon coordinates of a Polygon / MultiPolygon operand, for the polygon clippers;
+// anything else (or empties, non-finite numbers) is outside their contract.
+export function clipperInput(x) {
+  const g = typedOf(x);
+  if (g.type !== 'Polygon' && g.type !== 'MultiPolygon') throw new Unsupported(`${g.type} operand: the library clips polygons only`);
+  if (hasEmpty(g) || !allFinite(g)) throw new Unsupported('empty elements or non-finite coordinates');
+  return g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+}
+
+// A clipper's output (MultiPolygon or Polygon coordinates, null or []) as a typed MultiPolygon.
+export function multiPolygonOf(r) {
+  if (r === null || r === undefined || (Array.isArray(r) && r.length === 0)) return { type: 'MultiPolygon', coordinates: [] };
+  if (!Array.isArray(r)) {  // a GeoJSON Feature or geometry
+    const g = r.type === 'Feature' ? r.geometry : r;
+    if (g === null) return { type: 'MultiPolygon', coordinates: [] };
+    return g.type === 'Polygon' ? { type: 'MultiPolygon', coordinates: [g.coordinates] } : { type: g.type, coordinates: g.coordinates };
+  }
+  if (typeof r[0][0][0] === 'number') return { type: 'MultiPolygon', coordinates: [r] };  // Polygon coordinates
+  return { type: 'MultiPolygon', coordinates: r };
+}
+
+// JSON text of a result value: numbers in shortest round-trip form (String(x)), -0 as -0.0,
+// NaN / Infinity as Python's json module writes them (JSON.stringify would write 0 and null).
+export function jsonOut(v) {
+  if (v === null || v === undefined) return 'null';
+  if (typeof v === 'number') {
+    if (Number.isNaN(v)) return 'NaN';
+    if (v === Infinity) return 'Infinity';
+    if (v === -Infinity) return '-Infinity';
+    if (Object.is(v, -0)) return '-0.0';
+    return String(v);
+  }
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (typeof v === 'string') return JSON.stringify(v);
+  if (Array.isArray(v)) return '[' + v.map(jsonOut).join(', ') + ']';
+  return '{' + Object.entries(v).map(([k, x]) => JSON.stringify(k) + ': ' + jsonOut(x)).join(', ') + '}';
+}

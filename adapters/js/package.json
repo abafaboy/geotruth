@@ -2,11 +2,14 @@
   "name": "geotruth-js-adapters",
   "version": "0.0.0",
   "private": true,
-  "description": "Differential-testing adapters for JavaScript polygon libraries (see ../../harness/FORMAT-v1.md)",
+  "description": "Adapters for JavaScript geometry libraries (see ../README.md and README.md)",
   "license": "UNLICENSED",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@turf/turf": "7.4.0",
+    "jsts": "2.12.1",
     "martinez-polygon-clipping": "0.8.1",
     "polyclip-ts": "0.16.8",
     "polygon-clipping": "0.15.7"

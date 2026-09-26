@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Reproducible build of the Clipper2 adapter:
 #   1. fetch AngusJohnson/Clipper2 at the pinned commit (shallow) into $BUILD_ROOT/src
-#   2. compile the C++ library sources together with clipper2_adapter.cpp (g++ -O2)
+#   2. compile the C++ library sources together with clipper2_adapter.cpp (g++ -O2; it
+#      includes the shared v2 contract runtime ../geos_main/adapter_v2.hpp)
 #      into $BUILD_ROOT/bin/clipper2_adapter, and repro_small_triangle.cpp alongside
 #
 # Env overrides: CLIPPER2_COMMIT (full sha), BUILD_ROOT, JOBS (default 2), CXX.
@@ -49,8 +50,10 @@ if [ "$(cat "$STAMP" 2>/dev/null || true)" != "$FULL" ]; then
               "$CXX" "${CXXFLAGS[@]}"
     echo "$FULL" > "$STAMP"
 fi
-"$CXX" "${CXXFLAGS[@]}" -DCLIPPER2_COMMIT="\"$SHORT\"" -o "$BIN/clipper2_adapter" \
+# the v2 contract runtime is shared with the other native adapters (../geos_main/adapter_v2.hpp)
+"$CXX" "${CXXFLAGS[@]}" -I"$HERE/../geos_main" -DCLIPPER2_COMMIT="\"$SHORT\"" -o "$BIN/clipper2_adapter.tmp" \
        "$HERE/clipper2_adapter.cpp" "$OBJ"/*.o
+mv "$BIN/clipper2_adapter.tmp" "$BIN/clipper2_adapter"
 "$CXX" "${CXXFLAGS[@]}" -o "$BIN/repro_small_triangle" "$HERE/repro_small_triangle.cpp" \
        "$OBJ"/clipper.engine.o
 echo "built $BIN/clipper2_adapter ($("$BIN/clipper2_adapter" --version)) and $BIN/repro_small_triangle"

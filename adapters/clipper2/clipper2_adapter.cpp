@@ -1,12 +1,22 @@
-// Clipper2 adapter for the geometry bug hunt (contract: ../../harness/FORMAT-v1.md).
+// Clipper2 adapter for geotruth. It answers both adapter contracts:
 //
 //   clipper2_adapter [options] CASES.jsonl > RESULTS.jsonl
+//
+// - v2 (docs/DESIGN.md §4.1, schemas/result.v2.schema.json): lines with typed operands or
+//   "ops" (--v2 also answers legacy lines this way). See "contract v2" below: overlay output
+//   geometry from a PolyTree64, written as round-trip doubles; relate, validity and all
+//   predicates but intersects/disjoint are null (Clipper2 has none); every field is
+//   "unsupported" for a non-polygonal operand, or a case outside the int64 contract.
+//   Isolation is per operation (../geos_main/adapter_v2.hpp).
+// - v1 (../../harness/FORMAT-v1.md): legacy lines, answered by the unchanged v1 code, which
+//   isolates per case.
 //
 // Clipper2 works on int64 coordinates, so each case is scaled by the smallest 2^k
 // (0 <= k <= 60) that makes every coordinate an integer; that is exact for doubles.
 // A case with no such k, or with a scaled coordinate of magnitude >= 2^62, is reported
-// with every field null and errors.unsupported. Areas of the result paths are
-// accumulated exactly in 192-bit integers and divided by 4^k at the end.
+// with every field null and errors.unsupported (v1) or every field "unsupported" (v2).
+// Areas of the result paths are accumulated exactly in 192-bit integers and divided by 4^k
+// at the end.
 //
 // Options:
 //   --fill evenodd|nonzero   fill rule (default evenodd; nonzero re-orients shells CCW and
@@ -16,11 +26,17 @@
 //   --strict-range           treat scaled |coord| > Clipper2's MAX_COORD (2^61-1) as unsupported
 //   --scale-bits B           scale by the largest 2^k (>= the smallest one) with every scaled
 //                            |coord| < 2^B, for a finer snapping grid (default: smallest k)
-//   --dump-paths             add the result paths (scaled integer coordinates) as paths_<op>
+//   --dump-paths             add the result paths (scaled integer coordinates) as paths_<op> (v1)
+//   --v2                     answer legacy lines with the v2 contract too
+//   --timing                 v2: add elapsed_ms
 //   --no-fork                run cases in-process (no crash/timeout isolation)
-//   --timeout S              per-case budget in seconds (default 10, 0 = none)
+//   --timeout S              per-case (v1) / per-operation (v2) budget in seconds (default 10, 0 = none)
 //   --version                print the lib string and exit
+// Environment (v2): CLIPPER2_ADAPTER_MEM_MB (child address-space cap, default 4096, 0 = none),
+//   CLIPPER2_ADAPTER_TEST_FAULT ("crash:<path>" / "hang_:<path>" / "throw:<path>", self-test).
 #include "clipper2/clipper.h"
+
+#include "adapter_v2.hpp"
 
 #include <cerrno>
 #include <cmath>
@@ -322,6 +338,8 @@ static bool boundaries_meet(const Paths64& A, const Paths64& B) {
 // ---------------------------------------------------------------------------------------
 
 struct Options {
+  bool v2 = false;      // --v2: legacy lines get the v2 contract too
+  bool timing = false;  // --timing (v2)
   bool nonzero = false;
   bool pathsd8 = false;
   bool strict_range = false;
@@ -580,6 +598,210 @@ static std::string run_case(const std::string& line, const Options& o) {
   return render(r, o);
 }
 
+
+// ---------------------------------------------------------------------------------------
+// contract v2 (typed input, overlay output geometry), per-operation isolation
+
+// scale factor and range check shared with v1: false when the case is outside the contract
+struct Scaling {
+  int k = 0;    // Clipper64 scale 2^k
+  int kd = 0;   // ClipperD scale 2^kd (--pathsd8)
+};
+
+static bool contract_scaling(const std::vector<const gt::Geom*>& geoms, const Options& o, Scaling& sc) {
+  int k = 0;
+  bool ok = true;
+  for (auto* g : geoms)
+    gt::for_each_xy(*g, [&](const gt::XY& xy) {
+      int n1, n2;
+      if (!dyadic_exponent(xy[0], n1) || !dyadic_exponent(xy[1], n2)) ok = false;
+      else k = std::max(k, std::max(n1, n2));
+    });
+  const double lim = o.strict_range ? std::ldexp(1.0, 61) : std::ldexp(1.0, 62);
+  double maxabs = 0;
+  if (ok && k <= 60)
+    for (auto* g : geoms)
+      gt::for_each_xy(*g, [&](const gt::XY& xy) {
+        maxabs = std::max(maxabs, std::max(std::fabs(std::ldexp(xy[0], k)), std::fabs(std::ldexp(xy[1], k))));
+      });
+  if (!ok || k > 60 || !(maxabs < lim)) return false;
+  if (o.scale_bits > 0 && maxabs > 0) {  // same rule as v1
+    int e;
+    std::frexp(std::ldexp(maxabs, -k), &e);
+    int k_up = (o.strict_range ? std::min(o.scale_bits, 61) : o.scale_bits) - e;
+    if (k_up > k) {
+      maxabs = std::ldexp(maxabs, k_up - k);
+      k = k_up;
+    }
+  }
+  sc.k = sc.kd = k;
+  if (o.pathsd8) {
+    double s = std::pow(std::numeric_limits<double>::radix, std::ilogb(std::pow(10, 8)) + 1);
+    int e;
+    double f = std::frexp(s, &e);
+    sc.kd = e - 1;
+    if (f != 0.5 || k > sc.kd || std::ldexp(maxabs, sc.kd - k) >= std::ldexp(1.0, 53)) return false;
+  }
+  return true;
+}
+
+// rings of a Polygon / MultiPolygon as DMulti (the v1 representation)
+static DMulti to_dmulti(const gt::Geom& g) {
+  DMulti m;
+  auto poly = [&](const gt::Geom& p) {
+    DPoly dp;
+    for (auto& r : p.rings) {
+      DRing dr;
+      for (auto& xy : r) dr.emplace_back(xy[0], xy[1]);
+      dp.push_back(std::move(dr));
+    }
+    m.push_back(std::move(dp));
+  };
+  if (g.type == gt::GType::Polygon) {
+    if (!gt::is_empty(g)) poly(g);
+  } else {
+    for (auto& p : g.parts)
+      if (!gt::is_empty(p)) poly(p);
+  }
+  return m;
+}
+
+// a closed ring of doubles from a Clipper path (implicitly closed)
+template <class Path, class Conv>
+static std::vector<gt::XY> closed_ring(const Path& p, Conv&& conv) {
+  std::vector<gt::XY> r;
+  for (auto& pt : p) r.push_back(conv(pt));
+  if (!r.empty()) r.push_back(r.front());
+  return r;
+}
+
+// PolyTree -> polygons: every outer node is a shell, its children are holes, and the children
+// of a hole are outer nodes again (islands), which become polygons of their own
+template <class Node, class Conv>
+static void collect(const Node& outer, Conv&& conv, std::vector<gt::Geom>& polys) {
+  gt::Geom pg;
+  pg.type = gt::GType::Polygon;
+  pg.rings.push_back(closed_ring(outer.Polygon(), conv));
+  for (size_t i = 0; i < outer.Count(); ++i) {
+    const Node& hole = *outer.Child(i);
+    pg.rings.push_back(closed_ring(hole.Polygon(), conv));
+    for (size_t j = 0; j < hole.Count(); ++j) collect(*hole.Child(j), conv, polys);
+  }
+  polys.push_back(std::move(pg));
+}
+
+template <class Tree, class Conv>
+static std::string tree_json(const Tree& tree, Conv&& conv) {
+  std::vector<gt::Geom> polys;
+  for (size_t i = 0; i < tree.Count(); ++i) collect(*tree.Child(i), conv, polys);
+  gt::Geom out;
+  if (polys.size() == 1) return gt::write_geometry(polys[0]);
+  out.type = polys.empty() ? gt::GType::Polygon : gt::GType::MultiPolygon;  // empty: POLYGON EMPTY
+  out.parts = std::move(polys);
+  return gt::write_geometry(out);
+}
+
+class ClipperSession : public gt::Session {
+ public:
+  ClipperSession(const gt::Case& c, const Options& o) : c_(c), o_(o) {
+    in_contract_ = gt::is_polygonal(c.a) && gt::is_polygonal(c.b) && contract_scaling({&c.a, &c.b}, o, sc_);
+    if (!in_contract_) return;
+    DMulti ma = to_dmulti(c.a), mb = to_dmulti(c.b);
+    A_ = to_paths64(ma, sc_.k);
+    B_ = to_paths64(mb, sc_.k);
+    if (o.nonzero) {
+      orient_for_nonzero(ma, A_);
+      orient_for_nonzero(mb, B_);
+    }
+    fr_ = o.nonzero ? FillRule::NonZero : FillRule::EvenOdd;
+  }
+
+  gt::OpOut run(int op) override {
+    gt::OpOut out;
+    if (op == gt::OP_ECHO) {  // the adapter's own reading: Clipper2 has no double geometry
+      out.value = gt::echo_of(c_.a, c_.b);
+      return out;
+    }
+    if (!in_contract_) {
+      out.value = gt::UNSUPPORTED;
+      return out;
+    }
+    if (gt::is_overlay(op)) {
+      out.value = overlay(CLIP_TYPES[op - gt::OP_INTERSECTION]);
+    } else if (op == gt::OP_INTERSECTS || op == gt::OP_DISJOINT) {
+      // derived exactly as in v1: intersection area > 0, or the boundaries meet
+      bool meet = boundaries_meet(A_, B_);
+      bool inter = meet || intersection_area_positive();
+      out.value = gt::jbool(op == gt::OP_INTERSECTS ? inter : !inter);
+    }  // relate, validity and the other predicates: null (Clipper2 has none)
+    return out;
+  }
+
+ private:
+  const gt::Case& c_;
+  const Options& o_;
+  Scaling sc_;
+  bool in_contract_ = false;
+  Paths64 A_, B_;
+  FillRule fr_ = FillRule::EvenOdd;
+
+  std::string overlay(ClipType ct) {
+    if (o_.pathsd8) {  // ClipperD: result coordinates are doubles already (int * 2^-27, exact)
+      ClipperD c(8);
+      c.AddSubject(to_pathsd(A_, sc_.k));
+      c.AddClip(to_pathsd(B_, sc_.k));
+      PolyTreeD tree;
+      if (!c.Execute(ct, fr_, tree)) throw std::runtime_error("Clipper Execute returned false");
+      return tree_json(tree, [](const PointD& p) { return gt::XY{p.x, p.y}; });
+    }
+    Clipper64 c;
+    c.AddSubject(A_);
+    c.AddClip(B_);
+    PolyTree64 tree;
+    if (!c.Execute(ct, fr_, tree)) throw std::runtime_error("Clipper Execute returned false");
+    // int64 grid value * 2^-k: exact unless |value| > 2^53, then rounded to nearest once
+    const int k = sc_.k;
+    return tree_json(tree, [k](const Point64& p) {
+      return gt::XY{std::ldexp(static_cast<double>(p.x), -k), std::ldexp(static_cast<double>(p.y), -k)};
+    });
+  }
+
+  bool intersection_area_positive() {
+    Paths64 sol;
+    if (o_.pathsd8) {
+      ClipperD c(8);
+      c.AddSubject(to_pathsd(A_, sc_.k));
+      c.AddClip(to_pathsd(B_, sc_.k));
+      PathsD sold;
+      if (!c.Execute(ClipType::Intersection, fr_, sold)) throw std::runtime_error("Clipper Execute returned false");
+      for (auto& p : sold) {
+        Path64 q;
+        for (auto& pt : p) q.emplace_back((int64_t)std::ldexp(pt.x, sc_.kd), (int64_t)std::ldexp(pt.y, sc_.kd));
+        sol.push_back(std::move(q));
+      }
+    } else {
+      Clipper64 c;
+      c.AddSubject(A_);
+      c.AddClip(B_);
+      if (!c.Execute(ClipType::Intersection, fr_, sol)) throw std::runtime_error("Clipper Execute returned false");
+    }
+    Acc acc;
+    for (auto& p : sol) twice_area(p, acc);
+    return acc.sign() > 0;
+  }
+};
+
+static std::string answer_v2(const std::string& line, const Options& o) {
+  gt::RunConfig cfg;
+  cfg.fork = o.fork;
+  cfg.timeout_s = o.timeout > 0 ? o.timeout : 1e9;
+  cfg.timing = o.timing;
+  if (const char* e = getenv("CLIPPER2_ADAPTER_MEM_MB")) cfg.mem_mb = atol(e);
+  if (const char* e = getenv("CLIPPER2_ADAPTER_TEST_FAULT")) cfg.test_fault = e;
+  gt::SessionFactory make = [&o](const gt::Case& c) { return std::make_unique<ClipperSession>(c, o); };
+  return gt::answer_v2(o.lib, line, make, cfg);
+}
+
 // ---------------------------------------------------------------------------------------
 // driver: a forked worker runs the cases in order; a crash or a case over the time budget
 // is reported for that case and a fresh worker resumes with the next one
@@ -701,6 +923,8 @@ int main(int argc, char** argv) {
       if (o.scale_bits < 1 || o.scale_bits > 62) { fprintf(stderr, "--scale-bits must be 1..62\n"); return 2; }
     }
     else if (a == "--no-fork") o.fork = false;
+    else if (a == "--v2") o.v2 = true;
+    else if (a == "--timing") o.timing = true;
     else if (a == "--timeout" && i + 1 < argc) o.timeout = atof(argv[++i]);
     else if (a == "--version") version = true;
     else if (!a.empty() && a[0] == '-' && a != "-") { fprintf(stderr, "unknown option %s\n", a.c_str()); return 2; }
@@ -717,7 +941,7 @@ int main(int argc, char** argv) {
     return 0;
   }
   if (path.empty()) {
-    fprintf(stderr, "usage: %s [--fill evenodd|nonzero] [--pathsd8] [--strict-range] [--scale-bits B] [--no-fork] [--timeout S] CASES.jsonl\n", argv[0]);
+    fprintf(stderr, "usage: %s [--fill evenodd|nonzero] [--pathsd8] [--strict-range] [--scale-bits B] [--v2] [--timing] [--no-fork] [--timeout S] CASES.jsonl\n", argv[0]);
     return 2;
   }
   std::vector<std::string> lines;
@@ -732,8 +956,23 @@ int main(int argc, char** argv) {
       if (!blank) lines.push_back(line);
     }
   }
-  if (o.fork) run_forked(lines, o);
-  else
-    for (auto& l : lines) printf("%s\n", run_case(l, o).c_str());
+  // runs of legacy lines go to the v1 worker; each v2 line is answered on its own, in order
+  std::vector<std::string> v1;
+  auto flush_v1 = [&]() {
+    if (o.fork) run_forked(v1, o);
+    else
+      for (auto& l : v1) printf("%s\n", run_case(l, o).c_str());
+    fflush(stdout);
+    v1.clear();
+  };
+  for (auto& l : lines) {
+    if (o.v2 || gt::looks_v2(l)) {
+      flush_v1();
+      gt::emit_line(answer_v2(l, o), "clipper2_adapter");
+    } else {
+      v1.push_back(l);
+    }
+  }
+  flush_v1();
   return 0;
 }

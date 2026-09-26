@@ -11,9 +11,13 @@ adapters/js/.node_modules.*
 # Results of runs
 results/
 
-# Generated case files: only the small tracked tiers (seed.jsonl) are committed
+# Generated case files: only the small tracked tiers are committed (corpus/MANIFEST.json):
+# seed.jsonl (v1), core/<family>.jsonl and curated.jsonl. The full tier is a release asset.
 corpus/cases/*.jsonl
 !corpus/cases/seed.jsonl
+!corpus/cases/curated.jsonl
+corpus/cases/full/
+corpus/cases/**/*.tmp
 
 # Python
 __pycache__/
