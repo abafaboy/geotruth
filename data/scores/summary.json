@@ -2,8 +2,8 @@
  "format": "geotruth-score-summary/1",
  "note": "Counts from `geotruth score` against the committed exact answers. The corpus is deliberately adversarial (near-degenerate input), so these rates are not real-world failure rates, and there is no single ranking: compare per capability. Unreviewed failure clusters are not confirmed bugs (findings/registry.toml).",
  "geotruth": {
-  "git_head": "3a72e05d66c4c41e2347e77f1be94227f1a2a34d",
-  "git_worktree_clean": false,
+  "git_head": "97b7953a1ec007cdf2123bb0664f17c992f2e203",
+  "git_worktree_clean": true,
   "src_sha256": "c64ef911ed6eec233b68e08b255bca91b7389713b678603e7b09a8c12d66b01f"
  },
  "runs": {
