@@ -1,0 +1,30 @@
+## /tmp/claude-0/gb-build/triage/geos-multipolygon-touching-parts-predicates/geos-3.15.0-install/bin/geosop
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' relate
+2F2F11212
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' contains
+false
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' covers
+false
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' overlaps
+true
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' relate
+212F11212
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' touches
+false
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' overlaps
+true
+## /tmp/claude-0/gb-build/geos-main/install/bin/geosop
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' relate
+2F2F11212
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' contains
+false
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' covers
+false
+$ geosop -a 'MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))' -b 'POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))' overlaps
+true
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' relate
+212F11212
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' touches
+false
+$ geosop -a 'POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))' -b 'POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))' overlaps
+true

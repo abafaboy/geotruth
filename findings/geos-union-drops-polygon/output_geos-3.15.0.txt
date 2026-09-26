@@ -1,0 +1,15 @@
+GEOS 3.15.0-CAPI-1.21.0
+A x-coordinate of 2nd vertex = -9.9999999999999995e-21
+isValid(A) = 1, isValid(B) = 1, area(A) = 0.5, area(B) = 0.5
+intersects = 1, overlaps = 1, covers(A,B) = 0
+
+union          area = 1                        (expected ~1.0)
+               POLYGON ((0 0, -1e-20 0, 0 1e-20, 0 1, 1 1, 1 0, 0 0))
+intersection   area = 4.9999999999999997e-21   (expected ~5e-21)
+               POLYGON ((0 1e-20, 1 1, 0 0, 0 1e-20))
+B - A          area = 0.5                      (expected ~0.5)
+               POLYGON ((0 1e-20, 0 1, 1 1, 0 1e-20))
+A - B          area = 0.5                      (expected ~0.5)
+               MULTIPOLYGON (((0 0, -1e-20 0, 0 1e-20, 0 0)), ((1 1, 1 0, 0 0, 1 1)))
+symdifference  area = 1                        (expected ~1.0)
+               MULTIPOLYGON (((1 1, 0 1e-20, 0 1, 1 1)), ((0 0, -1e-20 0, 0 1e-20, 0 0)), ((1 1, 1 0, 0 0, 1 1)))

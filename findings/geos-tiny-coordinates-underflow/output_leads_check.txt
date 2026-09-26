@@ -1,0 +1,14 @@
+$ python3 leads_check.py   # shapely 2.1.2 wheel + geosop from geos main ae9cdd9
+shapely 2.1.2 GEOS 3.13.1
+s=1e-150  shapely relate=212101212 touches=False | geos-main relate=212101212
+s=1e-160  shapely relate=212101212 touches=False | geos-main relate=212101212
+s=1e-162  shapely relate=FF2FF1212 touches=False | geos-main relate=FF2FF1212
+s=1e-170  shapely relate=FF2FF1212 touches=False | geos-main relate=FF2FF1212
+s=1e-200  shapely relate=FF2FF1212 touches=False | geos-main relate=FF2FF1212
+s=1e-300  shapely relate=FF2FF1212 touches=False | geos-main relate=FF2FF1212
+2^-520: shapely Valid Geometry | geos-main true
+2^-530: shapely Valid Geometry | geos-main true
+2^-535: shapely Valid Geometry | geos-main true
+2^-538: shapely Hole lies outside shell[0 2.22275874948508e-162] | geos-main false
+2^-540: shapely Hole lies outside shell[0 5.55689687371269e-163] | geos-main false
+2^-600: shapely Hole lies outside shell[0 4.81983973020577e-181] | geos-main false

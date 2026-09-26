@@ -1,0 +1,42 @@
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/EdgeSegmentIntersector.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/EdgeSegmentIntersector.java
+@@ -81,6 +81,9 @@
+                 && ssB.isContainingSegment(segIndexB, intPt))) {
+         NodeSection nsa = ssA.createNodeSection(segIndexA, intPt);
+         NodeSection nsb = ssB.createNodeSection(segIndexB, intPt);
++        //-- the rounded intPt may equal a vertex even though the crossing is proper
++        if (li.isProper())
++          topoComputer.addProperIntersection(nsa, nsb);
+         topoComputer.addIntersection(nsa, nsb);
+       }
+     }
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
+@@ -196,6 +196,27 @@
+     return node;
+   }
+   
++  /**
++   * Records a proper crossing of an A segment and a B segment, as determined
++   * by the LineIntersector (exact orientation tests), independent of whether
++   * the rounded intersection point equals a segment endpoint.
++   * For two areas this implies II = 2; for two polygonal geometries it implies
++   * the lower bound 212101212 (as in RelateComputer.computeProperIntersectionIM).
++   */
++  public void addProperIntersection(NodeSection a, NodeSection b) {
++    if (a.isSameGeometry(b) || ! NodeSection.isAreaArea(a, b)) return;
++    updateDim(Location.INTERIOR, Location.INTERIOR, Dimension.A);
++    if (geomA.isPolygonal() && geomB.isPolygonal()) {
++      updateDim(Location.INTERIOR, Location.BOUNDARY, Dimension.L);
++      updateDim(Location.INTERIOR, Location.EXTERIOR, Dimension.A);
++      updateDim(Location.BOUNDARY, Location.INTERIOR, Dimension.L);
++      updateDim(Location.BOUNDARY, Location.BOUNDARY, Dimension.P);
++      updateDim(Location.BOUNDARY, Location.EXTERIOR, Dimension.L);
++      updateDim(Location.EXTERIOR, Location.INTERIOR, Dimension.A);
++      updateDim(Location.EXTERIOR, Location.BOUNDARY, Dimension.L);
++    }
++  }
++
+   public void addIntersection(NodeSection a, NodeSection b) {
+     if (! a.isSameGeometry(b)) {
+       updateIntersectionAB(a, b);

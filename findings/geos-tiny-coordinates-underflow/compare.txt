@@ -1,0 +1,38 @@
+== adapter_geos_main
+squares-1e-200	geos@3.16.0dev-ae9cdd9	predicate	touches	exact=False	got=True
+squares-1e-200	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+triangle-1e-200	geos@3.16.0dev-ae9cdd9	validity	valid_a	exact=True	got=False
+triangle-1e-200	geos@3.16.0dev-ae9cdd9	validity	valid_b	exact=True	got=False
+square-with-hole-1e-200	geos@3.16.0dev-ae9cdd9	error	valid_a	exact=None	got=IllegalArgumentException: Segment vertex does not intersect ring
+oracle-review-lead-box-1e-170	geos@3.16.0dev-ae9cdd9	predicate	touches	exact=False	got=True
+oracle-review-lead-box-1e-170	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+# 7 disagreements over 6 cases
+== adapter_jts_main
+squares-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	touches	exact=False	got=True
+squares-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	overlaps	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	validity	valid_a	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	validity	valid_b	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	within	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	covered_by	exact=True	got=False
+square-with-hole-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8	error	valid_a	exact=None	got=IllegalArgumentException: Segment vertex does not intersect ring
+oracle-review-lead-box-1e-170	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	touches	exact=False	got=True
+oracle-review-lead-box-1e-170	jts@1.21.0-SNAPSHOT-3ea61f8	predicate	overlaps	exact=True	got=False
+# 9 disagreements over 6 cases
+== adapter_jts_main_ng
+squares-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	touches	exact=False	got=True
+squares-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	validity	valid_a	exact=True	got=False
+triangle-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	validity	valid_b	exact=True	got=False
+square-with-hole-1e-200	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	error	valid_a	exact=None	got=IllegalArgumentException: Segment vertex does not intersect ring
+oracle-review-lead-box-1e-170	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	touches	exact=False	got=True
+oracle-review-lead-box-1e-170	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+# 7 disagreements over 6 cases
+== adapter_shapely
+squares-1e-200	geos@3.13.1+shapely@2.1.2	predicate	touches	exact=False	got=True
+squares-1e-200	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+triangle-1e-200	geos@3.13.1+shapely@2.1.2	validity	valid_a	exact=True	got=False
+triangle-1e-200	geos@3.13.1+shapely@2.1.2	validity	valid_b	exact=True	got=False
+square-with-hole-1e-200	geos@3.13.1+shapely@2.1.2	error	valid_a	exact=None	got=GEOSException('IllegalArgumentException: Segment vertex does not intersect ring')
+oracle-review-lead-box-1e-170	geos@3.13.1+shapely@2.1.2	predicate	touches	exact=False	got=True
+oracle-review-lead-box-1e-170	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+# 7 disagreements over 6 cases

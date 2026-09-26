@@ -1,0 +1,6 @@
+# adapters/boost_geometry/bg_adapter.cpp built against develop 196d04c with experiment_disable_condition.diff applied
+# input: issue #1487 test case (i1487.jsonl); oracle = python oracle.py
+oracle:  area_inter=18983.884971862466 area_union=93711.8144674155
+boost-geometry@boost-1.88.0-c12caf960: area_inter=18983.88497186239 area_union=93711.81446741542
+boost-geometry@develop-196d04c: area_inter=0.0 area_union=93711.81446741542
+boost-geometry@develop-196d04c+condition-disabled: area_inter=18983.88497186239 area_union=0.0

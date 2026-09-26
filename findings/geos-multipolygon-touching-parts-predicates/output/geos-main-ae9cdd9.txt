@@ -1,0 +1,21 @@
+GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58
+GEOS 3.16.0dev-CAPI-1.22.0
+
+case 1: MultiPolygon A contains its own part B (expected contains=true, overlaps=false)
+  A = MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))
+  B = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  isValid(A)=true isValid(B)=true
+  relate(A,B)   expected 2F2F11FF2  got 2F2F11212
+  contains=false covers=false touches=false overlaps=true  prepared contains=false
+case 2: shell A contains polygon-with-touching-hole B (expected contains=true, overlaps=false)
+  A = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0))
+  B = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  isValid(A)=true isValid(B)=true
+  relate(A,B)   expected 212F1FFF2  got 21211F2F2
+  contains=false covers=false touches=false overlaps=true  prepared contains=true
+case 3: polygon-with-touching-hole A vs adjacent B (expected touches=true, overlaps=false)
+  A = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  B = POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))
+  isValid(A)=true isValid(B)=true
+  relate(A,B)   expected FF2F11212  got 212F11212
+  contains=false covers=false touches=false overlaps=true  prepared contains=false

@@ -1,0 +1,13 @@
+20000 triples correct at unit scale
+2^-505: collinear 0, opposite sign 0
+2^-510: collinear 262, opposite sign 41
+2^-512: collinear 2574, opposite sign 387
+2^-515: collinear 14293, opposite sign 1690
+2^-520: collinear 19994, opposite sign 3
+2^-530: collinear 20000, opposite sign 0
+2^505: collinear 0, opposite sign 0
+2^507: collinear 0, opposite sign 0
+2^508: collinear 460, opposite sign 0
+2^510: collinear 10746, opposite sign 0
+2^512: collinear 17988, opposite sign 0
+2^600: collinear 20000, opposite sign 0

@@ -1,0 +1,37 @@
+shapely 2.0.7, GEOS 3.11.4
+
+===== unit S = "" =====
+T = POLYGON ((0 0, 1 0, 0 1, 0 0))
+  T.is_valid                   True (expected True)
+  explain_validity(T)          Valid Geometry (expected Valid Geometry)
+H = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))
+  H.is_valid                   True (expected True)
+A = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+P = POINT (1 1)  (the centre of A)
+  A.contains(P)                True (expected True)
+  A.relate(P)                  0F2FF1FF2 (expected 0F2FF1FF2)
+B = POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))
+  A.relate(B)                  212101212 (expected 212101212)
+  A.overlaps(B)                True (expected True)
+  A.touches(B)                 False (expected False)
+  A.intersection(B)            POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)) (expected POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)))
+  A.union(B)                   POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)) (expected POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)))
+
+===== unit S = "e-200" =====
+T = POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))
+  T.is_valid                   False (expected True)  <-- WRONG
+  explain_validity(T)          Self-intersection[0 0] (expected Valid Geometry)  <-- WRONG
+H = POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))
+  H.is_valid                   EXCEPTION IllegalArgumentException: Segment vertex does not intersect ring (expected True)  <-- WRONG
+A = POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))
+P = POINT (1e-200 1e-200)  (the centre of A)
+  A.contains(P)                True (expected True)
+  A.relate(P)                  0FFFFFFF2 (expected 0F2FF1FF2)  <-- WRONG
+B = POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))
+  A.relate(B)                  FFFFFFFF2 (expected 212101212)  <-- WRONG
+  A.overlaps(B)                False (expected True)  <-- WRONG
+  A.touches(B)                 False (expected False)
+  A.intersection(B)            POLYGON EMPTY (expected POLYGON ((1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200)))  <-- WRONG
+  A.union(B)                   POLYGON EMPTY (expected POLYGON ((0 0, 0 2e-200, 1e-200 2e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 2e-200 1e-200, 2e-200 0, 0 0)))  <-- WRONG
+
+8 wrong result(s)

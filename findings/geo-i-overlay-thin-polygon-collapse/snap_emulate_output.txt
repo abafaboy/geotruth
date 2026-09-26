@@ -1,0 +1,18 @@
+geo-thin-tri-2e9-self offset=(0.5,1000000000.0) scale=2^-1 grid step=2^1=2.0
+   A: exact area 1000000000  snapped ints [(0, -500000000), (0, -500000000), (0, 500000000)]  snapped area (grid units^2) 0  -> 0.0
+   B: exact area 1000000000  snapped ints [(0, -500000000), (0, -500000000), (0, 500000000)]  snapped area (grid units^2) 0  -> 0.0
+geo-thin-tri-2e9-4wide-control offset=(2.0,1000000000.0) scale=2^-1 grid step=2^1=2.0
+   A: exact area 4000000000  snapped ints [(-1, -500000000), (1, -500000000), (-1, 500000000)]  snapped area (grid units^2) 1000000000  -> 4000000000.0
+   B: exact area 4000000000  snapped ints [(-1, -500000000), (1, -500000000), (-1, 500000000)]  snapped area (grid units^2) 1000000000  -> 4000000000.0
+geo-strip-overlap-2e9 offset=(0.5,1000000000.0) scale=2^-2 grid step=2^2=4.0
+   A: exact area 4000000000000000000  snapped ints [(0, -250000000), (500000000, -250000000), (500000000, 250000000), (0, 250000000)]  snapped area (grid units^2) 250000000000000000  -> 4e+18
+   B: exact area 4000000000000000000  snapped ints [(-500000000, -250000000), (0, -250000000), (0, 250000000), (-500000000, 250000000)]  snapped area (grid units^2) 250000000000000000  -> 4e+18
+geo-thin-tri-1e9-self offset=(0.5,500000000.0) scale=2^0 grid step=2^0=1.0
+   A: exact area 500000000  snapped ints [(-1, -500000000), (1, -500000000), (-1, 500000000)]  snapped area (grid units^2) 1000000000  -> 1000000000.0
+   B: exact area 500000000  snapped ints [(-1, -500000000), (1, -500000000), (-1, 500000000)]  snapped area (grid units^2) 1000000000  -> 1000000000.0
+geo-orig-0010-self offset=(-17042430230527.0,-18141941858303.5) scale=2^-10 grid step=2^10=1024.0
+   A: exact area 1099511627777  snapped ints [(-536870912, 536870912), (-536870912, 536870912), (536870912, -536870912)]  snapped area (grid units^2) 0  -> 0.0
+   B: exact area 1099511627777  snapped ints [(-536870912, 536870912), (-536870912, 536870912), (536870912, -536870912)]  snapped area (grid units^2) 0  -> 0.0
+int-thin-triangle-1-0010 offset=(-17042430230527.0,-18141941858303.5) scale=2^-10 grid step=2^10=1024.0
+   A: exact area 1099511627777  snapped ints [(-536870912, 536870912), (-536870912, 536870912), (536870912, -536870912)]  snapped area (grid units^2) 0  -> 0.0
+   B: exact area 1099511627777  snapped ints [(536870912, -536870912), (-536870912, 536870912), (-536870912, 536870912)]  snapped area (grid units^2) 0  -> 0.0

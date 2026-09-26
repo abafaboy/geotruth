@@ -1,0 +1,13 @@
+[package]
+name = "geo_thin_polygon_repro"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Latest release on crates.io (2026-09-26). run.sh can patch this to a git checkout of georust/geo.
+geo = "=0.33.1"
+
+[[bin]]
+name = "repro"
+path = "src/main.rs"

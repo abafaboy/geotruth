@@ -1,0 +1,9 @@
+geo-thin-tri-2e9-self	geo@0.33.1	area	area_inter	exact=1000000000.0	got=0.0
+geo-thin-tri-2e9-self	geo@0.33.1	area	area_union	exact=1000000000.0	got=0.0
+geo-thin-tri-1e9-self	geo@0.33.1	area	area_inter	exact=500000000.0	got=1000000000.0
+geo-thin-tri-1e9-self	geo@0.33.1	area	area_union	exact=500000000.0	got=1000000000.0
+geo-orig-0010-self	geo@0.33.1	area	area_inter	exact=1099511627777.0	got=0.0
+geo-orig-0010-self	geo@0.33.1	area	area_union	exact=1099511627777.0	got=0.0
+int-thin-triangle-1-0010	geo@0.33.1	area	area_inter	exact=1099511627777.0	got=0.0
+int-thin-triangle-1-0010	geo@0.33.1	area	area_union	exact=1099511627777.0	got=0.0
+# 8 disagreements over 6 cases

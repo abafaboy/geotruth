@@ -1,0 +1,30 @@
+Prototype: prototype_jts_relateng.diff applied to JTS master 3ea61f8 (only EdgeSegmentIntersector and
+TopologyComputer recompiled; everything else from the master jar). Run through adapters/jts_main (JtsAdapter --relate ng).
+
+1. The cases in this directory (cases.jsonl) and all 29 predicate failures of the 20,000-case run (big_run_failures.jsonl), 32 distinct cases:
+   prototype (full): 0 disagreements over 32 cases vs the exact oracle
+   prototype (ii): 48 disagreements over 32 cases vs the exact oracle
+   (full = II plus the 212101212 lower bound for Polygon/MultiPolygon inputs; ii = only II=2, which fixes the
+    touches-type cases but not the contains-type cases)
+
+2. The full 20,000-case corpus (10 families x 2000), cases with at least one predicate disagreement vs the oracle:
+   family            unpatched  prototype
+   hole-contact              0          0   (new with prototype: 0)
+   int-grid                  0          0   (new with prototype: 0)
+   multi-touch              55         54   (new with prototype: 0)
+   near-collinear           12          0   (new with prototype: 0)
+   scaled                   10          0   (new with prototype: 0)
+   shared-edge               0          0   (new with prototype: 0)
+   sliver-spike              5          0   (new with prototype: 0)
+   tiling-contact            2          0   (new with prototype: 0)
+   tiny-transform            0          0   (new with prototype: 0)
+   vertex-on-edge            0          0   (new with prototype: 0)
+   The remaining multi-touch failures are a different defect (RelateNG skips self-noding of polygonal inputs;
+   see ../geos-multipolygon-touching-parts-predicates).
+
+3. JTS RelateNG unit tests (modules/core/src/test/java/org/locationtech/jts/operation/relateng/*Test, JUnit 4.13.1):
+   unpatched: OK (154 tests)
+   prototype: 154 run, 2 failures: RelateNGRobustnessTest.testPostGIS_5362 and testGISSE_484691.
+   Both assert relate = 2F2101212; the prototype returns 212101212, which is the exact answer for those inputs
+   (see output_check_related_inputs.txt). 2F2101212 cannot occur for two valid polygons (II=2 and IE=2 with a
+   connected interior of A force IB != F).

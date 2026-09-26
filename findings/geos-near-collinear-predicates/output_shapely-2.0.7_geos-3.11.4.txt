@@ -1,0 +1,18 @@
+shapely 2.0.7, GEOS 3.11.4
+
+Case 1: A = POLYGON ((0 0, 3 0, 3 1, 0 0))
+        B = POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))
+  valid: True, True
+  exact: vertex P = POINT (2 0.6666666666666666) of B is INSIDE A (cross product = 1/9007199254740992 = 1.11e-16; exact y = 6004799503160661/9007199254740992, x/3 = 2/3)
+  relate(A, B) = 212101212   (exact: 212101212)
+  touches=False overlaps=True contains=False covers=False
+  A.contains(P)=True  A.intersects(P)=True  B.intersects(P)=True
+
+Case 2: A = POLYGON ((0 0, 3 0, 3 1, 0 0))
+        B = POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))
+  valid: True, True
+  exact: vertex P = POINT (2.5 0.8333333333333334) of B is OUTSIDE A (cross product = -1/9007199254740992 = -1.11e-16; exact y = 7505999378950827/9007199254740992, x/3 = 5/6)
+  relate(A, B) = 212101212   (exact: 212101212)
+  touches=False overlaps=True contains=False covers=False
+  A.contains(P)=False  A.intersects(P)=False  B.intersects(P)=True
+

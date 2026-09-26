@@ -1,0 +1,12 @@
+case1: orient((3,1),(0,0),V)=1  (A is CCW; +1 = V left of A's edge = inside A)
+  A(3 1)-(0 0) x B(1 2)-V: hasInt=1 n=1 isProper=1  intPt=(2 0.66666666666666663)  intPt==B vertex: 1
+   orient(a0,a1,b0)=-1 orient(a0,a1,b1)=1 orient(b0,b1,a0)=1 orient(b0,b1,a1)=-1
+  A(3 1)-(0 0) x B V-(2 2): hasInt=1 n=1 isProper=1  intPt=(2 0.66666666666666663)  intPt==B vertex: 1
+   orient(a0,a1,b0)=1 orient(a0,a1,b1)=-1 orient(b0,b1,a0)=-1 orient(b0,b1,a1)=1
+  PolygonNodeTopology::isCrossing(V, a0, a1, b0, b1) = 0
+case2: orient((3,1),(0,0),W)=-1
+  A(3 1)-(0 0) x B(3 0.5)-W: hasInt=1 n=1 isProper=1  intPt=(2.5 0.83333333333333337)  intPt==B vertex: 1
+   orient(a0,a1,b0)=1 orient(a0,a1,b1)=-1 orient(b0,b1,a0)=-1 orient(b0,b1,a1)=1
+  A(3 1)-(0 0) x B W-(2.5 0.5): hasInt=1 n=1 isProper=1  intPt=(2.5 0.83333333333333337)  intPt==B vertex: 1
+   orient(a0,a1,b0)=-1 orient(a0,a1,b1)=1 orient(b0,b1,a0)=1 orient(b0,b1,a1)=-1
+  PolygonNodeTopology::isCrossing(W, a0, a1, c0, c1) = 0

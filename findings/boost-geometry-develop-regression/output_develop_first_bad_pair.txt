@@ -1,0 +1,24 @@
+# repro.cpp built against boostorg/geometry develop-branch commits: cd4deda8e (parent) and 0edb67322 'fix: add condition to handle_as_touch' (PR #1346)
+# g++ 13.3.0, -std=c++17 -O2, system Boost 1.83 for the other libraries (+ compat/invoke_swap shim)
+== cd4deda8e chore: update release notes for issue 1345
+== minimal
+relation(A,B) = 212101212
+within(A,B) = false   covered_by(A,B) = false   overlaps(A,B) = true
+area(intersection) = 0.077697841726618699
+area(union)        = 3.8223021582733807
+== original (rotated-neighbours-1-000230)
+relation(A,B) = 212101212
+within(A,B) = false   covered_by(A,B) = false   overlaps(A,B) = true
+area(intersection) = 4.2756255573679024e-16
+area(union)        = 1.9999999999999989
+== 0edb67322 fix: add condition to handle_as_touch
+== minimal
+relation(A,B) = 2FF10F212
+within(A,B) = true   covered_by(A,B) = true   overlaps(A,B) = false
+area(intersection) = 3.6299999999999994
+area(union)        = 0.27000000000000024
+== original (rotated-neighbours-1-000230)
+relation(A,B) = 2FF11F212
+within(A,B) = true   covered_by(A,B) = true   overlaps(A,B) = false
+area(intersection) = 0.99999999999999967
+area(union)        = 0

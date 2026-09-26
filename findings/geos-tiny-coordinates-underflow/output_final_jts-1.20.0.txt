@@ -1,0 +1,6 @@
+### JTS: ExtremeScale.java
+S = 1e102: RelateNG 212101212, Geometry.relate 212101212, intersection/S POLYGON ((2 2, 2 1, 1 1, 1 2, 2 2)), crossing/S (2.0 1.0)
+S = 1e103: RelateNG 212101212, Geometry.relate 212101212, intersection/S POLYGON ((2 0, 1 1, 2 2, 2 0)), crossing/S (0.0 0.0)
+S = 1e105: RelateNG 212F01FF2, Geometry.relate TopologyException side location conflict [ (1.0E105, 1.0E105, NaN) ], intersection/S LINESTRING (1 1, 2 2), crossing/S (0.0 0.0)
+S = 1e-104: RelateNG 212F01FF2, Geometry.relate TopologyException side location conflict [ (1.0E-104, 1.0E-104, NaN) ], intersection/S LINESTRING (1 1, 2 2), crossing/S (2.000000000000019 1.0000000000000095)
+Orientation.index((0 0),(S 0),(0 S)), S = 1e-200: 0

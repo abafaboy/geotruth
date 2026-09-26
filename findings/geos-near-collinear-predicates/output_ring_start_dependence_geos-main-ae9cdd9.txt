@@ -1,0 +1,9 @@
+# geosop - GEOS 3.16.0dev: same B point set, different ring start vertex
+# A = POLYGON ((0 0, 3 0, 3 1, 0 0))
+B = POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))  relate=FF2F01212 touches=true overlaps=false
+B = POLYGON ((1 2, 2 0.6666666666666666, 2 2, 1 2))  relate=FF2F01212 touches=true overlaps=false
+B = POLYGON ((2 0.6666666666666666, 2 2, 1 2, 2 0.6666666666666666))  relate=212F01212 touches=false overlaps=true
+B = POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))  relate=212F01FF2 contains=true overlaps=false
+B = POLYGON ((3 0.5, 2.5 0.8333333333333334, 2.5 0.5, 3 0.5))  relate=212F01FF2 contains=true overlaps=false
+B = POLYGON ((2.5 0.8333333333333334, 2.5 0.5, 3 0.5, 2.5 0.8333333333333334))  relate=212F01212 contains=false overlaps=true
+# exact answer for every row: relate=212101212, touches=false, contains=false, overlaps=true

@@ -1,0 +1,80 @@
+## oracle.py vs oracle_review/indep.py (independent exact implementation)
+# 0 disagreements over 6 cases
+
+## "lib": "geos@3.13.1+shapely@2.1.2"
+min-1-touches	geos@3.13.1+shapely@2.1.2	predicate	touches	exact=False	got=True
+min-1-touches	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.13.1+shapely@2.1.2	predicate	contains	exact=False	got=True
+min-2-contains	geos@3.13.1+shapely@2.1.2	predicate	covers	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.13.1+shapely@2.1.2	predicate	touches	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.13.1+shapely@2.1.2	predicate	contains	exact=False	got=True
+near-collinear-2-000026-offedge-in.moderate	geos@3.13.1+shapely@2.1.2	predicate	covers	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+near-collinear-2-000280-zigzag.origin	geos@3.13.1+shapely@2.1.2	predicate	contains	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.13.1+shapely@2.1.2	predicate	covers	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.13.1+shapely@2.1.2	predicate	touches	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.13.1+shapely@2.1.2	predicate	overlaps	exact=True	got=False
+# 15 disagreements over 6 cases
+
+## "lib": "geos@3.11.4+shapely@2.0.7"
+# 0 disagreements over 6 cases
+
+## "lib": "geos@3.14.1+shapely@2.2.0rc1"
+min-1-touches	geos@3.14.1+shapely@2.2.0rc1	predicate	touches	exact=False	got=True
+min-1-touches	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.14.1+shapely@2.2.0rc1	predicate	contains	exact=False	got=True
+min-2-contains	geos@3.14.1+shapely@2.2.0rc1	predicate	covers	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.14.1+shapely@2.2.0rc1	predicate	touches	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.14.1+shapely@2.2.0rc1	predicate	contains	exact=False	got=True
+near-collinear-2-000026-offedge-in.moderate	geos@3.14.1+shapely@2.2.0rc1	predicate	covers	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+near-collinear-2-000280-zigzag.origin	geos@3.14.1+shapely@2.2.0rc1	predicate	contains	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.14.1+shapely@2.2.0rc1	predicate	covers	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.14.1+shapely@2.2.0rc1	predicate	touches	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.14.1+shapely@2.2.0rc1	predicate	overlaps	exact=True	got=False
+# 15 disagreements over 6 cases
+
+## "lib": "geos@3.16.0dev-ae9cdd9"
+min-1-touches	geos@3.16.0dev-ae9cdd9	predicate	touches	exact=False	got=True
+min-1-touches	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+min-2-contains	geos@3.16.0dev-ae9cdd9	predicate	contains	exact=False	got=True
+min-2-contains	geos@3.16.0dev-ae9cdd9	predicate	covers	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.16.0dev-ae9cdd9	predicate	touches	exact=False	got=True
+near-collinear-1-000094-extension.moderate	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	geos@3.16.0dev-ae9cdd9	predicate	contains	exact=False	got=True
+near-collinear-2-000026-offedge-in.moderate	geos@3.16.0dev-ae9cdd9	predicate	covers	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+near-collinear-2-000280-zigzag.origin	geos@3.16.0dev-ae9cdd9	predicate	contains	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	geos@3.16.0dev-ae9cdd9	predicate	covers	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.16.0dev-ae9cdd9	predicate	touches	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	geos@3.16.0dev-ae9cdd9	predicate	overlaps	exact=True	got=False
+# 15 disagreements over 6 cases
+
+## "lib": "jts@1.21.0-SNAPSHOT-3ea61f8"
+# 0 disagreements over 6 cases
+
+## "lib": "jts@1.21.0-SNAPSHOT-3ea61f8+relateng"
+min-1-touches	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	touches	exact=False	got=True
+min-1-touches	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+min-2-contains	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+min-2-contains	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	contains	exact=False	got=True
+min-2-contains	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	covers	exact=False	got=True
+near-collinear-1-000094-extension.moderate	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	touches	exact=False	got=True
+near-collinear-1-000094-extension.moderate	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+near-collinear-2-000026-offedge-in.moderate	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	contains	exact=False	got=True
+near-collinear-2-000026-offedge-in.moderate	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	covers	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+near-collinear-2-000280-zigzag.origin	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	contains	exact=False	got=True
+near-collinear-2-000280-zigzag.origin	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	covers	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	touches	exact=False	got=True
+near-collinear-2-000450-offedge-out.origin	jts@1.21.0-SNAPSHOT-3ea61f8+relateng	predicate	overlaps	exact=True	got=False
+# 15 disagreements over 6 cases

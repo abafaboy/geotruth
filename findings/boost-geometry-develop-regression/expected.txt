@@ -1,0 +1,53 @@
+# Exact answers (rational arithmetic on the exact double inputs)
+# python oracle.py cases.jsonl ; python oracle_review/indep_adapter.py cases.jsonl
+== minimal-regression   (oracle.py and oracle_review/indep.py agree exactly: True)
+  valid_a    True
+  valid_b    True
+  intersects True
+  touches    False
+  overlaps   True
+  within     False
+  covered_by False
+  contains   False
+  equals     False
+  area_a       3.6299999999999999
+  area_b       0.27000000000000013
+  area_inter   0.077697841726618824
+  area_union   3.8223021582733816
+  area_diff    3.5523021582733811
+  area_symdiff 3.7446043165467624
+  exact |A and B| = 446054167735672102280567807949665026209206908269369257379961085106429662349806889557137037795/5740882344005400608028462496106672562986345779670405712907973178073998406029488981977960808448
+== rotated-neighbours-1-000230   (oracle.py and oracle_review/indep.py agree exactly: True)
+  valid_a    True
+  valid_b    True
+  intersects True
+  touches    False
+  overlaps   True
+  within     False
+  covered_by False
+  contains   False
+  equals     False
+  area_a       0.99999999999999989
+  area_b       0.99999999999999989
+  area_inter   3.9034258184299525e-16
+  area_union   1.9999999999999993
+  area_diff    0.99999999999999944
+  area_symdiff 1.9999999999999989
+  exact |A and B| = 5138483978713396304093367177827212303619167123425/13164036458569648331376561939846356581136948782875399294545821696
+== minimal-side-sign   (oracle.py and oracle_review/indep.py agree exactly: True)
+  valid_a    True
+  valid_b    True
+  intersects True
+  touches    False
+  overlaps   True
+  within     False
+  covered_by False
+  contains   False
+  equals     False
+  area_a       3
+  area_b       6.2999999999999998
+  area_inter   1.8503717077085941e-17
+  area_union   9.3000000000000007
+  area_diff    3
+  area_symdiff 9.3000000000000007
+  exact |A and B| = 27021597764222975/1460333491462920324567397621039104

@@ -1,0 +1,40 @@
+# Gross errors vs the exact oracle for cases.jsonl (areas off by > 1e-6 relative, or wrong within/covered_by/contains/covers/equals).
+# Adapter: adapters/boost_geometry/bg_adapter.cpp built against each Boost.Geometry tree (system Boost 1.83 for the rest).
+# '1.83' = system Boost 1.83 (apt); 'dev' = develop 196d04c. A version not listed under a case is correct on it.
+# 1.85.0 and 1.86.0 are the same geometry commit (f82eb32da).
+minimal-regression
+   dev   within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.87.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.88.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.89.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.90.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.91.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   1.92.0 within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   9c4d7529b-first-bad within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+   develop-side_robust within covered_by area_inter=3.6299999999999994(exp 0.0777) area_union=0.27000000000000024(exp 3.82)
+rotated-neighbours-1-000230
+   dev   within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+   1.87.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0(exp 2)
+   1.88.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0(exp 2)
+   1.89.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+   1.90.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+   1.91.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+   1.92.0 within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+   9c4d7529b-first-bad within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0(exp 2)
+   develop-side_robust within covered_by area_inter=0.99999999999999967(exp 3.9e-16) area_union=0.99999999999999956(exp 2)
+minimal-side-sign
+   1.83  within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   dev   within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.83.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.84.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.86.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.87.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.88.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.89.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.90.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.91.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   1.92.0 within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   754695969-parent within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   9c4d7529b-first-bad within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+   develop-condition-disabled within covered_by area_inter=3(exp 1.85e-17) area_union=6.3000000000000007(exp 9.3)
+cases 3 gross: {'1.83': 1, 'dev': 3, '1.83.0': 1, '1.84.0': 1, '1.86.0': 1, '1.87.0': 3, '1.88.0': 3, '1.89.0': 3, '1.90.0': 3, '1.91.0': 3, '1.92.0': 3, '754695969-parent': 1, '9c4d7529b-first-bad': 3, 'develop-condition-disabled': 1, 'develop-side_robust': 2}

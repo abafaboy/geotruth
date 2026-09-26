@@ -1,0 +1,39 @@
+GEOS 3.14.1-CAPI-1.20.5
+
+Case 1: B's vertex P lies inside A, 3.7e-17 (vertically) below A's edge (0 0)-(3 1)
+  A = POLYGON ((0 0, 3 0, 3 1, 0 0))
+  B = POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))
+  isValid(A) = true, isValid(B) = true
+  relate(A, B)                       FF2F01212  (expected 212101212) <-- WRONG
+  touches(A, B)                      true   (expected false) <-- WRONG
+  overlaps(A, B)                     false  (expected true ) <-- WRONG
+  contains(A, B)                     false  (expected false) 
+  covers(A, B)                       false  (expected false) 
+  prepared touches(A, B)             true   (expected false) <-- WRONG
+  prepared overlaps(A, B)            false  (expected true ) <-- WRONG
+  prepared contains(A, B)            false  (expected false) 
+  prepared covers(A, B)              false  (expected false) 
+  P = POINT (2 0.6666666666666666) (a vertex of B)
+  intersects(B, P)                   true   (expected true ) 
+  contains(A, P)                     true   (expected true ) 
+  intersects(A, P)                   true   (expected true ) 
+
+Case 2: B's vertex P lies outside A, 3.7e-17 (vertically) above A's edge (0 0)-(3 1)
+  A = POLYGON ((0 0, 3 0, 3 1, 0 0))
+  B = POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))
+  isValid(A) = true, isValid(B) = true
+  relate(A, B)                       212F01FF2  (expected 212101212) <-- WRONG
+  touches(A, B)                      false  (expected false) 
+  overlaps(A, B)                     false  (expected true ) <-- WRONG
+  contains(A, B)                     true   (expected false) <-- WRONG
+  covers(A, B)                       true   (expected false) <-- WRONG
+  prepared touches(A, B)             false  (expected false) 
+  prepared overlaps(A, B)            false  (expected true ) <-- WRONG
+  prepared contains(A, B)            false  (expected false) 
+  prepared covers(A, B)              false  (expected false) 
+  P = POINT (2.5 0.8333333333333334) (a vertex of B)
+  intersects(B, P)                   true   (expected true ) 
+  contains(A, P)                     false  (expected false) 
+  intersects(A, P)                   false  (expected false) 
+
+10 wrong answer(s)

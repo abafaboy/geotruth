@@ -1,0 +1,71 @@
+$ ./repro   # geos 3.15.0 release
+GEOS 3.15.0-CAPI-1.21.0
+
+===== unit S = "" =====
+GEOSOrientationIndex((0 0), (1S 0), (0 1S)) = 1  (non-zero: not collinear)
+GEOSSegmentIntersection((2S 0)-(2S 2S), (1S 1S)-(3S 1S)) = 1, (2 1)  (expected (2S 1S))
+T = POLYGON ((0 0, 1 0, 0 1, 0 0))
+  isValid(T)                   true      (expected true)
+  isValidReason(T)             Valid Geometry
+H = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))
+  isValid(H)                   true      (expected true)
+A = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+P = POINT (1 1)  (the centre of A)
+  contains(A, P)               true      (expected true)
+  prepared contains(A, P)      true      (expected true)
+  relate(A, P)                 0F2FF1FF2 (expected 0F2FF1FF2)
+B = POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))
+  relate(A, B)                 212101212 (expected 212101212)
+  intersects(A, B)             true      (expected true)
+  overlaps(A, B)               true      (expected true)
+  touches(A, B)                false     (expected false)
+  prepared overlaps(A, B)      true      (expected true)
+  intersection(A, B)           POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)) (expected POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)))
+  union(A, B)                  POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)) (expected POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)))
+
+===== unit S = "e-200" =====
+GEOSOrientationIndex((0 0), (1S 0), (0 1S)) = 0  <-- WRONG: the three points are not collinear
+GEOSSegmentIntersection((2S 0)-(2S 2S), (1S 1S)-(3S 1S)) = -1  (expected 1, point (2S 1S))  <-- WRONG
+T = POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))
+  isValid(T)                   false     (expected true)  <-- WRONG
+  isValidReason(T)             Self-intersection[0 1e-200]
+H = POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))
+  isValid(H)                   EXCEPTION (expected true)  <-- WRONG: IllegalArgumentException: Segment vertex does not intersect ring
+A = POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))
+P = POINT (1e-200 1e-200)  (the centre of A)
+  contains(A, P)               false     (expected true)  <-- WRONG
+  prepared contains(A, P)      true      (expected true)
+  relate(A, P)                 FF20F1FF2 (expected 0F2FF1FF2)  <-- WRONG
+B = POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))
+  relate(A, B)                 FF2F01FF2 (expected 212101212)  <-- WRONG
+  intersects(A, B)             true      (expected true)
+  overlaps(A, B)               false     (expected true)  <-- WRONG
+  touches(A, B)                true      (expected false)  <-- WRONG
+  prepared overlaps(A, B)      false     (expected true)  <-- WRONG
+  intersection(A, B)           POLYGON ((1e-200 1e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 1e-200 1e-200)) (expected POLYGON ((1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200)))  <-- WRONG
+  union(A, B)                  POLYGON ((0 0, 0 2e-200, 2e-200 2e-200, 2e-200 0, 0 0)) (expected POLYGON ((0 0, 0 2e-200, 1e-200 2e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 2e-200 1e-200, 2e-200 0, 0 0)))  <-- WRONG
+
+isValid(POLYGON ((0 0, s 0, 0 s, 0 0))) by s:
+  s = 1e-150    Valid Geometry
+  s = 1e-155    Valid Geometry
+  s = 1e-160    Valid Geometry
+  s = 1e-161    Valid Geometry
+  s = 1.6e-162  Valid Geometry
+  s = 1.5e-162  Self-intersection[0 1.5e-162]
+  s = 1e-162    Self-intersection[0 1e-162]
+  s = 1e-170    Self-intersection[0 1e-170]
+  s = 1e-300    Self-intersection[0 1e-300]
+
+12 wrong result(s)
+
+$ ./scan_scales
+GEOS 3.15.0-CAPI-1.21.0
+  orientationIndex((0 0),(1S 0),(0 1S)) != 0   wrong for S = 1e<k>, k in: [-320, -162]
+  isValid(T)                                   wrong for S = 1e<k>, k in: [-320, -162]
+  isValid(H)                                   wrong for S = 1e<k>, k in: [-320, -163] [154, 307]
+  contains(A, P)                               wrong for S = 1e<k>, k in: [-320, -162] [155, 307]
+  relate(A, B) = 212101212                     wrong for S = 1e<k>, k in: [-320, -162] [-116, -116] [-104, -104] [105, 105] [126, 126] [155, 307]
+  intersection(A, B) exact                     wrong for S = 1e<k>, k in: [-320, -103] [103, 307]
+  union(A, B) exact                            wrong for S = 1e<k>, k in: [-320, -103] [103, 307]
+  intersection(A, B) vertices within 1e-9*S    wrong for S = 1e<k>, k in: [-320, -103] [103, 307]
+  union(A, B) vertices within 1e-9*S           wrong for S = 1e<k>, k in: [-320, -103] [103, 307]

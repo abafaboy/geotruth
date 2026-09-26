@@ -1,0 +1,27 @@
+# geosop from GEOS main ae9cdd98be4e0bae552b918d4d14c94a9ce99c58 (3.16.0dev)
+$ geosop -a 'POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))' isValid
+false
+$ geosop -a 'POLYGON ((0 0, 1 0, 0 1, 0 0))' isValid
+true
+$ geosop -a 'POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))' isValid
+Run-time exception: IllegalArgumentException: Segment vertex does not intersect ring
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POINT (1e-200 1e-200)' contains
+false
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POINT (1e-200 1e-200)' relate
+FF20F1FF2
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))' relate
+FF2F01FF2
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))' intersection
+POLYGON ((1e-200 1e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 1e-200 1e-200))
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))' union
+POLYGON ((0 0, 0 2e-200, 2e-200 2e-200, 2e-200 0, 0 0))
+$ geosop -a 'LINESTRING (0 0, 1e-200 0)' -b 'POINT (0 1e-200)' orientationIndex
+0
+$ geosop -a 'LINESTRING (0 0, 1 0)' -b 'POINT (0 1)' orientationIndex
+1
+$ geosop -a 'POLYGON ((0 0, 2e103 0, 2e103 2e103, 0 2e103, 0 0))' -b 'POLYGON ((1e103 1e103, 3e103 1e103, 3e103 3e103, 1e103 3e103, 1e103 1e103))' intersection
+POLYGON ((2e+103 2e+103, 2e+103 0, 1e+103 1e+103, 2e+103 2e+103))
+$ geosop -a 'POLYGON ((0 0, 2e-105 0, 2e-105 2e-105, 0 2e-105, 0 0))' -b 'POLYGON ((1e-105 1e-105, 3e-105 1e-105, 3e-105 3e-105, 1e-105 3e-105, 1e-105 1e-105))' intersection
+POLYGON ((2e-105 2e-105, 2e-105 0, 1e-105 1e-105, 2e-105 2e-105))
+$ geosop -a 'POLYGON ((0 0, 2e102 0, 2e102 2e102, 0 2e102, 0 0))' -b 'POLYGON ((1e102 1e102, 3e102 1e102, 3e102 3e102, 1e102 3e102, 1e102 1e102))' intersection
+POLYGON ((1e+102 2e+102, 2e+102 2e+102, 2e+102 1e+102, 1e+102 1e+102, 1e+102 2e+102))

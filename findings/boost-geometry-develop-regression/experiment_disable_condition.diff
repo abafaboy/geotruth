@@ -1,0 +1,12 @@
+--- a/include/boost/geometry/algorithms/detail/overlay/get_turn_info.hpp
++++ b/include/boost/geometry/algorithms/detail/overlay/get_turn_info.hpp
+@@ -365,7 +365,8 @@
+         {
+             bool const has_k = ! non_touching_range.is_last_segment()
+                 && ! other_range.is_last_segment();
+-            if (has_k
++            if (false // EXPERIMENT ONLY: condition added in 9c4d7529b disabled
++                && has_k
+                 && (same(side.pj_wrt_q1(), side.qj_wrt_p2())
+                  || same(side.pj_wrt_q2(), side.qj_wrt_p1())))
+             {

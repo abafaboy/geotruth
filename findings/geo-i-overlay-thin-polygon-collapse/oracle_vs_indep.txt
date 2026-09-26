@@ -1,0 +1,8 @@
+# oracle.py vs oracle_review/indep.py (independent exact implementation), via compare.py
+# 0 disagreements over 6 cases
+geo-thin-tri-2e9-self valid True True oracle exact {'inter': '1000000000', 'diff_ab': '0', 'diff_ba': '0'} indep exact {'inter': '1000000000', 'diff_ab': '0', 'diff_ba': '0'} equal
+geo-thin-tri-2e9-4wide-control valid True True oracle exact {'inter': '4000000000', 'diff_ab': '0', 'diff_ba': '0'} indep exact {'inter': '4000000000', 'diff_ab': '0', 'diff_ba': '0'} equal
+geo-strip-overlap-2e9 valid True True oracle exact {'inter': '2000000000', 'diff_ab': '3999999998000000000', 'diff_ba': '3999999998000000000'} indep exact {'inter': '2000000000', 'diff_ab': '3999999998000000000', 'diff_ba': '3999999998000000000'} equal
+geo-thin-tri-1e9-self valid True True oracle exact {'inter': '500000000', 'diff_ab': '0', 'diff_ba': '0'} indep exact {'inter': '500000000', 'diff_ab': '0', 'diff_ba': '0'} equal
+geo-orig-0010-self valid True True oracle exact {'inter': '1099511627777', 'diff_ab': '0', 'diff_ba': '0'} indep exact {'inter': '1099511627777', 'diff_ab': '0', 'diff_ba': '0'} equal
+int-thin-triangle-1-0010 valid True True oracle exact {'inter': '1099511627777', 'diff_ab': '0', 'diff_ba': '0'} indep exact {'inter': '1099511627777', 'diff_ab': '0', 'diff_ba': '0'} equal

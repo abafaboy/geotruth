@@ -1,0 +1,21 @@
+i_overlay: i_overlay v4.5.2
+geo: geo v0.33.1
+[1] A = POLYGON((0 0,1 0,0 2000000000,0 0))
+  is_valid(A) = true   area(A) = 1000000000
+  A ∩ A      area = 0                      MULTIPOLYGON EMPTY
+  A ∪ A      area = 0                      MULTIPOLYGON EMPTY
+  A ∪ EMPTY  area = 0                      MULTIPOLYGON EMPTY
+[1c] control A = POLYGON((0 0,4 0,0 2000000000,0 0)), area(A) = 4000000000
+  A ∩ A      area = 4000000000             MULTIPOLYGON(((0 2000000000,0 0,4 0,0 2000000000)))
+[2] A = POLYGON((0 0,2000000000 0,2000000000 2000000000,0 2000000000,0 0))
+    B = POLYGON((-1999999999 0,1 0,1 2000000000,-1999999999 2000000000,-1999999999 0))
+  is_valid(A) = true  is_valid(B) = true  relate(A,B) = IntersectionMatrix(212111212)
+  relate(A,B).is_overlaps() = true
+  A ∩ B      area = 0                      MULTIPOLYGON EMPTY
+[3] A = POLYGON((0 0,1 0,0 1000000000,0 0))
+  is_valid(A) = true   area(A) = 500000000
+  A ∩ A      area = 1000000000             MULTIPOLYGON(((-0.5 1000000000,-0.5 0,1.5 0,-0.5 1000000000)))
+[4] A = POLYGON((-17592186044416 -17592186044416,-17592186044415 -17592186044415,-16492674416638 -18691697672192,-17592186044416 -17592186044416))
+  is_valid(A) = true   area(A) = 1099511627777
+  A ∩ A      area = 0                      MULTIPOLYGON EMPTY
+  A ∪ A      area = 0                      MULTIPOLYGON EMPTY

@@ -1,0 +1,53 @@
+JTS 1.21.0 SNAPSHOT
+
+===== unit S = "" =====
+T = POLYGON ((0 0, 1 0, 0 1, 0 0))
+  IsValidOp(T).isValid()             true (expected true)
+  IsValidOp(T).getValidationError()  null (expected null)
+H = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))
+  IsValidOp(H).isValid()             true (expected true)
+A = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+P = POINT (1 1)  (the centre of A)
+  A.contains(P)                      true (expected true)
+  A.relate(P)  [RelateOp]            0F2FF1FF2 (expected 0F2FF1FF2)
+  RelateNG.relate(A, P)              0F2FF1FF2 (expected 0F2FF1FF2)
+B = POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))
+  A.relate(B)  [RelateOp]            212101212 (expected 212101212)
+  RelateNG.relate(A, B)              212101212 (expected 212101212)
+  A.overlaps(B)  [RelateOp]          true (expected true)
+  A.touches(B)  [RelateOp]           false (expected false)
+  prepared A.overlaps(B)             true (expected true)
+  OverlayNGRobust intersection       POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)) (expected POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)))
+  OverlayNGRobust union              POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)) (expected POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)))
+
+===== unit S = "e-200" =====
+T = POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))
+  IsValidOp(T).isValid()             false (expected true)  <-- WRONG
+  IsValidOp(T).getValidationError()  Self-intersection at or near point (0.0, 0.0, NaN) (expected null)  <-- WRONG
+H = POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))
+  IsValidOp(H).isValid()             EXCEPTION IllegalArgumentException: Segment vertex does not intersect ring (expected true)  <-- WRONG
+A = POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))
+P = POINT (1e-200 1e-200)  (the centre of A)
+  A.contains(P)                      true (expected true)
+  A.relate(P)  [RelateOp]            FF20F1FF2 (expected 0F2FF1FF2)  <-- WRONG
+  RelateNG.relate(A, P)              FF20F1FF2 (expected 0F2FF1FF2)  <-- WRONG
+B = POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))
+  A.relate(B)  [RelateOp]            FF2212FF2 (expected 212101212)  <-- WRONG
+  RelateNG.relate(A, B)              FF2F01FF2 (expected 212101212)  <-- WRONG
+  A.overlaps(B)  [RelateOp]          false (expected true)  <-- WRONG
+  A.touches(B)  [RelateOp]           true (expected false)  <-- WRONG
+  prepared A.overlaps(B)             false (expected true)  <-- WRONG
+  OverlayNGRobust intersection       POLYGON ((1e-200 1e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 1e-200 1e-200)) (expected POLYGON ((1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200)))  <-- WRONG
+  OverlayNGRobust union              POLYGON ((0 0, 0 2e-200, 2e-200 2e-200, 2e-200 0, 0 0)) (expected POLYGON ((0 0, 0 2e-200, 1e-200 2e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 2e-200 1e-200, 2e-200 0, 0 0)))  <-- WRONG
+
+12 wrong result(s)
+
+JTS 1.21.0 SNAPSHOT
+  Orientation.index((0 0),(1S 0),(0 1S)) != 0  wrong for S = 1e<k>, k in: [-320, -162]
+  isValid(T)                                   wrong for S = 1e<k>, k in: [-320, -162]
+  isValid(H)                                   wrong for S = 1e<k>, k in: [-320, -163]
+  A.relate(P) = 0F2FF1FF2 [RelateOp]           wrong for S = 1e<k>, k in: [-320, -162]
+  A.relate(B) = 212101212 [RelateOp]           wrong for S = 1e<k>, k in: [-320, -162] [-116, -116] [-104, -104] [105, 105] [126, 126]
+  RelateNG.relate(A, B) = 212101212            wrong for S = 1e<k>, k in: [-320, -162] [-116, -116] [-104, -104] [105, 105] [126, 126]
+  OverlayNGRobust intersection exact           wrong for S = 1e<k>, k in: [-320, -103] [103, 307]
+  OverlayNGRobust union exact                  wrong for S = 1e<k>, k in: [-320, -103] [103, 307]

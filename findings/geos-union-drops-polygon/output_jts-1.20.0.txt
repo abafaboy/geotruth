@@ -1,0 +1,15 @@
+JTS 1.20.0
+== case 1: A = POLYGON ((1 1, -1e-20 0, 1 0, 1 1))  B = POLYGON ((0 0, 1 1, 0 1, 0 0))
+isValid(A)=true isValid(B)=true area(A)=0.5 area(B)=0.5
+OverlayNGRobust union         area = 1.0                    (expected ~1.0)
+OverlayNGRobust intersection  area = 0.0                    (expected ~5e-21)
+OverlayNGRobust B - A         area = 0.5                    (expected ~0.5)
+OverlayNGRobust A - B         area = 0.5                    (expected ~0.5)
+OverlayNGRobust symdifference area = 1.0                    (expected ~1.0)
+== case 2: A = POLYGON ((1 1, -1e-20 0, 0 1, 1 1))  B = POLYGON ((0 0, 1 1, -2 -1, 0 0))
+isValid(A)=true isValid(B)=true area(A)=0.5 area(B)=0.5
+OverlayNGRobust union         area = 0.8333333333333333     (expected ~0.8333)
+OverlayNGRobust intersection  area = 0.0                    (expected ~0.1667)
+OverlayNGRobust B - A         area = 0.5                    (expected ~0.3333)
+OverlayNGRobust A - B         area = 0.5                    (expected ~0.3333)
+OverlayNGRobust symdifference area = 0.6666666666666667     (expected ~0.6667)

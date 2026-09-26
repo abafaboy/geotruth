@@ -1,0 +1,71 @@
+$ ./repro   # geos main ae9cdd9 + prototype_fix.diff (diagnostic only)
+GEOS 3.16.0dev-CAPI-1.22.0
+
+===== unit S = "" =====
+GEOSOrientationIndex((0 0), (1S 0), (0 1S)) = 1  (non-zero: not collinear)
+GEOSSegmentIntersection((2S 0)-(2S 2S), (1S 1S)-(3S 1S)) = 1, (2 1)  (expected (2S 1S))
+T = POLYGON ((0 0, 1 0, 0 1, 0 0))
+  isValid(T)                   true      (expected true)
+  isValidReason(T)             Valid Geometry
+H = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))
+  isValid(H)                   true      (expected true)
+A = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+P = POINT (1 1)  (the centre of A)
+  contains(A, P)               true      (expected true)
+  prepared contains(A, P)      true      (expected true)
+  relate(A, P)                 0F2FF1FF2 (expected 0F2FF1FF2)
+B = POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))
+  relate(A, B)                 212101212 (expected 212101212)
+  intersects(A, B)             true      (expected true)
+  overlaps(A, B)               true      (expected true)
+  touches(A, B)                false     (expected false)
+  prepared overlaps(A, B)      true      (expected true)
+  intersection(A, B)           POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)) (expected POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1)))
+  union(A, B)                  POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)) (expected POLYGON ((0 0, 0 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 0, 0 0)))
+
+===== unit S = "e-200" =====
+GEOSOrientationIndex((0 0), (1S 0), (0 1S)) = 1  (non-zero: not collinear)
+GEOSSegmentIntersection((2S 0)-(2S 2S), (1S 1S)-(3S 1S)) = 1, (2e-200 1e-200)  (expected (2S 1S))
+T = POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))
+  isValid(T)                   true      (expected true)
+  isValidReason(T)             Valid Geometry
+H = POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))
+  isValid(H)                   true      (expected true)
+A = POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))
+P = POINT (1e-200 1e-200)  (the centre of A)
+  contains(A, P)               true      (expected true)
+  prepared contains(A, P)      true      (expected true)
+  relate(A, P)                 0F2FF1FF2 (expected 0F2FF1FF2)
+B = POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))
+  relate(A, B)                 212101212 (expected 212101212)
+  intersects(A, B)             true      (expected true)
+  overlaps(A, B)               true      (expected true)
+  touches(A, B)                false     (expected false)
+  prepared overlaps(A, B)      true      (expected true)
+  intersection(A, B)           POLYGON ((1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200)) (expected POLYGON ((1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200)))
+  union(A, B)                  POLYGON ((0 0, 0 2e-200, 1e-200 2e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 2e-200 1e-200, 2e-200 0, 0 0)) (expected POLYGON ((0 0, 0 2e-200, 1e-200 2e-200, 1e-200 3e-200, 3e-200 3e-200, 3e-200 1e-200, 2e-200 1e-200, 2e-200 0, 0 0)))
+
+isValid(POLYGON ((0 0, s 0, 0 s, 0 0))) by s:
+  s = 1e-150    Valid Geometry
+  s = 1e-155    Valid Geometry
+  s = 1e-160    Valid Geometry
+  s = 1e-161    Valid Geometry
+  s = 1.6e-162  Valid Geometry
+  s = 1.5e-162  Valid Geometry
+  s = 1e-162    Valid Geometry
+  s = 1e-170    Valid Geometry
+  s = 1e-300    Valid Geometry
+
+0 wrong result(s)
+
+$ ./scan_scales
+GEOS 3.16.0dev-CAPI-1.22.0
+  orientationIndex((0 0),(1S 0),(0 1S)) != 0   wrong for S = 1e<k>, k in: none
+  isValid(T)                                   wrong for S = 1e<k>, k in: none
+  isValid(H)                                   wrong for S = 1e<k>, k in: none
+  contains(A, P)                               wrong for S = 1e<k>, k in: none
+  relate(A, B) = 212101212                     wrong for S = 1e<k>, k in: none
+  intersection(A, B) exact                     wrong for S = 1e<k>, k in: none
+  union(A, B) exact                            wrong for S = 1e<k>, k in: [155, 155] [158, 159] [162, 162] [168, 168] [171, 172] [174, 176] [178, 178] [181, 183] [187, 188] [190, 191] [194, 195] [199, 200] [202, 212] [214, 215] [219, 219] [221, 225] [227, 228] [230, 232] [234, 236] [238, 241] [243, 245] [248, 249] [251, 252] [254, 254] [257, 257] [259, 263] [265, 267] [271, 273] [278, 279] [283, 285] [287, 289] [291, 293] [296, 297] [300, 300] [302, 306]
+  intersection(A, B) vertices within 1e-9*S    wrong for S = 1e<k>, k in: none
+  union(A, B) vertices within 1e-9*S           wrong for S = 1e<k>, k in: none

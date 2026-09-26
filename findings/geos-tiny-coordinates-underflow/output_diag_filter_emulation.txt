@@ -1,0 +1,11 @@
+A=(0 0) B=(1 0) P=(0 1)
+  2^0     detleft=-0.0                     detright=-1.0                     det=1.0        error=3.3306690621773724e-16 -> decides +1
+  2^-537  detleft=-0.0                     detright=-5e-324                  det=5e-324     error=0.0        -> decides +1
+  2^-538  detleft=-0.0                     detright=-0.0                     det=0.0        error=0.0        -> decides +0
+  2^512   detleft=-0.0                     detright=-inf                     det=inf        error=inf        -> decides +1
+A=(-1.6 1.2) B=(-3.2 -1.8) P=(-6.4 -7.8)
+  2^0     detleft=28.800000000000004       detright=28.8                     det=3.552713678800501e-15 error=1.9184653798141666e-14 -> defers to DD
+  2^-510  detleft=2.5632850850002964e-306  detright=2.563285085000296e-306   det=3.16e-322  error=1.71e-321  -> defers to DD
+  2^-514  detleft=1.001283236328241e-308   detright=1.0012832363282405e-308  det=5e-324     error=5e-324     -> decides +1
+  2^-520  detleft=2.44453915119e-312       detright=2.44453915119e-312       det=0.0        error=0.0        -> decides +0
+  2^512   detleft=inf                      detright=inf                      det=nan        error=inf        -> defers to DD

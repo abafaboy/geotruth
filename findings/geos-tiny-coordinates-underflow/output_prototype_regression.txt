@@ -1,0 +1,50 @@
+Prototype check (diagnostic only): GEOS main ae9cdd9 with prototype_fix.diff, run through
+the hunt's GEOS C-API adapter (adapters/geos_main/geos_adapter.c, same source, linked
+against the patched library) and compared with the unpatched main build.
+
+1. The 12 regular case files of the hunt (cases/*.jsonl, 12,000 cases, coordinates of
+   ordinary magnitude): every field identical, except one case
+   (tiling-contact-3-000885-sq-overlap.center-center.origin, which has a vertex at
+   (5e-324, -5e-324) next to unit-size coordinates):
+     area_inter  exact 5.0522632598410915e-17   main 0.0   prototype 5.551115123125783e-17
+   (both are within the hunt's 1e-6 relative tolerance; predicates are the same and correct).
+
+2. oracle_review "extreme" family (3,000 valid grid (multi)polygon pairs scaled exactly
+   by 2^k; exact reference = oracle_review/indep_adapter.py). Cases with at least one
+   wrong predicate or validity result, per exponent k:
+
+     k       cases   main   prototype
+     -1074   217     100    0
+     -1070   233     113    0
+     -1060   235     109    0
+     -1000   221      99    0
+     -600    217      90    0
+     -300    242       0    0
+      300    222       0    0
+      500    227       0    0
+      505    245       2    2
+      510    233       7    7
+      511    244      41   41
+      512    242      44   44
+      600    222      54   54
+
+   Gross overlay-area errors (> 1e-6 relative) occur only at k = 500..511 (74 cases), the
+   same in main and in the prototype. At k >= 500 other overflows are involved that the
+   prototype does not touch (it only changes CGAlgorithmsDD::orientationIndex and
+   CGAlgorithmsDD::intersection); they were not investigated here.
+
+3. GEOS's own test suite, built from the same patched tree (geos main ae9cdd9 +
+   prototype_fix.diff, CMAKE_BUILD_TYPE=Release, BUILD_TESTING=ON):
+     $ ./bin/test_geos_unit
+     tests summary: ok:3932 skipped:4
+       (the 4 skipped are GridIntersection robustness tests that need --data)
+     $ ctest -j2
+     100% tests passed, 0 tests failed out of 535
+       (unit, XML (xmltester) and capi tests)
+
+4. primitives_scaling.c against the patched build:
+   output_primitives_scaling_prototype_geos-main-ae9cdd9+prototype_fix.txt -> 0 wrong result(s)
+   (36 wrong on unpatched main and on 3.15.0).
+
+The prototype was not performance-tested: it adds two max/abs computations and a range
+test to every orientationIndex call, ahead of the fast filter.

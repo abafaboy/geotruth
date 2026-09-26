@@ -1,0 +1,19 @@
+# geosop - GEOS 3.16.0dev
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))' relate
+FF2F01212
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))' touches
+true
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2 2, 1 2, 2 0.6666666666666666, 2 2))' overlaps
+false
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POINT (2 0.6666666666666666)' contains
+true
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))' relate
+212F01FF2
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))' contains
+true
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))' covers
+true
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POLYGON ((2.5 0.5, 3 0.5, 2.5 0.8333333333333334, 2.5 0.5))' overlaps
+false
+$ geosop -a 'POLYGON ((0 0, 3 0, 3 1, 0 0))' -b 'POINT (2.5 0.8333333333333334)' intersects
+false

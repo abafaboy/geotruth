@@ -1,0 +1,22 @@
+jts-core master 3ea61f8cf2103f454c9cf3962df75fb6ef3ebecd (1.21.0-SNAPSHOT)
+case 1 MultiPolygon contains its own part
+  A = MULTIPOLYGON (((0 0, 2 0, 2 2, 0 2, 0 0)), ((1 2, 2 3, 0 3, 1 2)))
+  B = POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  isValid(A) = true, isValid(B) = true
+  expected relate      = 2F2F11FF2
+  RelateOp (default)   = 2F2F11FF2  contains=true touches=false overlaps=false
+  RelateNG.relate      = 2F2F11212  contains=false touches=false overlaps=true
+case 2 Polygon shell contains the polygon with a touching hole
+  A = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0))
+  B = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  isValid(A) = true, isValid(B) = true
+  expected relate      = 212F1FFF2
+  RelateOp (default)   = 212F1FFF2  contains=true touches=false overlaps=false
+  RelateNG.relate      = 21211F2F2  contains=false touches=false overlaps=true
+case 3 Polygon with touching hole vs. adjacent polygon
+  A = POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  B = POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))
+  isValid(A) = true, isValid(B) = true
+  expected relate      = FF2F11212
+  RelateOp (default)   = FF2F11212  contains=false touches=true overlaps=false
+  RelateNG.relate      = 212F11212  contains=false touches=false overlaps=true

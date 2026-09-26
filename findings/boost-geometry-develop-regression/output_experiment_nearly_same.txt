@@ -1,0 +1,11 @@
+# EXPERIMENT ONLY: develop 196d04c + experiment_nearly_same.diff (skip the 0edb673 early return when pj and qj are equal within 8*eps*max(|coord|,1) per coordinate)
+# 1) adapters/boost_geometry/bg_adapter.cpp on cases.jsonl and case_issue1487.jsonl
+minimal-regression {'within': False, 'overlaps': True, 'area_inter': 0.0776978417266187, 'area_union': 3.8223021582733807, 'area_diff': 3.5523021582733816}
+rotated-neighbours-1-000230 {'within': False, 'overlaps': True, 'area_inter': 4.2756255573679024e-16, 'area_union': 1.999999999999999, 'area_diff': 0.9999999999999999}
+minimal-side-sign {'within': True, 'overlaps': False, 'area_inter': 3.0, 'area_union': 6.300000000000001, 'area_diff': 3.0}
+gh1487 {'within': False, 'overlaps': True, 'area_inter': 18983.88497186239, 'area_union': 0.0, 'area_diff': 3.0240698833949864e-11}
+# 2) upstream test/algorithms/set_operations/set_ops_areal_areal.cpp
+Running 1 test case...
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
+
+*** 1 failure is detected in the test module "Test Program"

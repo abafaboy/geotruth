@@ -1,0 +1,42 @@
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/EdgeSegmentIntersector.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/EdgeSegmentIntersector.java
+@@ -81,6 +81,9 @@
+                 && ssB.isContainingSegment(segIndexB, intPt))) {
+         NodeSection nsa = ssA.createNodeSection(segIndexA, intPt);
+         NodeSection nsb = ssB.createNodeSection(segIndexB, intPt);
++        //-- PROTOTYPE: pass on the exact (orientation-based) properness from the LineIntersector
++        if (li.isProper())
++          topoComputer.addProperIntersection(nsa, nsb);
+         topoComputer.addIntersection(nsa, nsb);
+       }
+     }
+--- a/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
++++ b/modules/core/src/main/java/org/locationtech/jts/operation/relateng/TopologyComputer.java
+@@ -196,6 +196,27 @@
+     return node;
+   }
+   
++  /**
++   * PROTOTYPE. Records that segments of A and B cross properly, as decided exactly by
++   * the LineIntersector (orientation signs), independent of the rounded node point.
++   * For two areas this implies II = 2; for two polygonal (non-GC) geometries it implies
++   * the full lower bound 212101212, as in the old RelateComputer.computeProperIntersectionIM.
++   */
++  public void addProperIntersection(NodeSection a, NodeSection b) {
++    if (a.isSameGeometry(b) || ! NodeSection.isAreaArea(a, b)) return;
++    updateDim(Location.INTERIOR, Location.INTERIOR, Dimension.A);
++    if (PROTO_FULL && geomA.isPolygonal() && geomB.isPolygonal()) {
++      updateDim(Location.INTERIOR, Location.BOUNDARY, Dimension.L);
++      updateDim(Location.INTERIOR, Location.EXTERIOR, Dimension.A);
++      updateDim(Location.BOUNDARY, Location.INTERIOR, Dimension.L);
++      updateDim(Location.BOUNDARY, Location.BOUNDARY, Dimension.P);
++      updateDim(Location.BOUNDARY, Location.EXTERIOR, Dimension.L);
++      updateDim(Location.EXTERIOR, Location.INTERIOR, Dimension.A);
++      updateDim(Location.EXTERIOR, Location.BOUNDARY, Dimension.L);
++    }
++  }
++  static final boolean PROTO_FULL = ! "ii".equals(System.getProperty("proto"));
++
+   public void addIntersection(NodeSection a, NodeSection b) {
+     if (! a.isSameGeometry(b)) {
+       updateIntersectionAB(a, b);

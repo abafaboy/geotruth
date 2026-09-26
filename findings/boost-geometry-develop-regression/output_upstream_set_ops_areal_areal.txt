@@ -1,0 +1,13 @@
+# upstream test/algorithms/set_operations/set_ops_areal_areal.cpp, g++ 13.3 -std=c++17 -O1 -DNDEBUG, header-only Boost.Test, system Boost 1.83 + compat shim
+# == develop 196d04c (unmodified)
+Running 1 test case...
+
+*** No errors detected
+
+# == develop 196d04c + experiment_disable_condition.diff
+Running 1 test case...
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(207): error: in "test_main_caller( argc_ argv )": Case: issue_1288_0_2 difference (a-b) is not valid
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1288_0_2 symmetric difference is not valid
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
+
+*** 3 failures are detected in the test module "Test Program"

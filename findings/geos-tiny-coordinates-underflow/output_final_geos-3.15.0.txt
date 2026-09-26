@@ -1,0 +1,73 @@
+### geosop (3.15.0)
+$ geosop -a 'POLYGON ((0 0, 2e102 0, 2e102 2e102, 0 2e102, 0 0))' -b 'POLYGON ((1e102 1e102, 3e102 1e102, 3e102 3e102, 1e102 3e102, 1e102 1e102))' relate
+212101212
+$ geosop -a 'POLYGON ((0 0, 2e102 0, 2e102 2e102, 0 2e102, 0 0))' -b 'POLYGON ((1e102 1e102, 3e102 1e102, 3e102 3e102, 1e102 3e102, 1e102 1e102))' overlaps
+true
+$ geosop -a 'POLYGON ((0 0, 2e102 0, 2e102 2e102, 0 2e102, 0 0))' -b 'POLYGON ((1e102 1e102, 3e102 1e102, 3e102 3e102, 1e102 3e102, 1e102 1e102))' intersection
+POLYGON ((1e+102 2e+102, 2e+102 2e+102, 2e+102 1e+102, 1e+102 1e+102, 1e+102 2e+102))
+$ geosop -a 'POLYGON ((0 0, 2e102 0, 2e102 2e102, 0 2e102, 0 0))' -b 'POLYGON ((1e102 1e102, 3e102 1e102, 3e102 3e102, 1e102 3e102, 1e102 1e102))' union
+POLYGON ((2e+102 1e+102, 2e+102 0, 0 0, 0 2e+102, 1e+102 2e+102, 1e+102 3e+102, 3e+102 3e+102, 3e+102 1e+102, 2e+102 1e+102))
+$ geosop -a 'POLYGON ((0 0, 2e103 0, 2e103 2e103, 0 2e103, 0 0))' -b 'POLYGON ((1e103 1e103, 3e103 1e103, 3e103 3e103, 1e103 3e103, 1e103 1e103))' relate
+212101212
+$ geosop -a 'POLYGON ((0 0, 2e103 0, 2e103 2e103, 0 2e103, 0 0))' -b 'POLYGON ((1e103 1e103, 3e103 1e103, 3e103 3e103, 1e103 3e103, 1e103 1e103))' overlaps
+true
+$ geosop -a 'POLYGON ((0 0, 2e103 0, 2e103 2e103, 0 2e103, 0 0))' -b 'POLYGON ((1e103 1e103, 3e103 1e103, 3e103 3e103, 1e103 3e103, 1e103 1e103))' intersection
+POLYGON ((2e+103 2e+103, 2e+103 0, 1e+103 1e+103, 2e+103 2e+103))
+$ geosop -a 'POLYGON ((0 0, 2e103 0, 2e103 2e103, 0 2e103, 0 0))' -b 'POLYGON ((1e103 1e103, 3e103 1e103, 3e103 3e103, 1e103 3e103, 1e103 1e103))' union
+POLYGON ((2e+103 0, 0 0, 0 2e+103, 2e+103 2e+103, 1e+103 3e+103, 3e+103 3e+103, 3e+103 1e+103, 2e+103 0))
+$ geosop -a 'POLYGON ((0 0, 2e105 0, 2e105 2e105, 0 2e105, 0 0))' -b 'POLYGON ((1e105 1e105, 3e105 1e105, 3e105 3e105, 1e105 3e105, 1e105 1e105))' relate
+212F01FF2
+$ geosop -a 'POLYGON ((0 0, 2e105 0, 2e105 2e105, 0 2e105, 0 0))' -b 'POLYGON ((1e105 1e105, 3e105 1e105, 3e105 3e105, 1e105 3e105, 1e105 1e105))' overlaps
+false
+$ geosop -a 'POLYGON ((0 0, 2e105 0, 2e105 2e105, 0 2e105, 0 0))' -b 'POLYGON ((1e105 1e105, 3e105 1e105, 3e105 3e105, 1e105 3e105, 1e105 1e105))' intersection
+LINESTRING (1e+105 1e+105, 2e+105 2e+105)
+$ geosop -a 'POLYGON ((0 0, 2e105 0, 2e105 2e105, 0 2e105, 0 0))' -b 'POLYGON ((1e105 1e105, 3e105 1e105, 3e105 3e105, 1e105 3e105, 1e105 1e105))' union
+MULTIPOLYGON (((1e+105 1e+105, 2e+105 0, 0 0, 0 2e+105, 1e+105 1e+105)), ((1e+105 1e+105, 1e+105 3e+105, 3e+105 3e+105, 3e+105 1e+105, 1e+105 1e+105)))
+$ geosop -a 'POLYGON ((0 0, 2e-104 0, 2e-104 2e-104, 0 2e-104, 0 0))' -b 'POLYGON ((1e-104 1e-104, 3e-104 1e-104, 3e-104 3e-104, 1e-104 3e-104, 1e-104 1e-104))' relate
+212F01FF2
+$ geosop -a 'POLYGON ((0 0, 2e-104 0, 2e-104 2e-104, 0 2e-104, 0 0))' -b 'POLYGON ((1e-104 1e-104, 3e-104 1e-104, 3e-104 3e-104, 1e-104 3e-104, 1e-104 1e-104))' overlaps
+false
+$ geosop -a 'POLYGON ((0 0, 2e-104 0, 2e-104 2e-104, 0 2e-104, 0 0))' -b 'POLYGON ((1e-104 1e-104, 3e-104 1e-104, 3e-104 3e-104, 1e-104 3e-104, 1e-104 1e-104))' intersection
+LINESTRING (1e-104 1e-104, 2e-104 2e-104)
+$ geosop -a 'POLYGON ((0 0, 2e-104 0, 2e-104 2e-104, 0 2e-104, 0 0))' -b 'POLYGON ((1e-104 1e-104, 3e-104 1e-104, 3e-104 3e-104, 1e-104 3e-104, 1e-104 1e-104))' union
+MULTIPOLYGON (((1e-104 1e-104, 2e-104 0, 0 0, 0 2e-104, 1e-104 1e-104)), ((1e-104 1e-104, 1e-104 3e-104, 3e-104 3e-104, 3e-104 1e-104, 1e-104 1e-104)))
+$ geosop -a 'LINESTRING (2 0, 2 2)' -b 'POINT (1 1)' orientationIndex
+1
+$ geosop -a 'LINESTRING (2e155 0, 2e155 2e155)' -b 'POINT (1e155 1e155)' orientationIndex
+0
+$ geosop -a 'POLYGON ((0 0, 2e155 0, 2e155 2e155, 0 2e155, 0 0))' -b 'POINT (1e155 1e155)' contains
+false
+$ geosop -a 'POLYGON ((0 0, 2e155 0, 2e155 2e155, 0 2e155, 0 0))' -b 'POLYGON ((1e155 1e155, 3e155 1e155, 3e155 3e155, 1e155 3e155, 1e155 1e155))' relate
+FF2F01FF2
+$ geosop -a 'POLYGON ((0 0, 4e154 0, 4e154 4e154, 0 4e154, 0 0), (1e154 1e154, 1e154 2e154, 2e154 2e154, 2e154 1e154, 1e154 1e154))' isValid
+Run-time exception: IllegalArgumentException: Segment vertex does not intersect ring
+$ geosop -a 'LINESTRING (0 0, 1e-200 0)' -b 'POINT (0 1e-200)' orientationIndex
+0
+$ geosop -a 'POLYGON ((0 0, 1e-200 0, 0 1e-200, 0 0))' isValid
+false
+$ geosop -a 'POLYGON ((0 0, 1.6e-162 0, 0 1.6e-162, 0 0))' isValid
+true
+$ geosop -a 'POLYGON ((0 0, 1.5e-162 0, 0 1.5e-162, 0 0))' isValid
+false
+$ geosop -a 'POLYGON ((0 0, 4e-200 0, 4e-200 4e-200, 0 4e-200, 0 0), (1e-200 1e-200, 1e-200 2e-200, 2e-200 2e-200, 2e-200 1e-200, 1e-200 1e-200))' isValid
+Run-time exception: IllegalArgumentException: Segment vertex does not intersect ring
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POINT (1e-200 1e-200)' contains
+false
+$ geosop -a 'POLYGON ((0 0, 2e-200 0, 2e-200 2e-200, 0 2e-200, 0 0))' -b 'POLYGON ((1e-200 1e-200, 3e-200 1e-200, 3e-200 3e-200, 1e-200 3e-200, 1e-200 1e-200))' relate
+FF2F01FF2
+### C API: segint.c
+S=1e+102: r=1, point/S = (2 1)   expected (2 1)
+S=1e+103: r=1, point/S = (0 0)   expected (2 1)
+S=1e-105: r=1, point/S = (1.99999999974 1.00000000003)   expected (2 1)
+S=1e-110: r=1, point/S = (0 0)   expected (2 1)
+### C++: diag_intersection.cpp (raw CGAlgorithmsDD::intersection)
+S=1e+102  raw CGAlgorithmsDD::intersection / S = (2, 1)   exact (2, 1)
+S=1e+103  raw CGAlgorithmsDD::intersection / S = (nan, nan)   exact (2, 1)
+S=1e-102  raw CGAlgorithmsDD::intersection / S = (2, 1)   exact (2, 1)
+S=1e-103  raw CGAlgorithmsDD::intersection / S = (2, 0.99999999999999933)   exact (2, 1)
+S=1e-105  raw CGAlgorithmsDD::intersection / S = (1.9999999994336959, 0.99999999971684794)   exact (2, 1)
+S=1e+105  raw CGAlgorithmsDD::intersection / S = (nan, nan)   exact (2, 1)
+### C++: diag_filter_1e155.cpp
+filter: detleft=inf detright=-inf det=inf error=nan -> FAILURE (defers to DD)
+DD: dx1*dy2=0 dy1*dx2=-nan d=nan isNaN=1 -> OrientationDD returns STRAIGHT (0)
+pre-3.14 filter: detleft>0 && detright<=0 -> sign(det) = 1

@@ -1,0 +1,15 @@
+# python findings/boost-geometry-develop-regression/systematic/systematic_check.py cases/seed.jsonl results/oracle/seed.jsonl bg183.jsonl bgdev.jsonl segx
+# bg183/bgdev: adapters/boost_geometry/run_1.83.sh / run_develop.sh (system Boost 1.83 / develop 196d04c); segx built against develop 196d04c
+== rotated-neighbours: two unit squares edge to edge, the second shifted by 0..2 ulps
+  1.83 [(('exact disjoint', 'boost disjoint'), 47), (('exact disjoint', 'boost touches'), 57), (('exact overlaps', 'boost overlaps'), 100), (('exact touches', 'boost touches'), 46)]
+  develop [(('exact disjoint', 'boost disjoint'), 47), (('exact disjoint', 'boost touches'), 57), (('exact overlaps', 'boost overlaps'), 99), (('exact overlaps', 'boost within/contains/equal'), 1), (('exact touches', 'boost touches'), 46)]
+  1.83: exact-disjoint pairs reported intersecting: 57, boundary gap 1.57e-16 .. 3.11e-16; reported disjoint: 47, gap 3.86e-16 .. 5.47e-16
+  develop: exact-disjoint pairs reported intersecting: 57, boundary gap 1.57e-16 .. 3.11e-16; reported disjoint: 47, gap 3.86e-16 .. 5.47e-16
+  develop, exact-disjoint & reported touching (n=57): shared-edge pair (intersects, 4 x side_by_triangle): {(1, -1, 0, 0, -1): 2, (1, 0, 0, 0, 0): 53, (1, 0, -1, -1, 0): 2}; exact sides: {(-1, -1, -1, -1): 57}
+  develop, exact-disjoint & reported disjoint (n=47): shared-edge pair (intersects, 4 x side_by_triangle): {(0, -1, -1, -1, -1): 47}; exact sides: {(-1, -1, -1, -1): 47}
+
+== tiny-rotation(-offset): B = A (star polygon) rotated by 1e-16..1e-8 rad about one of its vertices
+  1.83: max vertex displacement / (eps*max(|coord|,1)) -> predicate results: {('(1,4]', 'right'): 23, ('(1,4]', 'wrong'): 3, ('(4,16]', 'right'): 28, ('0 (B==A)', 'right'): 201, ('<=1', 'right'): 10, ('<=1', 'wrong'): 16, ('>16', 'right'): 219}; cases with an area error > 1e-6 relative: 0
+     wrong predicates: {'overlaps': 18, 'within': 10, 'covered_by': 10, 'equals': 4, 'contains': 8, 'covers': 8}
+  develop: max vertex displacement / (eps*max(|coord|,1)) -> predicate results: {('(1,4]', 'right'): 21, ('(1,4]', 'wrong'): 5, ('(4,16]', 'right'): 28, ('0 (B==A)', 'right'): 201, ('<=1', 'right'): 7, ('<=1', 'wrong'): 19, ('>16', 'right'): 219}; cases with an area error > 1e-6 relative: 0
+     wrong predicates: {'overlaps': 23, 'within': 14, 'covered_by': 14, 'equals': 4, 'contains': 9, 'covers': 9}

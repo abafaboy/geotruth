@@ -1,0 +1,6 @@
+shapely 2.1.2 GEOS 3.13.1
+geo-thin-tri-2e9-self valid True True area(A∩B)=1000000000.0 area(A∪B)=1000000000.0 relate=2FFF1FFF2
+geo-strip-overlap-2e9 valid True True area(A∩B)=2000000000.0 area(A∪B)=7.999999998e+18 relate=212111212
+geo-thin-tri-1e9-self valid True True area(A∩B)=500000000.0 area(A∪B)=500000000.0 relate=2FFF1FFF2
+geo-orig-0010-self valid True True area(A∩B)=1099511627777.0 area(A∪B)=1099511627777.0 relate=2FFF1FFF2
+int-thin-triangle-1-0010 valid True True area(A∩B)=1099511627777.0 area(A∪B)=1099511627777.0 relate=2FFF1FFF2

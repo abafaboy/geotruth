@@ -1,0 +1,10 @@
+--- modules/core/src/main/java/org/locationtech/jts/operation/relateng/RelateGeometry.java	2026-09-25 23:37:06.735000000 +0000
++++ modules/core/src/main/java/org/locationtech/jts/operation/relateng/RelateGeometry.java	2026-09-26 01:32:19.498874697 +0000
+@@ -260,6 +260,7 @@
+    * @return true if self-noding is required for this geometry
+    */
+   public boolean isSelfNodingRequired() {
++    if (geom instanceof Polygon || geom instanceof MultiPolygon) return true; // EXPERIMENT
+     if (geom instanceof Point
+         || geom instanceof MultiPoint
+         || geom instanceof Polygon

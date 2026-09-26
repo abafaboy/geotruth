@@ -1,0 +1,20 @@
+shapely 2.1.2 GEOS 3.13.1
+case 1: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((1 2, 2 3, 0 3, 1 2)))
+        B=POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  relate expected 2F2F11FF2 got 2F2F11FF2
+case 2: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0)), POINT (3 3))
+        B=POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  relate expected 212F1FFF2 got 212F1FFF2
+case 3: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0)), POINT (3 3))
+        B=POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))
+  relate expected FF2F11212 got FF2F11212
+shapely 2.2.0rc1 GEOS 3.14.1
+case 1: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0)), POLYGON ((1 2, 2 3, 0 3, 1 2)))
+        B=POLYGON ((0 0, 2 0, 2 2, 0 2, 0 0))
+  relate expected 2F2F11FF2 got 2F2F11FF2
+case 2: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0)), POINT (3 3))
+        B=POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0))
+  relate expected 212F1FFF2 got 212F1FFF2
+case 3: A=GEOMETRYCOLLECTION (POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (2 0, 3 1, 1 1, 2 0)), POINT (3 3))
+        B=POLYGON ((0 -1, 4 -1, 4 0, 0 0, 0 -1))
+  relate expected FF2F11212 got FF2F11212

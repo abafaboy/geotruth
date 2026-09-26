@@ -1,0 +1,59 @@
+diff --git a/src/algorithm/CGAlgorithmsDD.cpp b/src/algorithm/CGAlgorithmsDD.cpp
+index df6fd01..a066b90 100644
+--- a/src/algorithm/CGAlgorithmsDD.cpp
++++ b/src/algorithm/CGAlgorithmsDD.cpp
+@@ -21,6 +21,7 @@
+ #include <geos/geom/Coordinate.h>
+ #include <geos/util/IllegalArgumentException.h>
+ #include <cmath>
++#include <algorithm>
+ 
+ using namespace geos::geom;
+ using namespace geos::algorithm;
+@@ -59,6 +60,25 @@ CGAlgorithmsDD::orientationIndex(double p1x, double p1y,
+         throw util::IllegalArgumentException("CGAlgorithmsDD::orientationIndex encountered NaN/Inf numbers");
+     }
+ 
++    // PROTOTYPE: if the coordinate differences are tiny (or huge), their products
++    // underflow (or overflow) and neither the filter nor DD is exact any more.
++    // The sign of the determinant does not change when all x values and all
++    // y values are each multiplied by a power of two, so rescale x and y
++    // separately to bring the differences to about 1 (exact when scaling up;
++    // scaling down can round away bits of ordinates ~2^-1000 times smaller).
++    {
++        double mx = std::max(std::abs(p2x - p1x), std::abs(qx - p2x));
++        double my = std::max(std::abs(p2y - p1y), std::abs(qy - p2y));
++        auto out = [](double m) { return m > 0 && std::isfinite(m) && (m < 0x1p-400 || m > 0x1p400); };
++        if (out(mx) || out(my)) {
++            int ex = out(mx) ? -std::ilogb(mx) : 0;
++            int ey = out(my) ? -std::ilogb(my) : 0;
++            return orientationIndex(std::ldexp(p1x, ex), std::ldexp(p1y, ey),
++                                    std::ldexp(p2x, ex), std::ldexp(p2y, ey),
++                                    std::ldexp(qx, ex), std::ldexp(qy, ey));
++        }
++    }
++
+     // fast filter for orientation index
+     // avoids use of slow extended-precision arithmetic in many cases
+     int index = orientationIndexFilter(p1x, p1y, p2x, p2y, qx, qy);
+@@ -117,6 +137,20 @@ CoordinateXY
+ CGAlgorithmsDD::intersection(const CoordinateXY& p1, const CoordinateXY& p2,
+                              const CoordinateXY& q1, const CoordinateXY& q2)
+ {
++    // PROTOTYPE: the formula below has cubic terms in the coordinates, which
++    // underflow or overflow for |coordinates| below ~1e-103 or above ~1e103.
++    // Compute on copies scaled by a power of two and scale the result back.
++    {
++        double m = std::max({std::abs(p1.x), std::abs(p1.y), std::abs(p2.x), std::abs(p2.y),
++                             std::abs(q1.x), std::abs(q1.y), std::abs(q2.x), std::abs(q2.y)});
++        if (m > 0 && std::isfinite(m) && (m < 0x1p-300 || m > 0x1p300)) {
++            int e = -std::ilogb(m);
++            auto sc = [e](const CoordinateXY& c) { return CoordinateXY(std::ldexp(c.x, e), std::ldexp(c.y, e)); };
++            CoordinateXY r = intersection(sc(p1), sc(p2), sc(q1), sc(q2));
++            if (r.isNull()) return r;
++            return CoordinateXY(std::ldexp(r.x, -e), std::ldexp(r.y, -e));
++        }
++    }
+     DD q1x(q1.x);
+     DD q1y(q1.y);
+     DD q2x(q2.x);

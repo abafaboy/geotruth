@@ -1,0 +1,16 @@
+# git bisect run between boost-1.86.0 (good) and boost-1.87.0 (bad); bad = within(a,b)=true on rotated-neighbours-1-000230
+81cc9d635 within=False overlaps=True area_inter=0.0 area_union=1.9999999999999991
+5c78d6714 within=False overlaps=True area_inter=0.0 area_union=1.9999999999999991
+1ca9ac0bc within=False overlaps=True area_inter=0.0 area_union=1.9999999999999991
+a14dc9d2c within=False overlaps=True area_inter=4.2756255573679024e-16 area_union=1.999999999999999
+e13d5d6b2 within=True overlaps=False area_inter=0.9999999999999997 area_union=0.0
+9c4d7529b within=True overlaps=False area_inter=0.9999999999999997 area_union=0.0
+754695969 within=False overlaps=True area_inter=4.2756255573679024e-16 area_union=1.999999999999999
+[a14dc9d2c16210914a7233617a50e45a88693f9c] fix: distinguish turn to discard in case of start turns
+[e13d5d6b2fa42290d7b93e4a5cc6d0a9e2329e6e] fix: avoid blocking rings for some non union conditions
+[9c4d7529b1c03d1e611fa1b55358350eb8c26d46] fix: add condition to handle_as_touch
+[75469596907b42394fa849ccb92a03370f4592f6] fix: add condition to handle_imperfect_touch
+9c4d7529b1c03d1e611fa1b55358350eb8c26d46 is the first bad commit
+commit 9c4d7529b1c03d1e611fa1b55358350eb8c26d46
+Author: Barend Gehrels <barend@xs4all.nl>
+Date:   Sun Nov 24 10:32:55 2024 +0100

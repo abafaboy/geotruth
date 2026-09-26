@@ -1,0 +1,13 @@
+# Boost.Geometry: system Boost 1_83
+# g++ 13.3.0, -std=c++17 -O2, x86_64
+is_valid(A) = true (Geometry is valid)
+is_valid(B) = true (Geometry is valid)
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = 2FF10F212
+within(A,B) = true   touches(A,B) = false   overlaps(A,B) = false
+area(intersection) = 3
+area(union)        = 6.3000000000000007
+area(difference)   = 3
+intersection = MULTIPOLYGON(((-2 -1.2,1 1.2,2 0,-2 -1.2)))
+union        = MULTIPOLYGON(((-3 -2,-2 3,0 0.40000000000000002,-3 -2)))
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)

@@ -1,0 +1,3 @@
+$ ./diag_dd_overflow   # geos main ae9cdd9
+k=0  dx1*dy2 = 9.6  dy1*dx2 = 9.6  d = -3.55271e-16  d.isNaN=0  d<0=1 d>0=0
+k=512  dx1*dy2 = -nan  dy1*dx2 = -nan  d = -nan  d.isNaN=1  d<0=0 d>0=0

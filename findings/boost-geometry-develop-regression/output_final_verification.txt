@@ -1,0 +1,269 @@
+# Re-run on 2026-09-26 while finalising FINAL.md. g++ 13.3.0 -std=c++17 -O2, x86_64, Ubuntu 24.04.
+# Each Boost.Geometry tree's include/ first on the path, system Boost 1.83 for the other libraries, plus the invoke_swap shim.
+# upstream (git ls-remote): develop = 196d04c614c1, master = boost-1.92.0 = 90c27ef0bf9d, refs/pull/1491/head = 0f07f606fe93
+# boost-1.85.0 and boost-1.86.0 tag the same geometry commit f82eb32da, so '1.86.0' below covers both.
+
+## snippet (FINAL.md reproducer), per tree
+=== system-1.83
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618866
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== develop-196d04c
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.92.0-90c27ef0b
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.91.0-002ae2629
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.90.0-93a8ff869
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.89.0-617d75e0c
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.88.0-c12caf960
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.87.0-c5ebb039a
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== 1.86.0-f82eb32da
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618866
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== 1.84.0-da14168e3
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618866
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== 1.83.0-600bac843
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618866
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== dev-parent-cd4deda8e
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618699
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== dev-firstbad-0edb67322
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== rel-parent-754695969
+is_valid: true true
+relation: 212101212
+within: false  overlaps: true
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 0.077697841726618699
+union: 3.8223021582733807
+difference: 3.5523021582733816
+=== rel-firstbad-9c4d7529b
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+=== pr1491
+is_valid: true true
+relation: 2FF10F212
+within: true  overlaps: false
+area A: 3.6299999999999999  area B: 0.27000000000000024
+intersection: 3.6299999999999994
+union: 0.27000000000000024
+difference: 3.5523021582733816
+
+## develop 196d04c variants: -O0 / clang++ 18.1.3 / -march=native / -DBOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_ROBUST
+v_O0: relation: 2FF10F212 within: true  overlaps: false intersection: 3.6299999999999994 union: 0.27000000000000024 
+v_clang: relation: 2FF10F212 within: true  overlaps: false intersection: 3.6299999999999994 union: 0.27000000000000024 
+v_native: relation: 2FF10F212 within: true  overlaps: false intersection: 3.6299999999999994 union: 0.27000000000000024 
+v_robust: relation: 2FF10F212 within: true  overlaps: false intersection: 3.6299999999999994 union: 0.27000000000000024 
+
+## original case (rotated-neighbours-1-000230) from repro.cpp, per tree
+system-1.83              relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 0 area(union) = 1.9999999999999993 
+develop-196d04c          relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0.99999999999999956 
+1.92.0-90c27ef0b         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0.99999999999999956 
+1.91.0-002ae2629         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0.99999999999999956 
+1.90.0-93a8ff869         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0.99999999999999956 
+1.89.0-617d75e0c         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0.99999999999999956 
+1.88.0-c12caf960         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0 
+1.87.0-c5ebb039a         relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0 
+1.86.0-f82eb32da         relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 0 area(union) = 1.9999999999999993 
+1.84.0-da14168e3         relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 0 area(union) = 1.9999999999999993 
+1.83.0-600bac843         relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 0 area(union) = 1.9999999999999993 
+dev-parent-cd4deda8e     relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 4.2756255573679024e-16 area(union) = 1.9999999999999989 
+dev-firstbad-0edb67322   relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0 
+rel-parent-754695969     relation(A,B) = 212101212 within(A,B) = false covered_by(A,B) = false overlaps(A,B) = true area(intersection) = 4.2756255573679024e-16 area(union) = 1.9999999999999989 
+rel-firstbad-9c4d7529b   relation(A,B) = 2FF11F212 within(A,B) = true covered_by(A,B) = true overlaps(A,B) = false area(intersection) = 0.99999999999999967 area(union) = 0 
+
+## trace: develop 196d04c with an fprintf added at the top of touch_interior::handle_as_touch
+--- relation
+handle_as_touch pi=(-2.6000000000000001,1) pj=(-1.6999999999999997,1.9000000000000004) qi=(2,-1) qj=(-1.7,1.8999999999999999) has_k=1 pj_q1=-1 pj_q2=0 qj_p1=0 qj_p2=-1 dm=8.87469e-31
+2FF10F212
+--- intersection
+handle_as_touch pi=(-2.6000000000000001,1) pj=(-1.6999999999999997,1.9000000000000004) qi=(2,-1) qj=(-1.7,1.8999999999999999) has_k=1 pj_q1=-1 pj_q2=0 qj_p1=0 qj_p2=-1 dm=8.87469e-31
+3.63
+
+## EXPERIMENT ONLY: develop + experiment_disable_condition.diff
+== minimal
+relation(A,B) = 212101212
+area(intersection) = 0.077697841726618699
+area(union)        = 3.8223021582733807
+== original (rotated-neighbours-1-000230)
+relation(A,B) = 212101212
+area(intersection) = 4.2756255573679024e-16
+area(union)        = 1.9999999999999989
+#1487 case: valid 11 inter 18983.88497186239 union 0
+upstream set_ops_areal_areal:
+Running 1 test case...
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(207): error: in "test_main_caller( argc_ argv )": Case: issue_1288_0_2 difference (a-b) is not valid
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1288_0_2 symmetric difference is not valid
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
+*** 3 failures are detected in the test module "Test Program"
+(unmodified develop: No errors detected)
+
+## EXPERIMENT ONLY: develop + experiment_nearly_same.diff
+== minimal
+relation(A,B) = 212101212
+area(intersection) = 0.077697841726618699
+area(union)        = 3.8223021582733807
+== original (rotated-neighbours-1-000230)
+relation(A,B) = 212101212
+area(intersection) = 4.2756255573679024e-16
+area(union)        = 1.9999999999999989
+#1487 case: valid 11 inter 18983.88497186239 union 0
+upstream set_ops_areal_areal:
+Running 1 test case...
+/tmp/claude-0/gb-build/boost-geometry/geometry/test/algorithms/set_operations/set_ops_areal_areal.cpp(217): error: in "test_main_caller( argc_ argv )": Case: issue_1293 symmetric difference is not valid
+*** 1 failure is detected in the test module "Test Program"
+
+## #1487 test case (bg::correct applied), intersection / union areas
+1.86: valid 11 inter 18983.88497186239 union 93711.814467415359
+1.87: valid 11 inter 18983.88497186239 union 93711.814467415417
+1.88: valid 11 inter 18983.88497186239 union 93711.814467415417
+1.89: valid 11 inter 0 union 93711.814467415417
+dev: valid 11 inter 0 union 93711.814467415417
+
+## repro_side_sign.cpp (separate, long-standing issue)
+=== side_183
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = 2FF10F212
+within(A,B) = true   touches(A,B) = false   overlaps(A,B) = false
+area(intersection) = 3
+area(union)        = 6.3000000000000007
+area(difference)   = 3
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)
+=== side_186
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = 2FF10F212
+within(A,B) = true   touches(A,B) = false   overlaps(A,B) = false
+area(intersection) = 3
+area(union)        = 6.3000000000000007
+area(difference)   = 3
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)
+=== side_192
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = 2FF10F212
+within(A,B) = true   touches(A,B) = false   overlaps(A,B) = false
+area(intersection) = 3
+area(union)        = 6.3000000000000007
+area(difference)   = 3
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)
+=== side_dev
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = 2FF10F212
+within(A,B) = true   touches(A,B) = false   overlaps(A,B) = false
+area(intersection) = 3
+area(union)        = 6.3000000000000007
+area(difference)   = 3
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)
+=== side_dev_robust
+area(A) = 3   area(B) = 6.3000000000000007
+relation(A,B) = FF2F11212
+within(A,B) = false   touches(A,B) = true   overlaps(A,B) = false
+area(intersection) = 0
+area(union)        = 9.3000000000000007
+area(difference)   = 3
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1   side_robust = 0   (exact: -1)
+
+## FINAL_2 snippet (repro_side_sign_minimal.cpp)
+=== s2_183
+relation: 2FF10F212  within: true  touches: false
+intersection: 3  union: 6.3000000000000007
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1
+=== s2_186
+relation: 2FF10F212  within: true  touches: false
+intersection: 3  union: 6.3000000000000007
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1
+=== s2_192
+relation: 2FF10F212  within: true  touches: false
+intersection: 3  union: 6.3000000000000007
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1
+=== s2_dev
+relation: 2FF10F212  within: true  touches: false
+intersection: 3  union: 6.3000000000000007
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1
+=== s2_devrob
+relation: FF2F11212  within: false  touches: true
+intersection: 0  union: 9.3000000000000007
+side_by_triangle((-3,-2),(0,0.4),(1,1.2)) = 1

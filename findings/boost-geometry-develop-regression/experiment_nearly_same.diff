@@ -1,0 +1,34 @@
+--- a/include/boost/geometry/algorithms/detail/overlay/get_turn_info.hpp
++++ b/include/boost/geometry/algorithms/detail/overlay/get_turn_info.hpp
+@@ -16,6 +16,8 @@
+ #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
+ 
+ #include <boost/core/ignore_unused.hpp>
++#include <algorithm>
++#include <limits>
+ #include <boost/throw_exception.hpp>
+ 
+ #include <boost/geometry/core/access.hpp>
+@@ -365,7 +367,22 @@
+         {
+             bool const has_k = ! non_touching_range.is_last_segment()
+                 && ! other_range.is_last_segment();
++            // EXPERIMENT: do not apply the early return when pj and qj are the
++            // same point up to a few ulps (then both being on the same side of the
++            // other segment does not indicate a crossing).
++            auto const nearly_same = [](auto const& a, auto const& b)
++            {
++                auto const close = [](auto x, auto y)
++                {
++                    using ct = decltype(x - y);
++                    return math::abs(x - y) <= ct(8) * std::numeric_limits<ct>::epsilon()
++                        * (std::max)({math::abs(x), math::abs(y), ct(1)});
++                };
++                return close(geometry::get<0>(a), geometry::get<0>(b))
++                    && close(geometry::get<1>(a), geometry::get<1>(b));
++            };
+             if (has_k
++                && ! nearly_same(non_touching_range.at(1), other_range.at(1))
+                 && (same(side.pj_wrt_q1(), side.qj_wrt_p2())
+                  || same(side.pj_wrt_q2(), side.qj_wrt_p1())))
+             {
