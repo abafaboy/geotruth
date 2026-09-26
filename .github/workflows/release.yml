@@ -1,9 +1,11 @@
-# Publishes a GitHub release when a version tag (v*) is pushed. Nothing here is taken on
-# trust: the release is created only if the tag matches the package version, the unit tests
-# pass, and the full tier regenerated from the generators, together with its exact answers
-# recomputed by the engine, matches the sha256 recorded in corpus/MANIFEST.json and
-# corpus/expected/MANIFEST.json. Assets: the sdist and wheel, and the full tier (cases and
-# expected answers, CC0), which is too large for git.
+# Publishes a GitHub release when a version tag (v*) is pushed, or completes one created in
+# the web interface (which pushes its tag): the notes come from RELEASE_NOTES_<tag>.md and
+# the assets are attached. Nothing here is taken on trust: the assets are published only if
+# the tag matches the package version, the unit tests pass, and the full tier regenerated
+# from the generators, together with its exact answers recomputed by the engine, matches the
+# sha256 recorded in corpus/MANIFEST.json and corpus/expected/MANIFEST.json. Assets: the
+# sdist and wheel, and the full tier (cases and expected answers, CC0), which is too large
+# for git.
 
 name: Release
 
@@ -74,7 +76,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$TAG" dist/* \
-            --title "geotruth ${TAG#v}" \
-            --notes-file "RELEASE_NOTES_$TAG.md" \
-            --verify-tag
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            # created in the web interface: attach the checked assets and the notes
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" --title "geotruth ${TAG#v}" \
+              --notes-file "RELEASE_NOTES_$TAG.md"
+          else
+            gh release create "$TAG" dist/* \
+              --title "geotruth ${TAG#v}" \
+              --notes-file "RELEASE_NOTES_$TAG.md" \
+              --verify-tag
+          fi
