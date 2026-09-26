@@ -137,6 +137,27 @@ def test_curated_rebuild_is_identical(tiers, curated_records):
     assert tiers.build_curated() == curated_records
 
 
+def test_full_and_core_regenerate_byte_identical(tiers):
+    """The generators give the committed corpus on every supported Python.
+
+    Python 3.12 changed how sum() adds floats, which once changed 8 of the 17 full-tier
+    files by a few bytes; the release workflow regenerates the full tier on its own Python
+    and refuses a mismatch."""
+    m = json.loads((CORPUS / "MANIFEST.json").read_text())
+    params, full = m["parameters"], m["tiers"]["full"]["files"]
+    names = sorted(p.split("/")[-1].removesuffix(".jsonl") for p in full)
+    recs, _ = tiers.generate_all(names, params["n_per_family"], params["seed"], jobs=2)
+
+    def digest(records):
+        text = "".join(tiers.dumps(r) + "\n" for r in records)
+        return hashlib.sha256(text.encode()).hexdigest()
+
+    for name, rs in recs.items():
+        assert digest(rs) == full[f"cases/full/{name}.jsonl"]["sha256"], name
+        core = tiers.select_core(rs, params["core_per_family"])
+        assert digest(core) == tiers.sha256_file(CORPUS / "cases" / "core" / f"{name}.jsonl"), name
+
+
 @pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
 def test_gitignore_keeps_core_and_curated_only():
     def ignored(path):

@@ -56,6 +56,7 @@ the commit where each file was first computed).
 | check | result |
 |---|---|
 | `full` tier recomputed from scratch, 2 worker processes | 17,000 cases in 171.5 s wall (339.8 s in the engine): 16,000 with both operands valid, both relate routes agreeing on all of them; 128,000 overlay results (4 operations × 2 variants), every one passing the certificate; 0 `engine_skipped`, 0 `engine_error`; byte-identical to the answers recorded in the manifest |
+| corpus generators on Python 3.10, 3.11, 3.12 and 3.13 | the full and core tiers regenerate byte-identical to the committed files on each; a unit test checks this on every Python in CI |
 | `engine-control`, core tier | 22,600 of 22,600 score records correct |
 | `mutant`, core tier | 2,396 planted faults: 2,368 graded wrong, 28 graded as the other empty-geometry convention, 0 missed, 0 other records changed |
 | CGAL exact kernel, core tier | 8,048 overlays with the same exact area, the same point set and OGC-valid results |

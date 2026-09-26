@@ -29,7 +29,7 @@ import math
 
 from common import (  # noqa: F401
     Q, Reject, TAU, ExactFrame, FloatFrame, add, centroid, convex_ring, ccw, exact_frame,
-    float_frame, iadd, icross, isub, left_normal, lerp, log_uniform, nudge, oracle,
+    float_frame, iadd, icross, isub, left_normal, lerp, log_uniform, lsum, nudge, oracle,
     rand_convex_int, rand_star_int, rand_vec, rand_vec_side, rect_ring, rot_pt, rotate_ring,
     sgn, star_ring, sub, unit, verify_on_segment,
 )
@@ -538,7 +538,7 @@ def gen_hole_contact(rng):
                     "hole-touch-shell", "two-holes-touch", "both-holed"])
     R = 2 ** (fr.S - 1)
     shell, Ws = lattice_polygon(rng, fr, n, k=rng.randint(5, 9), R=R, ratio=0.85)
-    sc = (sum(p[0] for p in shell) // len(shell), sum(p[1] for p in shell) // len(shell))
+    sc = (lsum(p[0] for p in shell) // len(shell), lsum(p[1] for p in shell) // len(shell))
     rh = int(R * rng.uniform(0.1, 0.25))
     ang = rng.uniform(0, TAU)
     off = rng.uniform(0, 0.25) * R
@@ -768,7 +768,7 @@ def gen_multi_touch(rng):
         n = pick_n(rng, fr)
         R = 2 * M
         shell = rand_convex_int(rng, rng.randint(4, 8), R, ratio=0.85)
-        sc = (sum(p[0] for p in shell) // len(shell), sum(p[1] for p in shell) // len(shell))
+        sc = (lsum(p[0] for p in shell) // len(shell), lsum(p[1] for p in shell) // len(shell))
         hole, Wh = lattice_polygon(rng, fr, n, k=rng.randint(3, 6), R=R // 3, c=sc, ratio=0.7)
         i = rng.randrange(len(hole))
         T = on_edge(hole, Wh, i, rng.randint(1, n - 1)) if rng.random() < 0.7 else hole[i]
@@ -953,7 +953,7 @@ def trace_cells(cells, merge=False):
         rings.append(ring)
 
     def area2(r):
-        return sum(r[t][0] * r[(t + 1) % len(r)][1] - r[(t + 1) % len(r)][0] * r[t][1] for t in range(len(r)))
+        return lsum(r[t][0] * r[(t + 1) % len(r)][1] - r[(t + 1) % len(r)][0] * r[t][1] for t in range(len(r)))
 
     shells = [r for r in rings if area2(r) > 0]
     holes = [r for r in rings if area2(r) < 0]

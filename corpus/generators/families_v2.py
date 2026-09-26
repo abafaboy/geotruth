@@ -52,7 +52,7 @@ from __future__ import annotations
 
 import math
 
-from common import Reject, convex_hull, exact_frame, rand_convex_int
+from common import Reject, convex_hull, exact_frame, lsum, rand_convex_int
 
 # ============================================================================ builders
 # Geometries are typed JSON with integer lattice coordinates until realize() maps them.
@@ -206,8 +206,8 @@ def convex(rng, R, k=None, c=(0, 0)):
 def interior_point(poly):
     """A lattice point strictly inside a strictly convex CCW lattice polygon (or Reject)."""
     n = len(poly)
-    cx = sum(p[0] for p in poly) // n
-    cy = sum(p[1] for p in poly) // n
+    cx = lsum(p[0] for p in poly) // n
+    cy = lsum(p[1] for p in poly) // n
     c = (cx, cy)
     for i in range(n):
         if cross(sub(poly[(i + 1) % n], poly[i]), sub(c, poly[i])) <= 0:
@@ -252,8 +252,8 @@ def post_transform(rng, g_a, g_b, variant, *, allow_rot=True, allow_extreme=True
         pts = positions(g_a) + positions(g_b)
         if not pts:
             return g_a, g_b, variant
-        cx = sum(p[0] for p in pts) / len(pts)
-        cy = sum(p[1] for p in pts) / len(pts)
+        cx = lsum(p[0] for p in pts) / len(pts)
+        cy = lsum(p[1] for p in pts) / len(pts)
         th = rng.uniform(0, 2 * math.pi)
         cs, sn = math.cos(th), math.sin(th)
 

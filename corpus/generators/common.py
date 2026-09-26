@@ -85,13 +85,25 @@ def rot_pt(p, c, th):
     return [c[0] + cs * dx - sn * dy, c[1] + sn * dx + cs * dy]
 
 
+def lsum(values):
+    """Left-to-right sum, as the built-in sum() adds floats up to Python 3.11.
+
+    Python 3.12 made sum() add floats with compensated (Neumaier) summation, which changes
+    the last bit of some centroids and so the generated cases. The corpus must come out the
+    same on every supported Python, so the generators add floats with this instead."""
+    total = 0
+    for v in values:
+        total = total + v
+    return total
+
+
 def rotate_ring(ring, c, th):
     return [rot_pt(p, c, th) for p in ring]
 
 
 def centroid(ring):
     n = len(ring)
-    return [sum(p[0] for p in ring) / n, sum(p[1] for p in ring) / n]
+    return [lsum(p[0] for p in ring) / n, lsum(p[1] for p in ring) / n]
 
 
 def signed_area(ring):
@@ -499,6 +511,6 @@ def rounding_floor(a, b):
     area by at most d * |next - prev| / 2, the output perimeter is at most the sum of the
     input perimeters, and a rounded vertex moves by at most ulp * sqrt(2) / 2."""
     m = max(abs(v) for g in (a, b) for poly in g for r in poly for p in r for v in p)
-    per = sum(math.hypot(q[0] - p[0], q[1] - p[1])
+    per = lsum(math.hypot(q[0] - p[0], q[1] - p[1])
               for g in (a, b) for poly in g for r in poly for p, q in zip(r, r[1:]))
     return math.ulp(m) * per
