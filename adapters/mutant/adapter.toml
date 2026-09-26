@@ -1,6 +1,6 @@
 # geotruth adapter manifest (DESIGN.md §4.2). Format: ../README.md#manifest-adaptertoml.
 # The mutant (DESIGN.md §7): the engine control with deliberate faults, which the scorer
-# must catch: every 17th predicate negated, every 17th polygonal overlay output perturbed. From
+# must catch: every 17th predicate negated, every 17th polygonal overlay output perturbed beyond any delta. From
 # src/geotruth/harness/control.py and src/geotruth/harness/engine.py.
 manifest_version = 1
 
@@ -23,9 +23,9 @@ run = "adapters/mutant/run.sh"
 version_command = "adapters/mutant/run.sh --version"
 toolchain = "CPython 3.10+, gmpy2"
 options = [
-    "MUTATIONS (the point of this adapter): the 1st, 18th, 35th, ... reported predicate (counted over the whole run in field order) is negated; the 1st, 18th, ... non-empty polygonal overlay output has its second vertex moved by 1/256 of its extent",
+    "MUTATIONS (the point of this adapter): the 1st, 18th, 35th, ... reported predicate (counted over the whole run in field order) is negated; the 1st, 18th, ... non-empty polygonal overlay output has the second vertex of its first ring moved perpendicular to its neighbours' chord by max(1/256 of the ring's extent, 2^-20 of its largest ordinate), beyond every library's delta",
     "exact answers through the shim of geotruth.harness.engine: geotruth.relate / geotruth.overlay when they exist, else the witness relate and the fallback overlay of tests/reference/indep.py (GEOTRUTH_EXACT_BACKEND selects)",
-    "overlay output: the non-strict exact result, every coordinate correctly rounded to a double; parts that rounding collapses into invalid geometry are dropped",
+    "overlay output: the non-strict exact result, every coordinate correctly rounded to a double; where rounding breaks validity the rounded rings are regularized exactly and rounded again (geotruth.harness.regularize.round_valid)",
     "relate, predicates and overlay are 'unsupported' for invalid input and null where the engine abstains",
 ]
 
@@ -51,7 +51,7 @@ unsupported = []
 "predicates.equals" = "geotruth.predicates.predicates(relate matrix, real dimensions), convention table applied"
 
 [target.precision]
-model = "exact rational arithmetic on the input doubles; overlay output vertices are the exact ones correctly rounded to doubles (ties to even); where rounding breaks validity the rounded rings are regularized exactly (even-odd) and rounded again, at most 4 rounds"
+model = "exact rational arithmetic on the input doubles; overlay output vertices are the exact ones correctly rounded to doubles (ties to even); where rounding breaks validity the rounded rings are regularized exactly (positive winding number of the oriented rings) and rounded again, at most 4 rounds"
 delta = { kind = "ulp", value = 3 }  # each rounding moves a vertex by at most sqrt(2)/2 ulp(M); 4 rounds at most
 tolerance_predicates = false
 tolerances = []

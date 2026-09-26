@@ -1,7 +1,10 @@
 # rust_geo: the georust `geo` crate
 
 Adapter for [georust/geo](https://github.com/georust/geo), the Rust crate, built from
-crates.io. It follows the contract in `../../harness/FORMAT-v1.md`.
+crates.io. Target id `rust-geo`. It answers adapter contract v2 (DESIGN.md §4.1,
+`schemas/result.v2.schema.json`) for typed lines (see [Contract v2](#contract-v2)) and the
+legacy contract in `../../harness/FORMAT-v1.md` for legacy lines, byte-identical to the v1
+adapter.
 
 - `lib` is `geo@<version>`, currently `geo@0.33.1` (the latest on crates.io on 2026-09-26).
   `build.rs` reads the version from `Cargo.lock`, so the string always matches the build.
@@ -20,7 +23,8 @@ crates.io. It follows the contract in `../../harness/FORMAT-v1.md`.
 | `Cargo.toml`, `Cargo.lock` | the crate, with pinned dependencies |
 | `build.rs` | puts the locked geo and i_overlay versions into the binary |
 | `adapter.toml` | manifest (DESIGN.md §4.2): fields, precision model and δ, coordinate range, options |
-| `src/main.rs` | the adapter: a supervisor process plus a worker process (the same binary) |
+| `src/main.rs` | the adapter: a supervisor process plus a worker process (the same binary); the v1 fields |
+| `src/v2.rs` | contract v2: building every geometry type, the v2 field paths, the JSON writer |
 | `build.sh` | `cargo build --release --locked -j2`. `UPDATE=1` runs `cargo update` first |
 | `run.sh` | run wrapper: `run.sh [--in-process] CASES.jsonl > RESULTS.jsonl` |
 | `examples/repro_thin_triangle.rs` | stand-alone repro of the thin-triangle collapse described below |
@@ -31,6 +35,7 @@ outside the repo. The binary is `$CARGO_TARGET_DIR/release/geo_adapter`.
 
 ```sh
 adapters/rust_geo/build.sh
+python3 -m geotruth run --lib rust-geo --tier core && python3 -m geotruth score --lib rust-geo --tier core
 adapters/rust_geo/run.sh corpus/cases/seed.jsonl > /tmp/rust-geo-seed.jsonl
 python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl /tmp/rust-geo-seed.jsonl
 # the repro:
@@ -38,7 +43,43 @@ python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl 
    cargo run --release --locked --example repro_thin_triangle)
 ```
 
-## What each field is
+## Contract v2
+
+A line is a v2 case when an operand is a typed geometry (a JSON object) or `"ops"` is
+present (`--v2`: every line). Every geometry type is built (`Point`, `LineString`,
+`Polygon`, the Multi types and `GeometryCollection`), from the exact input doubles.
+
+| path | geo call |
+|---|---|
+| `echo` | the operands as built, written back by the adapter |
+| `relate` | `a.relate(&b)` (`Relate`, the GeometryGraph port of JTS RelateOp) |
+| `predicates.<name>` | `IntersectionMatrix::is_<name>()` of that same matrix: declared **derived from relate** in the manifest, so the scorer counts a wrong relate once |
+| `valid_a`, `valid_b` | `Validation::is_valid` |
+| `overlay.<op>` | `BooleanOps::intersection / union / difference / xor` (i_overlay, `OverlayOptions::ogc()`) |
+
+Out of geo's contract, reported `"unsupported"`: empty points (geo has no empty `Point`),
+unclosed polygon rings (`Polygon::new` would close them, so geo cannot hold the input),
+non-finite coordinates for relate (geo's documented precondition), and overlays of
+operands that are not Polygon / MultiPolygon (`BooleanOps` exists for those only). Output
+coordinates are written by the adapter with serde_json (ryu, the shortest round-trip
+form).
+
+Each operation is one unit of the worker protocol below. A unit over
+`GEO_ADAPTER_TIMEOUT` / `GEOTRUTH_OP_TIMEOUT` seconds (default 10) kills the worker
+(`{"kind": "timeout"}`); a panic is reported as its message (`"panic: ..."`, an
+exception); a dead worker (abort, stack
+overflow, allocation failure under `GEO_ADAPTER_MEM_MB`) is `{"kind": "crash"}`; a fresh
+worker continues with the next unit. `--timing` adds per-operation milliseconds; `-` reads
+cases from stdin.
+
+**δ (manifest).** i_overlay snaps every input point to a grid of step
+2^(round(log2 H) − 29) ≤ 2^-28.5 H, H the largest half-extent of the joint bounding box
+(see [Semantics caveats](#semantics-caveats-read-before-triaging-disagreements)); the
+manifest's δ is `{kind = "grid", value = 2}` with `grid = "2^-28 * H: ..."`, two steps:
+input rounding plus rounding of the intersection points. The scorer lets exact features
+thinner than δ vanish, which is exactly what the grid does to them.
+
+## What each field is (v1)
 
 Geometry: a one-part multipolygon becomes `geo::Polygon`, and any other count becomes
 `geo::MultiPolygon` (zero parts gives an empty MultiPolygon). Each ring becomes a
@@ -140,6 +181,17 @@ Speed: the 1000 seed cases take about 0.2 s.
   connected (for example, holes that cut the shell's interior in two). The oracle only
   rules on validity for a single polygon without holes (`valid_single_polygon`), and
   reports `null` otherwise.
+
+## Results (contract v2)
+
+Core tier (3400 cases), 2026-09-26, `geotruth run` + `geotruth score`: **445 headline
+failures**, 0 scorer failures. relate wrong on 178 cases (the largest cluster:
+line-line, `II`); the 129 wrong predicates records all come with a wrong relate and are
+counted once (derived). Overlays: 226 gross, 0 topological, 0 exceptions: the grid
+snapping moves near-collinear, tiny-transform and scaled inputs beyond the manifest's two
+grid steps, and every output is valid. Relate, predicates and overlays of the 4954
+records outside geo's contract (empty points, non-polygonal overlays) are
+`"unsupported"`.
 
 ## Smoke test (seed.jsonl)
 

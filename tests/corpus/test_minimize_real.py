@@ -7,8 +7,8 @@ import os
 from pathlib import Path
 
 import pytest
+from corpus_testlib import REPO
 
-from conftest import REPO
 from geotruth.minimize import AdapterRunner, find_target, load_case, minimize
 
 pytestmark = pytest.mark.crosscheck

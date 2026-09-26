@@ -58,7 +58,7 @@ unsupported = [
 
 [target.fields.derived]
 area_symdiff = "area(difference(A, B)) + area(difference(B, A)): Turf has no symmetric difference"
-"overlay.symdifference" = "the polygons of difference(A, B) and difference(B, A) together: Turf has no symmetric difference"
+"overlay.symdifference" = "difference(A, B) and difference(B, A), merged with turf.union: Turf has no symmetric difference"
 
 [target.precision]
 model = "Overlays: polyclip-ts 0.16.8 (bignumber.js arithmetic on the decimal string of each double, divisions rounded to 20 decimal places, no snapping epsilon). Predicates: Turf's own point-in-polygon, line-intersect and geojson-equality code, with fixed tolerances"

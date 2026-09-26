@@ -25,9 +25,16 @@ One ``score.v2`` record per (case, library, capability):
      extra component or hole;
   6. ``exception``: an exception, crash, hang or memory failure.
 
+  An overlay the manifest declares derived from other overlays (Turf's symdifference from
+  two differences) is marked ``derived`` when one of those is wrong or an error in the same
+  case too, so the fault is counted once.
+
   In tiers 2 and 3, exact components and holes that fit inside the δ-tube of their own
-  boundary (:func:`geotruth.harness.metrics.is_thin`) may vanish or collapse: they are left
-  out of the exact-to-library Hausdorff direction. The exact result is the non-strict one
+  boundary (:func:`geotruth.harness.metrics.is_thin`) may vanish or collapse, and so may
+  any part of the exact boundary within 2δ of another part of it (a thin spike, a thin gap
+  between two rings): those are left out of the exact-to-library Hausdorff direction
+  (:func:`geotruth.harness.metrics.directed_hausdorff2_collapse`); the library-to-exact
+  direction and the area bound still apply in full. The exact result is the non-strict one
   (OverlayNG's default, lines and points of boundary touches kept) when the output has
   lower-dimensional parts, and the regularized areal one otherwise, so polygon-only
   clippers are judged on what they promise. Verdicts: tiers 1-3 ``correct``, 4-5
@@ -41,6 +48,7 @@ input) get no record.
 from __future__ import annotations
 
 import math
+import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -419,6 +427,29 @@ class OverlayGrade:
     variant: str
 
 
+def _put_number(out: dict[str, Any], key: str, q: Any) -> None:
+    """``out[key] = float(q)``; a value beyond the double range (extreme-range cases:
+    squared distances and areas of 1e200 coordinates) goes to ``<key>_decimal`` instead,
+    as a 17-digit decimal string."""
+    try:
+        out[key] = float(q)
+    except OverflowError:
+        out[f"{key}_decimal"] = _decimal_text(q)
+
+
+def _decimal_text(q: Any) -> str:
+    from decimal import Context
+
+    ctx = Context(prec=17)
+
+    def dec(x: Any) -> Any:
+        return ctx.divide(ctx.create_decimal(int(x.numerator)), int(x.denominator))
+
+    if isinstance(q, M.Surd):
+        return str(ctx.add(dec(q.a), ctx.multiply(dec(q.b), ctx.sqrt(dec(q.d)))))
+    return str(dec(M.q(q)))
+
+
 def _fmt_surd(s: M.Surd | None, out: dict[str, Any], key: str) -> None:
     if s is None:
         out[f"{key}_infinite"] = True
@@ -426,7 +457,7 @@ def _fmt_surd(s: M.Surd | None, out: dict[str, Any], key: str) -> None:
         out[key] = format_rational(s.a)
     else:
         out[f"{key}_surd"] = s.to_json()
-        out[f"{key}_approx"] = float(s)
+        _put_number(out, f"{key}_approx", s)
 
 
 def _has_lower_dim(g: Geometry) -> bool:
@@ -463,7 +494,7 @@ def grade_overlay(
 
     m = M.max_abs_ordinate(case.a, case.b)
     dr2 = M.rounding_delta2(m)
-    met["delta_rounding"] = float(M.sqrt_upper(dr2))
+    _put_number(met, "delta_rounding", M.sqrt_upper(dr2))
     if delta.delta2 is not None:
         met["delta"] = delta.delta
     met["delta_kind"] = delta.kind
@@ -494,7 +525,7 @@ def grade_overlay(
             return False, excused
         if h_el is not None and h_el <= d2:
             return True, excused
-        # boundaries of exact rings within 2 delta of another exact ring may collapse
+        # where the exact shape is thinner than 2 delta its boundary may collapse
         fe = M.features_of(se)
         if thin:
             fe = M.excuse_features(fe, thin)
@@ -540,13 +571,13 @@ def grade_overlay(
         return OverlayGrade("topological", met, variant)
     ok, excused = within(dr2)
     if ok:
-        met["area_budget"] = float(M.tube_bound(dr2, perim, n))
+        _put_number(met, "area_budget", M.tube_bound(dr2, perim, n))
         if excused:
             met["excused_thin"] = excused
         return OverlayGrade("rounding", met, variant)
     if delta.delta2 is not None:
         budget = M.tube_bound(delta.delta2, perim, n)
-        met["area_budget"] = float(budget)
+        _put_number(met, "area_budget", budget)
         ok, excused = within(delta.delta2)
         if ok:
             if excused:
@@ -626,29 +657,70 @@ def _score_overlay(
 # ============================================================================ a case
 
 
+SCORER_FAILED = "scorer failed: "
+
+
+def _scorer_failure(case: Case, result: dict, ctx: ScoreContext, cap: str, exc: Exception) -> dict:
+    """A capability the scorer could not grade: ``engine_error`` (never counted against
+    the library) with the reason in ``got``; :func:`summarize` counts these separately as
+    ``scorer_failures``, which must be 0 (a harness bug otherwise)."""
+    return _record(
+        case.id,
+        result.get("lib", ""),
+        cap,
+        "engine_error",
+        ctx,
+        case,
+        got=f"{SCORER_FAILED}{type(exc).__name__}: {exc}"[:500],
+    )
+
+
 def score_case(
     case: Case, expected: dict | None, result: dict, ctx: ScoreContext
 ) -> list[dict[str, Any]]:
-    """Every ``score.v2`` record of one case."""
+    """Every ``score.v2`` record of one case. A capability the scorer fails on gets its own
+    ``engine_error`` record; the case's other capabilities are still graded."""
     out: list[dict[str, Any]] = []
-    r = _score_echo(result, case, ctx, None)
-    if r:
-        out.append(r)
-    rel = _score_relate(result, expected, case, ctx)
-    if rel:
-        out.append(rel)
-    pr = _score_predicates(result, expected, case, ctx, rel["verdict"] if rel else None)
-    if pr:
-        out.append(pr)
-    va = _score_validity(result, expected, case, ctx)
-    if va:
-        out.append(va)
+
+    def guarded(cap: str, fn: Any, *args: Any) -> dict | None:
+        try:
+            r = fn(*args)
+        except Exception as exc:  # a scorer failure must be visible, never silent
+            r = _scorer_failure(case, result, ctx, cap, exc)
+        if r:
+            out.append(r)
+        return r
+
+    guarded("echo", _score_echo, result, case, ctx, None)
+    rel = guarded("relate", _score_relate, result, expected, case, ctx)
+    rel_verdict = rel["verdict"] if rel else None
+    guarded("predicates", _score_predicates, result, expected, case, ctx, rel_verdict)
+    guarded("validity", _score_validity, result, expected, case, ctx)
     if ctx.overlay:
+        ovl = {}
         for op in OVERLAY_OPS:
-            o = _score_overlay(result, expected, case, ctx, op)
+            o = guarded(f"overlay.{op}", _score_overlay, result, expected, case, ctx, op)
             if o:
-                out.append(o)
+                ovl[op] = o
+        _mark_derived_overlays(ovl, ctx)
     return out
+
+
+def _mark_derived_overlays(records: dict[str, dict[str, Any]], ctx: ScoreContext) -> None:
+    """Mark a failing overlay that the manifest derives from another failing overlay of the
+    same case (DESIGN §4.3: a derived field is not counted twice). The manifest's derivation
+    names its sources as calls, ``difference(A, B)``."""
+    if ctx.target is None:
+        return
+    derived = ctx.target.derived_fields()
+    failing = {op for op, r in records.items() if r["verdict"] in ("wrong", "error")}
+    for op in failing:
+        how = derived.get(f"overlay.{op}")
+        if not how:
+            continue
+        sources = {o for o in OVERLAY_OPS if o != op and re.search(rf"\b{o}\(", how)}
+        if sources & failing:
+            records[op]["derived"] = True
 
 
 # ============================================================================ summary
@@ -663,6 +735,7 @@ def summarize(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
     derived = Counter()
     cases = set()
     headline = 0
+    scorer_failures = 0
     lib = None
     for rec in records:
         lib = lib or rec.get("lib")
@@ -673,6 +746,8 @@ def summarize(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
             tiers[cap][rec["tier"]] += 1
         if rec.get("derived"):
             derived[cap] += 1
+        if str(rec.get("got", "")).startswith(SCORER_FAILED):
+            scorer_failures += 1
         counted = rec["verdict"] in ("wrong", "error") and not rec.get("derived")
         if counted:
             headline += 1
@@ -685,6 +760,7 @@ def summarize(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "overlay_tiers": {k: dict(v) for k, v in sorted(tiers.items())},
         "derived": dict(derived),
         "headline_failures": headline,
+        "scorer_failures": scorer_failures,
         "clusters": dict(clusters.most_common()),
     }
 
@@ -695,8 +771,13 @@ def summary_table(summary: dict[str, Any]) -> str:
         f"library {summary.get('lib')}: {summary['cases']} cases, "
         f"{summary['headline_failures']} headline failures "
         f"(wrong or error, derived counted once; overlay tiers {', '.join(HEADLINE_TIERS)})",
-        "",
     ]
+    if summary.get("scorer_failures"):
+        lines.append(
+            f"WARNING: {summary['scorer_failures']} records the scorer failed on "
+            "(engine_error, 'scorer failed: ...'): a harness bug"
+        )
+    lines.append("")
     cols = (
         "correct",
         "wrong",
@@ -716,7 +797,8 @@ def summary_table(summary: dict[str, Any]) -> str:
         row = f"{cap:24s}" + "".join(f"{v.get(c, 0):>15d}" for c in cols)
         d = summary["derived"].get(cap)
         if d:
-            row += f"   ({d} wrong derived from relate)"
+            src = "another overlay" if cap.startswith("overlay.") else "relate"
+            row += f"   ({d} wrong derived from {src})"
         lines.append(row)
     if summary["overlay_tiers"]:
         lines += ["", f"{'overlay tiers':24s}" + "".join(f"{t:>13s}" for t in TIERS)]
@@ -745,17 +827,7 @@ def _score_chunk(args: tuple[ScoreContext, list[tuple[str, Any, Any]]]) -> list[
         try:
             out += score_case(case, expected, result, ctx)
         except Exception as exc:  # a scorer failure must be visible, never silent
-            out.append(
-                _record(
-                    case.id,
-                    result.get("lib", ""),
-                    "relate",
-                    "engine_error",
-                    ctx,
-                    case,
-                    got=f"scorer failed: {type(exc).__name__}: {exc}"[:500],
-                )
-            )
+            out.append(_scorer_failure(case, result, ctx, "relate", exc))
     return out
 
 

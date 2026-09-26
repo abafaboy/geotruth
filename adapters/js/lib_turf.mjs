@@ -24,8 +24,9 @@ const EQ_PRECISION = EQ_ENV === 'exact' ? 323.3 : Number(EQ_ENV);
 if (!(EQ_PRECISION >= 0)) throw new Error(`bad TURF_EQUAL_PRECISION=${EQ_ENV}`);
 
 export const NOTE = `overlays use ${engine}; booleanEqual precision=${EQ_ENV}` +
-  `${EQ_ENV === 'exact' ? ' (tolerance 5e-324)' : ''}; area_symdiff = area(difference(A,B)) + area(difference(B,A)) ` +
-  `(Turf has no symmetric difference); covers/covered_by unsupported (null)`;
+  `${EQ_ENV === 'exact' ? ' (tolerance 5e-324)' : ''}; area_symdiff = area(difference(A,B)) + area(difference(B,A)), ` +
+  `overlay.symdifference = union(difference(A,B), difference(B,A)) (Turf has no symmetric difference); ` +
+  `covers/covered_by unsupported (null)`;
 
 const feat = (mp) => turf.feature(geometryOf(mp));
 const fc = (x, y) => turf.featureCollection([feat(x), feat(y)]);
@@ -49,8 +50,9 @@ export const OPS = [
 // Contract v2. Turf has no relate and no covers / coveredBy (null). Its boolean functions
 // throw "... not supported" for type pairs they do not implement: that is "unsupported", as
 // are operands with empty elements or non-finite coordinates (GeoJSON has neither). Overlays
-// take Polygon / MultiPolygon operands only; symdifference is derived from two differences
-// (their polygons concatenated: they have disjoint interiors).
+// take Polygon / MultiPolygon operands only; symdifference is derived from two differences,
+// merged with turf.union (union(difference(A, B), difference(B, A)), what a Turf user writes;
+// concatenating the two would be an invalid MultiPolygon wherever they share an edge).
 function operand(x) {
   const g = typedOf(x);
   if (hasEmpty(g) || !allFinite(g)) throw new Unsupported('empty elements or non-finite coordinates');
@@ -94,8 +96,10 @@ export const OPS_V2 = {
   'overlay.difference': clip((fc) => turf.difference(fc)),
   'overlay.symdifference': (c) => {
     const a = polygonal(c.a), b = polygonal(c.b);
-    const ab = multiPolygonOf(turf.difference(turf.featureCollection([a, b])));
-    const ba = multiPolygonOf(turf.difference(turf.featureCollection([b, a])));
-    return { type: 'MultiPolygon', coordinates: [...ab.coordinates, ...ba.coordinates] };
+    const parts = [turf.difference(turf.featureCollection([a, b])), turf.difference(turf.featureCollection([b, a]))]
+      .filter((f) => f && f.geometry);
+    if (parts.length === 0) return multiPolygonOf(null);
+    if (parts.length === 1) return multiPolygonOf(parts[0]);
+    return multiPolygonOf(turf.union(turf.featureCollection(parts)));
   },
 };

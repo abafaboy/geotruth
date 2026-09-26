@@ -1,19 +1,21 @@
-"""Exact even-odd regularization, and valid rounding of exact geometry to doubles.
+"""Exact regularization of ring sets, and valid rounding of exact geometry to doubles.
 
 The engine control (:mod:`geotruth.harness.control`) must return *valid* output with
 double coordinates. Rounding an exact overlay result to doubles can make it invalid (a hole
 within an ulp of its shell crosses it, a sliver collapses to a zero-area ring), so the
 control rounds, and when the rounded geometry is invalid it replaces its polygonal part by
-the regularized even-odd point set of its own rings, computed exactly here, and rounds
-again (a few rounds at most; every step moves the boundary by ulps only).
+the regularized positive-winding point set of its own oriented rings (shells CCW, holes
+CW), computed exactly here, and rounds again (a few rounds at most; every step moves the
+boundary by ulps only).
 
-:func:`regularize_even_odd`: every ring edge is split at every contact with every other
-edge; coincident pieces cancel in pairs (even-odd), so the boundary is the pieces of odd
-multiplicity. Each is oriented with the interior on its left: the parity just below a
-non-vertical piece is the number of boundary pieces crossing the vertical line through its
-midpoint below it (half-open rule; no other piece passes through the midpoint, since every
-contact is a split point), and likewise to the left of a vertical one. The pieces are
-chained into simple rings and assembled into polygons as the fallback overlay does.
+:func:`regularize_even_odd` and :func:`regularize_winding`: every ring edge is split at
+every contact with every other edge; coincident pieces cancel (in pairs for even-odd, by
+direction for winding), so the boundary is the pieces whose two sides differ. Each is
+oriented with the interior on its left: the parity (winding number) just below a
+non-vertical piece is counted from the boundary pieces crossing the vertical line through
+its midpoint below it (half-open rule; no other piece passes through the midpoint, since
+every contact is a split point), and likewise to the left of a vertical one. The pieces
+are chained into simple rings and assembled into polygons as the fallback overlay does.
 """
 
 from __future__ import annotations
@@ -31,7 +33,7 @@ from geotruth.geom import (
 )
 from geotruth.io import geometry_from_json, geometry_to_json
 
-__all__ = ["regularize_even_odd", "round_valid"]
+__all__ = ["regularize_even_odd", "regularize_winding", "round_valid"]
 
 Pt = tuple[Fraction, Fraction]
 

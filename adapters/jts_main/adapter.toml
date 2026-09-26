@@ -52,7 +52,8 @@ supported = [
     "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
     "predicates.covered_by", "predicates.equals",  # RelateNG.relate(a, b, RelatePredicate.x())
     # OverlayNGRobust.overlay(a, b, INTERSECTION / UNION / DIFFERENCE / SYMDIFFERENCE): non-strict;
-    # GeometryCollection operands OverlayNG rejects are "unsupported"; coordinates written by the adapter
+    # GeometryCollection operands that are not simple (OverlayNG javadoc: flattening into a valid
+    # multi-geometry) or that OverlayNG rejects are "unsupported"; coordinates written by the adapter
     "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []
@@ -95,6 +96,7 @@ supported = [
     "predicates.intersects", "predicates.disjoint", "predicates.touches", "predicates.crosses",
     "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
     "predicates.covered_by", "predicates.equals",
+    # as jts-main: GeometryCollection operands that are not simple are "unsupported"
     "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []

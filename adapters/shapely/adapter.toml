@@ -42,7 +42,9 @@ supported = [
     "predicates.overlaps", "predicates.contains", "predicates.covers", "predicates.within",
     "predicates.covered_by", "predicates.equals",  # shapely.<name>(a, b), unprepared
     # shapely.intersection / union / difference / symmetric_difference: non-strict OverlayNG;
-    # the result goes out through shapely.to_wkb and is written by the adapter (json.dumps)
+    # the result goes out through shapely.to_wkb and is written by the adapter (json.dumps);
+    # GeometryCollection operands that are not simple (OverlayNG.h: flattening into a valid
+    # multi-geometry, homogeneous, no overlapping polygons) are "unsupported"
     "overlay.intersection", "overlay.union", "overlay.difference", "overlay.symdifference",
 ]
 unsupported = []

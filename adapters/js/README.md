@@ -1,19 +1,26 @@
-# js: Turf, polygon-clipping, polyclip-ts and martinez (Node.js)
+# js: Turf, polygon-clipping, polyclip-ts, martinez and JSTS (Node.js)
 
-Four adapters that follow the contract in `../../harness/FORMAT-v1.md`. They share one driver.
+Five adapter targets that share one driver. Each answers adapter contract v2
+(DESIGN.md §4.1, `schemas/result.v2.schema.json`) for typed lines (see
+[Contract v2](#contract-v2)) and the legacy contract in `../../harness/FORMAT-v1.md` for
+legacy lines (unchanged; byte-identical to the v1 adapters on the seed corpus for turf,
+polygon-clipping and polyclip-ts; jsts is new and has v1 fields too).
 
-| run command | `lib` field | npm package (pinned in `package-lock.json`) | fields |
+| target / run command | `lib` field | npm package (pinned in `package-lock.json`) | v2 fields |
 |---|---|---|---|
-| `run_turf.sh CASES.jsonl` | `turf@7.4.0` | `@turf/turf` 7.4.0 | validity, 7 predicates, 4 areas |
-| `run_polygon_clipping.sh CASES.jsonl` | `polygon-clipping@0.15.7` | `polygon-clipping` 0.15.7 | 4 areas |
-| `run_polyclip_ts.sh CASES.jsonl` | `polyclip-ts@0.16.8` | `polyclip-ts` 0.16.8 | 4 areas |
-| `run_martinez.sh CASES.jsonl` | `martinez@0.8.1` | `martinez-polygon-clipping` 0.8.1 | 4 areas |
+| `turf`: `run_turf.sh` | `turf@7.4.0` | `@turf/turf` 7.4.0 | echo, validity, 8 predicates, 4 overlays (symdifference derived) |
+| `polygon-clipping`: `run_polygon_clipping.sh` | `polygon-clipping@0.15.7` | `polygon-clipping` 0.15.7 | echo, 4 overlays |
+| `polyclip-ts`: `run_polyclip_ts.sh` | `polyclip-ts@0.16.8` | `polyclip-ts` 0.16.8 | echo, 4 overlays |
+| `martinez`: `run_martinez.sh` | `martinez@0.8.1` | `martinez-polygon-clipping` 0.8.1 | echo, 4 overlays |
+| `jsts`: `run_jsts.sh` | `jsts@2.12.1` | `jsts` 2.12.1 | echo, relate, 10 predicates, validity, 4 overlays |
 
 The version in `lib` is read at run time from the installed package's `package.json`.
-All four were the latest releases on npm on 2026-09-25. They were tested with Node v22.22.2.
+All five were the latest releases on npm on 2026-09-25/26. They were tested with Node
+v22.22.2.
 
 ```sh
 adapters/js/install.sh        # npm ci into $GEOTRUTH_BUILD_DIR/js-libs, then link node_modules here
+python3 -m geotruth run --lib jsts --tier core && python3 -m geotruth score --lib jsts --tier core
 adapters/js/run_turf.sh corpus/cases/seed.jsonl > turf.jsonl
 python harness/compare.py corpus/cases/seed.jsonl corpus/expected-v1/seed.jsonl turf.jsonl
 ```
@@ -31,14 +38,72 @@ files, so an environment variable cannot do it. That keeps the roughly 29 MB tre
 
 | file | purpose |
 |---|---|
-| `adapter.mjs` | the driver: reads JSON Lines, runs a worker, applies timeouts, writes results |
+| `adapter.mjs` | the driver: reads JSON Lines, runs a worker, applies timeouts, writes results (v1 and v2) |
 | `worker.mjs` | worker thread that loads `lib_<name>.mjs` and runs its operations |
-| `lib_turf.mjs`, `lib_polygon_clipping.mjs`, `lib_polyclip_ts.mjs`, `lib_martinez.mjs` | what each library computes for each field |
-| `common.mjs` | builds the geometry, computes planar area, formats errors |
+| `lib_turf.mjs`, `lib_polygon_clipping.mjs`, `lib_polyclip_ts.mjs`, `lib_martinez.mjs`, `lib_jsts.mjs` | what each library computes for each field: `OPS` (v1) and `OPS_V2` (v2) |
+| `common.mjs` | builds the geometry, computes planar area, formats errors, v2 helpers and the JSON writer (`jsonOut`) |
 | `install.sh`, `run_*.sh` | install script and run wrappers (`run_<lib>.sh` calls the shared `run_lib.sh`) |
-| `adapter.toml` | manifest (DESIGN.md §4.2) for the four libraries: fields, precision, tolerances, options |
+| `adapter.toml` | manifest (DESIGN.md §4.2) for the five targets: fields, precision, δ, tolerances, options |
 
-## What is computed
+## Contract v2
+
+A line is a v2 case when an operand is a typed geometry (an object) or `"ops"` is present
+(`--v2`: every line). Each field path is one operation of the worker. Output geometry is
+the library's own, converted to a typed geometry and written by `jsonOut` (`common.mjs`):
+numbers in shortest round-trip form (`String(x)`), `-0` as `-0.0`. `echo` writes the
+operands back as `JSON.parse` read them.
+
+- **turf**: `booleanIntersects`, `booleanDisjoint`, `booleanTouches`, `booleanCrosses`,
+  `booleanOverlap`, `booleanContains`, `booleanWithin`, `booleanEqual` (exact precision,
+  see below) on GeoJSON features; `booleanValid`; `turf.intersect` / `union` /
+  `difference` of Polygon / MultiPolygon features (polyclip-ts inside). Turf has no
+  relate and no covers (`null`), and no symmetric difference: `overlay.symdifference` is
+  **derived**, `union(difference(A, B), difference(B, A))` with `turf.union` (what a Turf
+  user would write), and the manifest says so, so the scorer counts it once when a
+  difference is wrong too. A boolean function that throws "... not supported" for a type
+  pair (for example `booleanCrosses` of two polygons) is `"unsupported"`.
+- **polygon-clipping, polyclip-ts, martinez**: `intersection`, `union`, `difference`
+  (martinez: `diff`), `xor` of the coordinate arrays. They clip polygons only: other
+  operand types are `"unsupported"`.
+- **jsts** (`lib_jsts.mjs`): the JavaScript port of JTS 1.17, so the old RelateOp and the
+  classic OverlayOp (no RelateNG, no OverlayNG). Every type is built with the default
+  `GeometryFactory`. `relate` is `Geometry.relate`; the ten predicates are the `Geometry`
+  methods (`covered_by` = coveredBy, `equals` = equalsTopo); validity is
+  `IsValidOp.isValid`; overlays are `OverlayOp.intersection`, `Geometry.union` (UnionOp),
+  `OverlayOp.difference`, `OverlayOp.symDifference` (with SnapIfNeededOverlayOp's
+  fallback). GeometryCollection operands that RelateOp or OverlayOp reject are
+  `"unsupported"`. δ is `{kind = "relative", value = 2e-9}` (the snap tolerance of
+  `GeometrySnapper.computeSizeBasedSnapTolerance`, uncertain: the unsnapped path documents
+  no bound).
+
+Empty elements and non-finite coordinates (which GeoJSON cannot carry) are
+`"unsupported"` for Turf and the three clippers. polygon-clipping, polyclip-ts, martinez
+and Turf document no displacement bound, so their δ is `undocumented`: an overlay that is
+not exact or within the correctly rounded floor grades `gross`.
+
+Errors: an exception is its message (kind exception); an operation with no result within
+`JS_ADAPTER_TIMEOUT` / `GEOTRUTH_OP_TIMEOUT` seconds terminates the worker
+(`{"kind": "timeout"}`); a worker that dies (heap cap `JS_ADAPTER_MEM_MB`) is
+`{"kind": "crash"}`; a fresh worker continues. `--timing` adds per-operation
+milliseconds; `-` reads cases from stdin.
+
+### Results (contract v2)
+
+Core tier (3400 cases), 2026-09-26, `geotruth run` + `geotruth score`, 0 scorer failures.
+The clippers document no δ, so any overlay beyond the correctly rounded floor is `gross`.
+
+| target | headline | relate / predicates / validity wrong | overlay gross / topological / exception | main clusters |
+|---|---|---|---|---|
+| `jsts` | 722 | 78 / 63 / 52 | 266 / 34 / 191 | OverlayOp TopologyException "found non-noded intersection" on lines; `TypeError` on empty elements; GC intersections |
+| `polygon-clipping` | 753 | - | 637 / 71 / 45 | tiny-transform differences, tiling-contact unions |
+| `polyclip-ts` | 1149 | - | 521 / 565 / 63 | invalid xor output on hole-contact, shared-edge, vertex-on-edge |
+| `martinez` | 2306 | - | 329 / 1939 / 38 | invalid `xor` output in every family |
+| `turf` | 3162 | - / 1384 / 547 | 535 / 457 / 56 | `booleanOverlap` / `booleanTouches` (tolerance clusters); `booleanValid` |
+
+Turf's 141 failing symdifference records whose difference also failed are counted once
+(derived).
+
+## What is computed (v1)
 
 Input: a one-part multipolygon becomes a GeoJSON `Polygon`, and anything else becomes a
 `MultiPolygon` (FORMAT-v1.md). Each operation gets its own deep copy of the coordinates.

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import pytest
-
-from conftest import REPO
+from corpus_testlib import REPO
 
 pytestmark = pytest.mark.slow
 

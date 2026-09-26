@@ -24,7 +24,7 @@ version_command = "adapters/engine_control/run.sh --version"
 toolchain = "CPython 3.10+, gmpy2"
 options = [
     "exact answers through the shim of geotruth.harness.engine: geotruth.relate / geotruth.overlay when they exist, else the witness relate and the fallback overlay of tests/reference/indep.py (GEOTRUTH_EXACT_BACKEND selects)",
-    "overlay output: the non-strict exact result, every coordinate correctly rounded to a double; parts that rounding collapses into invalid geometry are dropped",
+    "overlay output: the non-strict exact result, every coordinate correctly rounded to a double; where rounding breaks validity the rounded rings are regularized exactly and rounded again (geotruth.harness.regularize.round_valid)",
     "relate, predicates and overlay are 'unsupported' for invalid input and null where the engine abstains",
 ]
 
@@ -50,7 +50,7 @@ unsupported = []
 "predicates.equals" = "geotruth.predicates.predicates(relate matrix, real dimensions), convention table applied"
 
 [target.precision]
-model = "exact rational arithmetic on the input doubles; overlay output vertices are the exact ones correctly rounded to doubles (ties to even); where rounding breaks validity the rounded rings are regularized exactly (even-odd) and rounded again, at most 4 rounds"
+model = "exact rational arithmetic on the input doubles; overlay output vertices are the exact ones correctly rounded to doubles (ties to even); where rounding breaks validity the rounded rings are regularized exactly (positive winding number of the oriented rings) and rounded again, at most 4 rounds"
 delta = { kind = "ulp", value = 3 }  # each rounding moves a vertex by at most sqrt(2)/2 ulp(M); 4 rounds at most
 tolerance_predicates = false
 tolerances = []

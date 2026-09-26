@@ -7,7 +7,22 @@ operand is a valid OGC geometry, checked exactly (see below), so any predicate d
 with the exact oracle ([`tests/reference/oracle.py`](../../tests/reference/oracle.py)) is a
 wrong answer from the library.
 
-## Usage
+## Corpus v2 (typed cases, tiers)
+
+| file | what |
+|---|---|
+| `casev2.py` | case format v2: typed operands, exact tags (degeneracy, range, n, k, types, flags), provenance |
+| `families_v2.py` | the v2 families beyond polygons: `line-line`, `line-mod2`, `point-geometry`, `line-polygon`, `gc`, `empty`, `invalid-zero-length-line` |
+| `tiers.py` | the tier builder behind `geotruth corpus build|list|stats|verify`: full, stratified core, curated, MANIFEST.json, SHA256SUMS |
+
+`geotruth corpus build` runs every family (the ten below and the seven v2 families) through
+one loop: exact validity by the engine (`geotruth.validity`) instead of Shapely as the
+second opinion, deduplication, then the v2 record with computed tags. For the ten legacy
+families the cases are the ones `run_all.py N SEED` writes (same ids, same coordinates);
+`run_all.py` stays as the FORMAT-v1 writer for the old harness. See
+[`../README.md`](../README.md) for the tiers and the tag definitions.
+
+## Usage (FORMAT-v1)
 
 ```sh
 python corpus/generators/run_all.py 300 1     # corpus/cases/<family>.jsonl, 300 per family, seed 1

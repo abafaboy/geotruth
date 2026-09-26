@@ -7,7 +7,9 @@
 #
 # Keys of a [[lead]] (as in findings/registry.toml where they overlap):
 #   id, library (adapter target ids), lib, signature, fields, status, upstream_issue,
-#   upstream_status, documented_in (where the lead is described), verified_on (library
+#   upstream_status ("not checked": the upstream tracker has not been searched yet;
+#   "reported" once upstream_issue is set), documented_in (where the lead is described),
+#   verified_on (library
 #   builds the case was run on here, and what happened), notes.
 # Keys of a [[lead.case]]:
 #   id; either `from` (a tracked case file; the case with that id, or `source_id`) or
@@ -27,7 +29,7 @@ signature = "two unit squares overlapping by 3.9e-16 (area): relate 2FF11F212 (e
 fields = ["relate", "predicates.overlaps", "predicates.within", "predicates.covered_by", "overlay.intersection", "overlay.union"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/boost_geometry/README.md (Develop regression)"
 verified_on = [
     "boost-geometry develop 196d04c: reproduces",
@@ -58,7 +60,7 @@ signature = "GEOSIntersection_r(EMPTY, GC(Point, Polygon)) (both orders) and GEO
 fields = ["overlay.intersection", "overlay.difference"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/geos_main/README.md (Observations)"
 verified_on = [
     "GEOS main ae9cdd9: reproduces (intersection in both orders, difference with the empty operand first)",
@@ -117,13 +119,14 @@ signature = "A = MultiPolygon whose parts touch vertex-to-edge, B = one part of 
 fields = ["relate", "predicates.contains", "predicates.covers", "predicates.overlaps"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "corpus/generators/README.md (multi-touch t-touch-part: 55 predicate cases in run_all.py 2000 2)"
 verified_on = [
     "GEOS main ae9cdd9: reproduces",
     "GEOS 3.15.0: reproduces",
     "GEOS 3.13.1 (Shapely 2.1.2): reproduces",
     "JTS master 3ea61f8 with RelateNG (--relate ng): reproduces",
+    "JTS 1.20.0 with RelateNG (adapters/jts_main/run_release.sh, contract v2): reproduces",
     "JTS master 3ea61f8 with the old RelateOp: does not reproduce",
     "Boost.Geometry 1.83, develop 196d04c and 1.92.0: same wrong matrix",
 ]
@@ -145,7 +148,7 @@ signature = "A = three float-computed square tiles meeting at corners, B = the t
 fields = ["area_union", "overlay.union"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "corpus/generators/README.md (larger run, tiling-contact)"
 verified_on = [
     "GEOS 3.13.1 (Shapely 2.1.2): reproduces",
@@ -174,7 +177,7 @@ documented_in = "corpus/cases/core/empty.jsonl (empty-geometry convention family
 verified_on = [
     "GEOS main ae9cdd9 and 3.15.0 (xmltester on the geotruth export): reproduces",
     "GEOS 3.13.1 (Shapely 2.1.2): reproduces",
-    "JTS master 3ea61f8, RelateNG: reproduces",
+    "JTS master 3ea61f8 and 1.20.0, RelateNG: reproduces",
     "with A non-empty the matrix is right (FF1FF0102 for a disjoint line)",
 ]
 notes = "DESIGN.md section 1: empty elements are ignored for dimension. Triage may classify this under the empty-geometry convention table rather than as a wrong answer; the named predicates are unaffected."
@@ -194,7 +197,7 @@ signature = "a valid triangle narrower than one i_overlay grid step collapses: i
 fields = ["area_inter", "area_union"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/rust_geo/README.md (Thin features vanish)"
 verified_on = ["geo 0.33.1 (i_overlay): reproduces on int-thin-triangle-1-0010 and -0009"]
 notes = "A consequence of i_overlay's i32 grid, which the adapter manifest documents as the precision model (delta = grid). May be triaged as by-design, like the Clipper2 thin-triangle finding."
@@ -218,7 +221,10 @@ status = "unreviewed"
 upstream_issue = ""
 upstream_status = "not checked"
 documented_in = "the geotruth geo-rust export of the known-good XML set (tests/corpus/data/xml_known_good.txt)"
-verified_on = ["geo 0.33.1 (cargo test on the geotruth geo-rust export): reproduces on all three cases"]
+verified_on = [
+    "geo 0.33.1 (cargo test on the geotruth geo-rust export, and the v2 adapter): reproduces on all three cases",
+    "GEOS main, JTS master and 1.20.0 (RelateNG): 2FFF1FFF2, the exact matrix",
+]
 notes = "A semantic difference for GeometryCollections: geotruth follows RelateNG (DESIGN.md section 1: the polygonal part takes precedence, then the Mod-2 rule on lines); geo applies the Mod-2 rule to the line element on its own. Triage may classify this as by-design. The named predicates of these cases agree (equals, within, contains are all true in both)."
 
 [[lead.case]]
@@ -247,7 +253,7 @@ signature = "PolyTree64 nesting disagrees with the flat Paths64 result on touchi
 fields = ["overlay.difference", "overlay.symdifference"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/clipper2/README.md (PolyTree nesting on touching rings, observation)"
 verified_on = ["Clipper2 main f9c5eb6: reproduces (read as OGC polygons the outputs are invalid; their even-odd area is the exact area)"]
 notes = "An observation, not a finding: the rings are right, the nesting is not. Cases regenerated with corpus/generators/run_all.py 60 7."
@@ -291,7 +297,7 @@ signature = "overlay output rings nested or oriented other than the multi_polygo
 fields = ["overlay.union", "overlay.symdifference", "overlay.intersection"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/boost_geometry/README.md (Observations: output structure)"
 verified_on = [
     "boost-geometry 1.83: reproduces on all five cases",
@@ -332,7 +338,7 @@ signature = "xor loops forever (100 % CPU, constant memory) on two unit squares 
 fields = ["area_symdiff"]
 status = "unreviewed"
 upstream_issue = ""
-upstream_status = "not reported"
+upstream_status = "not checked"
 documented_in = "adapters/js/README.md (martinez hangs)"
 verified_on = ["martinez 0.8.1: area_symdiff times out (3 s) on rotated-neighbours-1-000003; intersection/union/difference areas are also wrong"]
 
@@ -354,7 +360,8 @@ verified_on = [
     "GEOS main ae9cdd9: reproduces",
     "GEOS 3.15.0: reproduces",
     "GEOS 3.13.1 (Shapely 2.1.2): reproduces",
-    "JTS master 3ea61f8, RelateNG (TestRunner -Djts.relate=ng on the geotruth export): reproduces",
+    "JTS master 3ea61f8, RelateNG (TestRunner -Djts.relate=ng on the geotruth export, and the v2 adapter): reproduces",
+    "JTS 1.20.0, RelateNG (v2 adapter): reproduces",
     "JTS master 3ea61f8, old RelateOp: unsupported (IllegalArgumentException for GeometryCollection arguments)",
 ]
 notes = "Found while cross-checking the new gc family against GEOS (2026-09-26). Both operands are valid (a GC is validated per element). The exact matrix agrees between the arrangement route (geotruth.relate) and the witness route (geotruth.relate_witness)."

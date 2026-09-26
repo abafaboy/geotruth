@@ -6,8 +6,8 @@ import re
 import xml.etree.ElementTree as ET
 
 import pytest
+from corpus_testlib import DATA, id_list, records_by_id
 
-from conftest import DATA, id_list, records_by_id
 from geotruth.export import EXTENSIONS, FORMATS, export_records, prepare
 from geotruth.export.answers import exact_answer
 from geotruth.export.boost import boost_wkt

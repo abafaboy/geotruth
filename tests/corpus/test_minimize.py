@@ -8,8 +8,8 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from corpus_testlib import REPO
 
-from conftest import REPO
 from geotruth.export.answers import exact_answer
 from geotruth.io import geometry_from_json, read_wkt
 from geotruth.minimize import (

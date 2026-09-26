@@ -13,8 +13,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from geotruth.harness.control import MutantLibrary  # noqa: E402
-from geotruth.harness.pyadapter import main  # noqa: E402
+from geotruth.harness.control import MutantLibrary
+from geotruth.harness.pyadapter import main
 
 if __name__ == "__main__":
     sys.exit(main(MutantLibrary(), prog="mutant_adapter.py"))

@@ -13,10 +13,18 @@ V1_FIELDS = {
 ADAPTER_KEYS = {"name", "language", "contract", "owner", "build", "isolation"}
 TARGET_KEYS = {"id", "library", "upstream", "version", "lib", "run", "version_command",
                "toolchain", "options", "fields", "precision", "coordinates"}
-DELTA_KINDS = {"relative", "grid", "undocumented"}
+DELTA_KINDS = {"relative", "grid", "ulp", "undocumented"}
+# contract v2 fields beyond v1 (DESIGN.md §4.1)
+V2_EXTRA = {"echo", "relate",
+            *(f"predicates.{p}" for p in ("intersects", "disjoint", "touches", "crosses", "overlaps",
+                                          "contains", "covers", "within", "covered_by", "equals")),
+            *(f"overlay.{op}" for op in ("intersection", "union", "difference", "symdifference"))}
+# harness self-checks, not libraries: the engine itself and a deliberately broken copy
+CONTROL_IDS = {"engine-control", "mutant"}
 # the libraries harness/hunt.sh runs
-HUNT_IDS = {"shapely", "geos-main", "jts-main", "clipper2", "boost-1.83", "boost-develop",
-            "rust-geo", "polyclip-ts", "polygon-clipping", "turf", "martinez"}
+HUNT_IDS = {"shapely", "geos-main", "geos-release", "jts-main", "jts-release", "clipper2",
+            "boost-1.83", "boost-develop", "boost-release", "cgal", "rust-geo", "polyclip-ts",
+            "polygon-clipping", "turf", "martinez", "jsts"}
 
 
 def targets(manifests):
@@ -36,7 +44,7 @@ def test_manifest_structure(manifests):
         assert m["manifest_version"] == 1, d
         assert set(m["adapter"]) >= ADAPTER_KEYS, d
         assert m["adapter"]["name"] == d
-        assert m["adapter"]["contract"] == "v1"
+        assert m["adapter"]["contract"] in ("v1", "v2")
         assert m["target"], d
         for t in m["target"]:
             assert set(t) >= TARGET_KEYS, (d, t.get("id"))
@@ -46,16 +54,18 @@ def test_manifest_structure(manifests):
 def test_target_ids_are_unique_and_cover_the_hunt(manifests):
     ids = [t["id"] for _, t in targets(manifests)]
     assert len(ids) == len(set(ids))
-    assert set(ids) == HUNT_IDS
+    assert set(ids) == HUNT_IDS | CONTROL_IDS
 
 
 @pytest.mark.unit
-def test_fields_partition_the_v1_fields(manifests):
+def test_fields_partition_the_contract_fields(manifests):
     for d, t in targets(manifests):
         f = t["fields"]
         listed = [*f["supported"], *f["derived"], *f["unsupported"]]
         assert len(listed) == len(set(listed)), (d, t["id"], "a field is listed twice")
-        assert set(listed) == V1_FIELDS, (d, t["id"])
+        # libraries speak both contracts; the harness controls speak v2 only
+        expected = (V2_EXTRA | {"valid_a", "valid_b"}) if t["id"] in CONTROL_IDS else V1_FIELDS | V2_EXTRA
+        assert set(listed) == expected, (d, t["id"])
         assert all(isinstance(v, str) and v for v in f["derived"].values()), (d, t["id"])
 
 

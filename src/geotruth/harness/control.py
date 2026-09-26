@@ -5,20 +5,23 @@ answers wrapped in adapter contract v2.
 :mod:`geotruth.harness.engine` (the engine's documented API when it exists, the audited
 references until then): relate and the predicates, validity, the non-strict overlay
 results, and the parse-echo canary. Overlay output is the exact result with every
-coordinate correctly rounded to a double (ties to even), so it must grade as exact or
-within the correctly rounded floor (tiers 1-2). When rounding makes the output invalid (a
-hole within an ulp of its shell crosses it, a sliver collapses), the polygonal part is
-replaced by the exact even-odd regularization of its own rounded rings and rounded again
-(:mod:`geotruth.harness.regularize`): the boundary moves by ulps only, and parts that
-collapse fit in the rounding tube, which DESIGN §4.3 lets vanish. Relate, predicates and overlay are
-``"unsupported"`` when an input is invalid (the engine defines them for valid input only)
-and ``null`` when the engine abstains. The control must score 100%: anything else is a
-bug in the harness (runner, adapter runtime or scorer), not in a library.
+coordinate correctly rounded to a double (ties to even), so it grades as exact or within
+the correctly rounded floor (tiers 1-2). When rounding makes the output invalid (a hole
+within an ulp of its shell crosses it, a sliver collapses), the polygonal part is replaced
+by the exact regularization (positive winding number) of its own rounded rings and rounded
+again (:mod:`geotruth.harness.regularize`): the boundary moves by a few ulps only (the
+manifest's delta is 3 ulp(M), so such output grades within the budget, tier 3), and parts
+that collapse fit in the tube, which DESIGN §4.3 lets vanish. Relate, predicates and
+overlay are ``"unsupported"`` when an input is invalid (the engine defines them for valid
+input only) and ``null`` when the engine abstains. The control must score 100% (no
+headline failure): anything else is a bug in the harness (runner, adapter runtime or
+scorer), not in a library.
 
 **mutant** is the control with deliberate faults, applied in input order: every 17th
 reported predicate is negated (the 1st, 18th, 35th, ...), and every 17th non-empty
-polygonal overlay output (the 1st, 18th, ...) has one vertex moved by 1/256 of the
-output's extent. The scorer must catch every one of them.
+polygonal overlay output (the 1st, 18th, ...) has one vertex moved off its neighbours' chord
+by 1/256 of the ring's extent or 2^-20 of its largest ordinate, whichever is larger (beyond
+every library's δ). The scorer must catch every one of them.
 """
 
 from __future__ import annotations
@@ -125,6 +128,25 @@ def _first_ring(g: Any) -> list | None:
     return None
 
 
+def _displaced(ring: list) -> list[float]:
+    """``ring[1]`` moved off the chord ``ring[0]``-``ring[2]`` (perpendicular to it, so the
+    ring's point set changes even where ``ring[1]`` is a collinear vertex) by the larger of
+    1/256 of the ring's extent and 2^-20 of its largest ordinate: beyond every library's δ
+    (the loosest, GEOS and JTS, is 1e-8 of the largest ordinate), so it cannot grade as
+    within tolerance."""
+    xs = [p[0] for p in ring]
+    ys = [p[1] for p in ring]
+    extent = max(max(xs) - min(xs), max(ys) - min(ys))
+    big = max(max(abs(v) for v in xs), max(abs(v) for v in ys))
+    d = max(extent / 256, big * 2.0**-20)
+    (x0, y0), (x1, y1), (x2, y2) = ring[0][:2], ring[1][:2], ring[2][:2]
+    cx, cy = x2 - x0, y2 - y0
+    norm = (cx * cx + cy * cy) ** 0.5
+    if not norm or norm != norm or norm == float("inf"):
+        return [x1 + d, y1]
+    return [x1 - cy / norm * d, y1 + cx / norm * d]
+
+
 class MutantLibrary(ControlLibrary):
     """The control with every 17th predicate negated and every 17th polygonal overlay
     output perturbed."""
@@ -157,10 +179,7 @@ class MutantLibrary(ControlLibrary):
                 if ring is None:
                     continue
                 if self.n_overlays % self.EVERY == 0:
-                    xs = [p[0] for p in ring]
-                    ys = [p[1] for p in ring]
-                    extent = max(max(xs) - min(xs), max(ys) - min(ys))
-                    ring[1] = [ring[1][0] + extent / 256, ring[1][1]]
+                    ring[1] = _displaced(ring)
                     self.mutations.append((cid, f"overlay.{op}"))
                 self.n_overlays += 1
         return record

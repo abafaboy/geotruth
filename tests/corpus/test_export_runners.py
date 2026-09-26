@@ -19,8 +19,8 @@ import subprocess
 import sys
 
 import pytest
+from corpus_testlib import DATA, id_list, records_by_id
 
-from conftest import DATA, id_list, records_by_id
 from geotruth.export import export_records, runners
 
 TOUCH = "relateng-multipolygon-touching-parts:t-touch-part-min"

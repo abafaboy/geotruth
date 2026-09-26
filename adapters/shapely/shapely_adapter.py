@@ -20,11 +20,11 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-import shapely  # noqa: E402
-from shapely.geometry import MultiPolygon, Polygon  # noqa: E402
+import shapely
+from shapely.geometry import MultiPolygon, Polygon
 
-from geotruth.harness.pyadapter import Library, Session, main  # noqa: E402
-from geotruth.numbers import as_double  # noqa: E402
+from geotruth.harness.pyadapter import Library, Session, Unsupported, main
+from geotruth.numbers import as_double
 
 LIB = f"geos@{shapely.geos_version_string}+shapely@{shapely.__version__}"
 V1_PREDICATES = ["intersects", "disjoint", "touches", "overlaps", "contains", "covers", "within",
@@ -64,12 +64,16 @@ def to_wkb(g: Any) -> bytes:
     if t == "LineString":
         return _head(t) + struct.pack("<I", len(c)) + b"".join(_xy(p) for p in c)
     if t == "Polygon":
-        return _head(t) + struct.pack("<I", len(c)) + b"".join(
-            struct.pack("<I", len(r)) + b"".join(_xy(p) for p in r) for r in c
+        return (
+            _head(t)
+            + struct.pack("<I", len(c))
+            + b"".join(struct.pack("<I", len(r)) + b"".join(_xy(p) for p in r) for r in c)
         )
     kid = {"MultiPoint": "Point", "MultiLineString": "LineString", "MultiPolygon": "Polygon"}[t]
-    return _head(t) + struct.pack("<I", len(c)) + b"".join(
-        to_wkb({"type": kid, "coordinates": x}) for x in c
+    return (
+        _head(t)
+        + struct.pack("<I", len(c))
+        + b"".join(to_wkb({"type": kid, "coordinates": x}) for x in c)
     )
 
 
@@ -129,7 +133,8 @@ def geos_to_json(g: Any) -> dict[str, Any]:
 # ============================================================================ sessions
 
 _OVERLAY = {"intersection": shapely.intersection, "union": shapely.union,
-            "difference": shapely.difference, "symdifference": shapely.symmetric_difference}  # fmt: skip
+            "difference": shapely.difference,
+            "symdifference": shapely.symmetric_difference}  # fmt: skip
 _PRED = {"intersects": shapely.intersects, "disjoint": shapely.disjoint,
          "touches": shapely.touches, "crosses": shapely.crosses, "overlaps": shapely.overlaps,
          "contains": shapely.contains, "covers": shapely.covers, "within": shapely.within,
@@ -141,6 +146,27 @@ def _build(g: Any) -> tuple[Any, Exception | None]:
         return shapely.from_wkb(to_wkb(g)), None
     except Exception as exc:  # GEOS refuses to build it (e.g. an unclosed ring)
         return None, exc
+
+
+def _atoms(g: Any) -> list[Any]:
+    if shapely.get_type_id(g) in (4, 5, 6, 7):  # Multi* and GeometryCollection
+        return [a for p in shapely.get_parts(g) for a in _atoms(p)]
+    return [g]
+
+
+def _simple_collection(g: Any) -> bool:
+    """Whether ``g`` is not a GeometryCollection, or a simple one in OverlayNG's sense
+    (OverlayNG.h: "a GeometryCollection is simple if it can be flattened into a valid
+    Multi-geometry", homogeneous with no overlapping polygons)."""
+    if shapely.get_type_id(g) != 7:
+        return True
+    atoms = [a for a in _atoms(g) if not shapely.is_empty(a)]
+    dims = {int(shapely.get_dimensions(a)) for a in atoms}
+    if len(dims) > 1:
+        return False
+    if dims == {2}:
+        return bool(shapely.is_valid(MultiPolygon(atoms)))
+    return True
 
 
 class SessionV2(Session):
@@ -170,6 +196,9 @@ class SessionV2(Session):
         if group == "predicates":
             return bool(_PRED[name](self.a, self.b))
         if group == "overlay":
+            # GEOS OverlayNG's documented input contract: a GeometryCollection must be simple
+            if not (_simple_collection(self.a) and _simple_collection(self.b)):
+                raise Unsupported
             return geos_to_json(_OVERLAY[name](self.a, self.b))
         return None
 

@@ -18,7 +18,8 @@ It
 4. stops at the per-library wall budget (the cases not run are counted in ``stats.json``);
 5. validates every result line against ``schemas/result.v2.schema.json``; a line that
    violates it (or answers another case) is replaced by an error record and kept verbatim
-   in ``invalid.jsonl``;
+   in ``<tier>.invalid.jsonl``, where lines that are not JSON objects at all (a library
+   printing to stdout) are also kept, and skipped;
 6. writes ``<out>/<target>/<tier>.jsonl``, the provenance record ``run.json``
    (``schemas/run.v2``: library version and commit, adapter git hash and manifest hash,
    compiler and flags, non-default options, engine and corpus versions, runner image) and
@@ -221,7 +222,10 @@ def check_available(target: Target, env: dict[str, str], timeout: float = 180.0)
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise RuntimeError(f"{target.id}: version command failed: {exc}") from None
+        build = target.adapter.get("build", "?")
+        raise RuntimeError(
+            f"{target.id} is not available (version command failed: {exc}); build it first: {build}"
+        ) from None
     text = out.stdout.strip().splitlines()
     if out.returncode != 0 or not text:
         build = target.adapter.get("build", "?")
@@ -440,6 +444,7 @@ def run_target(opts: RunOptions, *, log=None) -> RunReport:
         "adapter_restarts": 0,
         "early_exits": 0,
         "invalid_lines": 0,
+        "noise_lines": 0,
         "id_mismatches": 0,
         "lib_strings": {},
         "budget_exhausted": False,
@@ -469,6 +474,7 @@ def run_target(opts: RunOptions, *, log=None) -> RunReport:
             proc = _Adapter(cmd, feed, env, err)
             first = True
             first_line = True
+            deadline_for, deadline = -1, 0.0
             while k < len(cases):
                 if opts.budget_s is not None and time.monotonic() - t0 > opts.budget_s:
                     stats["budget_exhausted"] = True
@@ -478,7 +484,9 @@ def run_target(opts: RunOptions, *, log=None) -> RunReport:
                 wait = (_ops_of(cline) + 1) * opts.op_timeout + _LINE_SLACK
                 if first:
                     wait += _STARTUP_SLACK
-                got = proc.readline(wait)
+                if deadline_for != k:
+                    deadline_for, deadline = k, time.monotonic() + wait
+                got = proc.readline(max(0.0, deadline - time.monotonic()))
                 first = False
                 if got == "timeout":
                     proc.kill()
@@ -509,6 +517,11 @@ def run_target(opts: RunOptions, *, log=None) -> RunReport:
                 first_line = False
                 text = got.decode("utf-8", errors="replace").strip()
                 if not text:
+                    continue
+                if not text.startswith("{"):
+                    # not a result line: library chatter on stdout; keep reading
+                    stats["noise_lines"] += 1
+                    bad.write(json.dumps({"id": cid, "problem": "noise", "line": text}) + "\n")
                     continue
                 rec, problem = _check_line(text, cid, lib_seen, validator)
                 if problem:

@@ -19,7 +19,7 @@ HELP = "run one adapter target over a corpus tier (per-operation timeouts, prove
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--lib",
-        required=True,
+        default=None,
         metavar="TARGET",
         help="adapter target id from adapters/*/adapter.toml (e.g. geos-main, shapely, "
         "engine-control); a unique prefix works",
@@ -76,6 +76,9 @@ def run(args: argparse.Namespace) -> int:
         for t in manifest.targets():
             print(f"{t.id:22s} {t.contract:3s} {t.lib:40s} adapters/{t.dir}")
         return 0
+    if not args.lib:
+        print("geotruth run: --lib TARGET is required (see --list)", file=sys.stderr)
+        return 2
     try:
         target = manifest.find_target(args.lib)
     except KeyError as exc:
@@ -112,10 +115,11 @@ def run(args: argparse.Namespace) -> int:
         print(f"geotruth run: {exc}", file=sys.stderr)
         return 2
     s = report.stats
+    budget = ", budget exhausted" if s["budget_exhausted"] else ""
     print(
         f"{target.id}: {s['cases_run']}/{s['cases_total']} cases in {s['elapsed_s']} s "
         f"({s['watchdog_timeouts']} watchdog timeouts, {s['early_exits']} early exits, "
-        f"{s['invalid_lines']} invalid lines{', budget exhausted' if s['budget_exhausted'] else ''})"
+        f"{s['invalid_lines']} invalid lines{budget})"
     )
     print(f"results: {report.results_path}")
     print(f"provenance: {report.run_path}")

@@ -684,14 +684,6 @@ def directed_hausdorff2(
 # ------------------------------------------------------------------ collapse excusal
 
 
-def _ring_id(f: Feature) -> tuple:
-    if f.poly is not None:
-        return ("ring", f.poly, f.hole[1] if f.hole else 0)
-    if f.line is not None:
-        return ("line", f.line)
-    return ("point", f.point)
-
-
 def _cmp_params(t1: Param, t2: Param) -> int:
     return _sign3(t1[0] - t2[0], t1[1], t1[2], -t2[1], t2[2])
 
@@ -787,10 +779,12 @@ def directed_hausdorff2_collapse(
     source: list[Feature], target: list[Feature], threshold: Any, collapse2: Any
 ) -> Surd | None:
     """:func:`directed_hausdorff2` where the points of a source feature within
-    ``sqrt(collapse2)`` of a *different* source ring, line or point are excused: a gap
-    between two exact rings (a thin part of the exterior, or of a hole) may collapse and
-    merge them, so that boundary may vanish (DESIGN §4.3). Only features whose plain value
-    exceeds ``threshold`` are re-measured, so the result is exact for the comparison
+    ``sqrt(collapse2)`` of *another* source feature are excused: where the exact shape is
+    thinner than that (a thin spike, a thin gap between two rings, a thin component) its
+    two sides may collapse onto each other and the boundary there may vanish (DESIGN
+    §4.3). Next to a vertex with an obtuse angle this excuses only the points within
+    ``sqrt(collapse2)`` of the vertex. Only features whose plain value exceeds
+    ``threshold`` are re-measured, so the result is exact for the comparison
     ``<= threshold`` (not as a metric)."""
     plain = directed_hausdorff2(source, target, per_feature=True) if target else None
     out: list[Surd | None] = []
@@ -800,9 +794,7 @@ def directed_hausdorff2_collapse(
         if v is not None and v <= threshold:
             out.append(v)
             continue
-        rid = _ring_id(f)
-        span = (f.bbox[0], f.bbox[1], f.bbox[2], f.bbox[3])
-        others = [o for o in source if _ring_id(o) != rid and _bbox_dist2(span, o.bbox) <= T]
+        others = [o for o in source if o is not f and _bbox_dist2(f.bbox, o.bbox) <= T]
         if f.s is None:
             if any(_pt_dist2(f.p, o) <= T for o in others):
                 out.append(ZERO_SURD)

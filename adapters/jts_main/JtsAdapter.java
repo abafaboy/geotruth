@@ -22,8 +22,10 @@
 // geometries and empty elements included; a geometry JTS refuses to build (an unclosed ring, a
 // one-point line) fails every field that needs it with "building A: ...". Out of JTS's
 // contract, reported "unsupported": GeometryCollection operands of the old RelateOp, and
-// GeometryCollection operands that OverlayNG rejects (it takes only collections that flatten
-// into a valid multi-geometry). Output coordinates are written by this adapter with
+// GeometryCollection operands of OverlayNG that are not simple (OverlayNG's documented input:
+// a collection that flattens into a valid multi-geometry, i.e. homogeneous with no
+// overlapping polygons; checked before the call) or that it rejects
+// (IllegalArgumentException). Output coordinates are written by this adapter with
 // Double.toString (the shortest round-trip decimal on JDK >= 19), never by a WKT writer.
 //
 // Isolation (v2): the operations run in a worker JVM (this class with --worker) that sends
@@ -41,11 +43,14 @@
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -88,7 +93,13 @@ public class JtsAdapter {
   static long memMb = 2048;
   static String fault = "";
 
+  /** The real standard output: JTS prints debug messages with System.out.println (for
+   *  example RelateNG's "Found zero-length section segment"), so System.out is sent to
+   *  stderr and results go through this stream only. */
+  static final PrintStream STDOUT = new PrintStream(new FileOutputStream(FileDescriptor.out), false);
+
   public static void main(String[] args) throws Exception {
+    System.setOut(System.err);
     String path = null;
     String relate = null;
     Double timeoutArg = null;
@@ -113,7 +124,8 @@ public class JtsAdapter {
     String base = lib;
     if (relateV2.equals("old")) lib = base + "+relateop";
     if (version) {
-      System.out.println(lib);
+      STDOUT.println(lib);
+      STDOUT.flush();
       return;
     }
     opTimeout = timeoutArg != null ? timeoutArg : envDouble(10.0, "JTS_ADAPTER_TIMEOUT", "GEOTRUTH_OP_TIMEOUT");
@@ -131,7 +143,7 @@ public class JtsAdapter {
     double v1Timeout = timeoutArg != null ? timeoutArg : 10.0;
 
     PrintWriter out = new PrintWriter(new BufferedWriter(
-        new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), false);
+        new OutputStreamWriter(STDOUT, StandardCharsets.UTF_8)), false);
     Supervisor sup = noFork ? null : new Supervisor();
     InputStream ins = path.equals("-") ? System.in : new FileInputStream(path);
     try (BufferedReader in = new BufferedReader(new InputStreamReader(ins, StandardCharsets.UTF_8))) {
@@ -301,6 +313,9 @@ public class JtsAdapter {
       }
       if (path.startsWith("overlay.")) {
         int code = overlayCode(path.substring("overlay.".length()));
+        // OverlayNG's documented input contract: a GeometryCollection must be simple (it
+        // flattens into a valid multi-geometry: homogeneous, no overlapping polygons).
+        if (gc && !(simpleCollection(a) && simpleCollection(b))) throw new Unsupported();
         try {
           return geomJson(OverlayNGRobust.overlay(a, b, code));
         } catch (IllegalArgumentException e) {
@@ -314,6 +329,34 @@ public class JtsAdapter {
 
   static boolean isCollection(Geometry g) {
     return g != null && g.getGeometryType().equals("GeometryCollection");
+  }
+
+  /** Whether g is not a GeometryCollection, or is a simple one in OverlayNG's sense: its
+   *  non-empty atomic elements have one dimension and, if polygonal, form a valid
+   *  MultiPolygon. */
+  static boolean simpleCollection(Geometry g) {
+    if (!isCollection(g)) return true;
+    List<Geometry> atoms = new ArrayList<>();
+    flatten(g, atoms);
+    int dim = -1;
+    List<Polygon> polys = new ArrayList<>();
+    for (Geometry e : atoms) {
+      if (e.isEmpty()) continue;
+      int d = e.getDimension();
+      if (dim >= 0 && d != dim) return false;
+      dim = d;
+      if (e instanceof Polygon) polys.add((Polygon) e);
+    }
+    if (dim != 2) return true;
+    return new IsValidOp(GF.createMultiPolygon(polys.toArray(new Polygon[0]))).isValid();
+  }
+
+  static void flatten(Geometry g, List<Geometry> out) {
+    for (int i = 0; i < g.getNumGeometries(); i++) {
+      Geometry e = g.getGeometryN(i);
+      if (e instanceof GeometryCollection) flatten(e, out);
+      else out.add(e);
+    }
   }
 
   static TopologyPredicate ngPredicate(String name) {
@@ -617,7 +660,7 @@ public class JtsAdapter {
   static void workerLoop() throws IOException {
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     PrintWriter out = new PrintWriter(new BufferedWriter(
-        new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), false);
+        new OutputStreamWriter(STDOUT, StandardCharsets.UTF_8)), false);
     String req;
     while ((req = in.readLine()) != null) {
       int tab = req.indexOf('\t');
@@ -727,7 +770,14 @@ public class JtsAdapter {
             break;
           }
           String[] f = msg.split("\t", -1);
-          int k = Integer.parseInt(f[0]);
+          int k;
+          try {
+            k = Integer.parseInt(f[0]);
+            if (f.length != 4 || k < next || k >= paths.size()) throw new NumberFormatException();
+          } catch (NumberFormatException e) {
+            System.err.println("JtsAdapter: ignoring a non-protocol line from the worker: " + msg);
+            continue;
+          }
           OpResult r = new OpResult();
           r.value = f[1];
           r.error = f[2].isEmpty() ? null : f[2];

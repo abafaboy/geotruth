@@ -9,8 +9,8 @@ import subprocess
 from collections import Counter
 
 import pytest
+from corpus_testlib import REPO, read_jsonl
 
-from conftest import REPO, read_jsonl
 from geotruth import schemas
 from geotruth.cli import main as cli_main
 from geotruth.io import geometry_from_json

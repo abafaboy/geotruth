@@ -5,7 +5,8 @@
 (versions), takes the expected answers from ``--expected`` or computes them with the
 exact engine (cached under ``<results>/_expected/``), and writes
 ``<tier>.score.jsonl`` (score.v2 records), ``<tier>.summary.json`` and the summary table
-``<tier>.summary.txt``, which it also prints.
+``<tier>.summary.txt``, which it also prints. Exit status 3 when the scorer failed on
+any record (``scorer_failures`` in the summary: a harness bug, never a library's).
 """
 
 from __future__ import annotations
@@ -99,9 +100,7 @@ def run(args: argparse.Namespace) -> int:
         ) or str(args.expected.name)
     else:
         wanted = [line for cid, line in cases if cid in results]
-        expected = E.compute_expected(
-            wanted, jobs=args.jobs, cache_dir=base / "_expected", log=log
-        )
+        expected = E.compute_expected(wanted, jobs=args.jobs, cache_dir=base / "_expected", log=log)
         expected_version = f"computed-{ENGINE_VERSION}"
     versions = {
         "corpus": str(run_rec.get("corpus_version") or runner.corpus_version(files)),
@@ -134,4 +133,7 @@ def run(args: argparse.Namespace) -> int:
     res_path.with_name(f"{name}.summary.txt").write_text(table, encoding="utf-8")
     print(json.dumps(summary, indent=1) if args.json else table, end="" if not args.json else "\n")
     log(f"score records: {out}")
+    if summary["scorer_failures"]:
+        log(f"{summary['scorer_failures']} records the scorer failed on: a harness bug (exit 3)")
+        return 3
     return 0
