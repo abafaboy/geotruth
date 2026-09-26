@@ -66,14 +66,19 @@ Everything is exact; nothing samples a point.
 4. **Lines** are the maximal chains of linear-part edges between *nodes*, and **points**
    the uncovered selected vertices.
 5. **Collinear vertices are removed except at nodes** (and so at every mod-2 boundary
-   point). A vertex is a *node* unless it is an interior vertex of exactly one input ring
-   or line and nothing else: arrangement degree 2, both edges carrying that single
-   source, and not the start of a closed line. This is the node set of OverlayNG's noder
-   (segment-string ends and every contact between different segment strings, while
-   isolated points never node), so ring vertices and line splits follow GEOS: e.g.
-   ``difference(LINESTRING (0 0, 2 0), LINESTRING (1 -1, 1 1))`` is
-   ``MULTILINESTRING ((0 0, 1 0), (1 0, 2 0))``, and the union of a square with a line
-   crossing it keeps the crossing points in the square's ring.
+   point: a line end is always a node). A vertex is a *node* unless it is an interior
+   vertex of exactly one *visible* input ring or line and nothing else: exactly two
+   incident edges with visible sources, both carrying that single source, and not the
+   start of a closed line. A source is visible on an edge when it is a line, or a ring
+   on the boundary of its operand's polygonal part; the ring edges of a
+   GeometryCollection's polygons that lie inside the union of its other polygons are not
+   part of the point set's boundary and never make nodes. This is the node set of
+   OverlayNG's noder (segment-string ends and every contact between different segment
+   strings, while isolated points never node), so ring vertices and line splits follow
+   GEOS: e.g. ``difference(LINESTRING (0 0, 2 0), LINESTRING (1 -1, 1 1))`` is
+   ``MULTILINESTRING ((0 0, 1 0), (1 0, 2 0))``, the union of a square with a line
+   crossing it keeps the crossing points in the square's ring, and ``A u A`` of a line
+   is split at every vertex (both copies are segment strings) while ``A u EMPTY`` is not.
 
 Output
 ------
@@ -88,11 +93,16 @@ exact area of the polygonal part. :meth:`OverlayResult.to_json` is the expected-
 
 Checks and statuses
 -------------------
-Every result is checked internally (ring linking is a permutation, every component has
-exactly one shell, every ring lies in one component, and the ring areas add up to the
-areas of the selected faces). ``certify=True`` also runs the independent certificate of
-:mod:`geotruth.overlay_certify` (DESIGN §2.6), which re-nodes A, B and the result from
-scratch and locates witnesses with the standalone point locator.
+Every result is checked internally (ring linking is a permutation, the rings hold every
+boundary half-edge exactly once, so their areas add up to the areas of the selected
+faces, every component has exactly one shell, and every ring lies in one component).
+``certify=True`` also runs the independent certificate of :mod:`geotruth.overlay_certify`
+(DESIGN §2.6), which re-nodes A, B and the result from scratch and locates witnesses
+with the standalone point locator.
+
+Cost: the arrangement (see :mod:`geotruth.arrangement`), then O(V + E) per result plus
+the exact area, whose rational terms are summed pairwise. Two random 3000-vertex stars
+(18k vertices, 31k edges in the arrangement) take about 5 s for all eight results.
 
 A result has status ``"ok"``, ``"engine_skipped"`` (over budget:
 :class:`~geotruth.arrangement.BudgetExceeded` or ``MemoryError``) or ``"engine_error"``
@@ -128,7 +138,7 @@ from geotruth.geom import (
     build_geometry,
     empty_of_dimension,
 )
-from geotruth.io import canonicalize, geometry_to_json, to_wkt
+from geotruth.io import canonical_line, geometry_to_json, to_wkt
 from geotruth.numbers import DyadicScale, format_rational, rational
 
 __all__ = [
@@ -328,6 +338,18 @@ class OverlayResult:
 # ============================================================================ builder
 
 
+def _exact_sum(terms: list[Any], start: Any) -> Any:
+    """The exact sum of rationals, added pairwise (a balanced tree): a running sum of
+    many terms with distinct large denominators carries the growing common denominator
+    through every step, which is quadratic."""
+    while len(terms) > 1:
+        pairs = [terms[i] + terms[i + 1] for i in range(0, len(terms) - 1, 2)]
+        if len(terms) & 1:
+            pairs.append(terms[-1])
+        terms = pairs
+    return start + terms[0] if terms else start
+
+
 def _bools(locs: Sequence[int], what: str) -> list[bool]:
     """``in X`` (Interior or Boundary) for each label; refuses unlabelled cells."""
     out = []
@@ -403,9 +425,7 @@ class _Overlay:
         loc = (arr.edge_loc_a, arr.edge_loc_b)
         out = []
         for e, srcs in enumerate(arr.edge_sources):
-            out.append(
-                tuple(s.tag for s in srcs if s.tag.is_line or loc[s.tag.geom][e] == _BND)
-            )
+            out.append(tuple(s.tag for s in srcs if s.tag.is_line or loc[s.tag.geom][e] == _BND))
         return out
 
     def _nodes(self) -> list[bool]:
@@ -458,7 +478,7 @@ class _Overlay:
         org = arr.he_origin
         vx, vy, vw = arr.vx, arr.vy, arr.vw
         whole = 0
-        frac = None
+        terms = []
         for h in hs:
             u, v = org[h], org[h ^ 1]
             t = vx[u] * vy[v] - vx[v] * vy[u]
@@ -466,9 +486,8 @@ class _Overlay:
             if w == 1:
                 whole += t
             elif t:
-                q = rational(t, w)
-                frac = q if frac is None else frac + q
-        return rational(whole) if frac is None else frac + whole
+                terms.append(rational(t, w))
+        return _exact_sum(terms, rational(whole))
 
     def real_area(self, area2: Any) -> Any:
         """The real area of a scaled twice-area."""
@@ -505,7 +524,7 @@ class _Overlay:
         """The polygons of the closure of the selected faces, and twice their total area
         (scaled space)."""
         arr = self.arr
-        he_face, nxt, org = arr.he_face, arr.he_next, arr.he_origin
+        he_face, nxt = arr.he_face, arr.he_next
         H = len(he_face)
         bnd = [fsel[he_face[h]] and not fsel[he_face[h ^ 1]] for h in range(H)]
         link = [-1] * H
@@ -553,14 +572,14 @@ class _Overlay:
                     parent[rl] = rr
         shells: dict[int, list[int]] = {}
         holes: dict[int, list[list[int]]] = {}
-        total = rational(0)
+        areas = []
         problems = []
         for ring in rings:
             comp = find(he_face[ring[0]])
             if any(find(he_face[g]) != comp for g in ring):
                 problems.append(f"the ring through half-edge {ring[0]} spans two components")
             a2 = self._area2(ring)
-            total += a2
+            areas.append(a2)
             if a2 > 0:
                 if comp in shells:
                     problems.append(f"component of face {comp} has two shells")
@@ -572,13 +591,17 @@ class _Overlay:
         for comp in holes:
             if comp not in shells:
                 problems.append(f"component of face {comp} has holes but no shell")
-        faces_total = self._area2(h for h in range(H) if fsel[he_face[h]])
-        if faces_total != total:
+        # the rings partition the boundary half-edges, so their areas add up to the area of
+        # the selected faces (interior edges cancel)
+        in_rings = [g for ring in rings for g in ring]
+        if len(in_rings) != sum(bnd) or len(set(in_rings)) != len(in_rings):
             problems.append(
-                f"ring areas {total} differ from the selected faces' area {faces_total}"
+                f"the rings hold {len(in_rings)} half-edges ({len(set(in_rings))} distinct), "
+                f"the boundary has {sum(bnd)}: the area of the selected faces is not kept"
             )
         if problems:
             raise OverlayAssertionError(problems)
+        total = _exact_sum(areas, rational(0))
         polys = []
         for comp, shell in shells.items():
             rs = [self._ring_coords(shell)]
@@ -637,7 +660,9 @@ class _Overlay:
                 return hs
             o = [x for x in out[w] if x != g ^ 1 and vsrc[x >> 1]]
             if len(o) != 1:
-                raise OverlayAssertionError([f"non-node vertex {w} has visible degree {len(o) + 1}"])
+                raise OverlayAssertionError(
+                    [f"non-node vertex {w} has visible degree {len(o) + 1}"]
+                )
             g2 = o[0]
             e2 = g2 >> 1
             if not line[e2] or visited[e2]:
@@ -696,10 +721,44 @@ class _Overlay:
             elements += self.lines(fsel, esel)
             elements += self.points(fsel, esel, vsel)
         if elements:
-            geom = canonicalize(build_geometry(elements))
+            geom = _assemble(elements)
         else:
             geom = empty_of_dimension(result_dimension(op, self.dim_a, self.dim_b))
         return geom, self.real_area(area2)
+
+
+def _ring_key(ring: tuple[tuple[Any, Any], ...]) -> tuple:
+    return tuple(ring)
+
+
+def _canonical_ring(ring: tuple[tuple[Any, Any], ...]) -> tuple[tuple[Any, Any], ...]:
+    """A closed ring (already oriented) rotated to start at its smallest vertex. The
+    vertices of a simple ring are distinct, so the smallest one is unique."""
+    pts = ring[:-1]
+    k = min(range(len(pts)), key=pts.__getitem__)
+    out = pts[k:] + pts[:k]
+    return (*out, out[0])
+
+
+def _assemble(elements: list[Geometry]) -> Geometry:
+    """The canonical geometry of the result's parts, exactly as
+    :func:`geotruth.io.canonicalize` orders it (rings start at their smallest vertex,
+    holes and parts sorted, polygons before lines before points, lines starting at their
+    smaller end), without recomputing ring orientations: shells are already
+    counter-clockwise and holes clockwise. Coordinates compare exactly (rationals)."""
+    polys, lines, points = [], [], []
+    for e in elements:
+        if isinstance(e, Polygon):
+            shell, *holes = (_canonical_ring(r) for r in e.rings)
+            polys.append(Polygon((shell, *sorted(holes, key=_ring_key))))
+        elif isinstance(e, LineString):
+            lines.append(LineString(canonical_line(e.coords)))
+        else:
+            points.append(e)
+    polys.sort(key=lambda p: tuple(_ring_key(r) for r in p.rings))
+    lines.sort(key=lambda ln: tuple(ln.coords))
+    points.sort(key=lambda pt: pt.coord)
+    return build_geometry([*polys, *lines, *points])
 
 
 # ============================================================================ API
@@ -749,7 +808,7 @@ def overlay_all(
     bud = budget if budget is not None else Budget(None, None, None)
     base = {"type_dim_a": a.dimension, "type_dim_b": b.dimension}
 
-    def fill(status: str, reason: str, stats: dict[str, Any]) -> dict[str, dict[str, OverlayResult]]:
+    def fill(status: str, reason: str, stats: dict[str, Any]) -> dict[str, dict[str, Any]]:
         return {
             op: {
                 v: OverlayResult(op, v, status, reason=reason, stats=dict(stats), **base)
@@ -820,6 +879,8 @@ def _certify(
         for r in todo:
             r.status, r.reason = STATUS_ERROR, f"certificate: {type(exc).__name__}: {exc}"
         return
+    from geotruth.measures import area as shoelace_area
+
     for r, cert in zip(todo, certs, strict=True):
         r.certificate = cert
         if not cert.ok:
@@ -827,6 +888,13 @@ def _certify(
                 raise CertificateError(cert)
             r.status = STATUS_ERROR
             r.reason = f"certificate failed: {cert.summary()}"
+        # the certificate checks the point set, not the reported area; output polygons never
+        # overlap, so the shoelace area of the result must equal it exactly
+        elif shoelace_area(r.geometry) != r.area:
+            if strict:
+                raise CertificateError(cert)
+            r.status = STATUS_ERROR
+            r.reason = "certificate: area differs from the shoelace area of the result"
 
 
 def overlay(

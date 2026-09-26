@@ -17,7 +17,8 @@ variants, read off one arrangement) and then checked by:
     the polygonal part of every result must be valid under the audited reference rules
     R0-R6 (``tests/reference/validity.py``), and identical in both variants.
 ``properties``
-    exact identities and invariances (engine against itself on other inputs):
+    exact identities and invariances (engine against itself on other inputs, every
+    auxiliary result certified too):
     ``|A n B| + |A - B| = |A|``, ``|A n B| + |B - A| = |B|``,
     ``|A u B| = |A n B| + |A - B| + |B - A|``, ``|A x B| = |A - B| + |B - A|`` (point-set
     areas; ``|A|`` also equals the shoelace area for a Polygon/MultiPolygon); the
@@ -40,8 +41,15 @@ variants, read off one arrangement) and then checked by:
       ``invalid-polygons``, ``type`` (a less specific type), ``empty-type`` (another
       typed empty), after normalizing both (``normalize``: overlay with an empty
       geometry, which re-nodes and drops collinear non-node vertices);
-    - ``rounding``: the point sets differ, but the exact result has coordinates that are
-      not doubles, so GEOS must round its nodes;
+    - ``rounding (...)``: the point sets differ, but the exact result has coordinates that
+      are not doubles, so GEOS must round its nodes: ``nearest`` when GEOS's output is the
+      exact result rounded to nearest, ``same parts`` when it has the same polygons (and
+      holes), lines and points, ``different parts`` when rounding changed which parts
+      exist (e.g. OverlayMixedPoints nodes the lines in floating point first, so a point
+      exactly on a line misses the rounded line and survives a union);
+    - ``empty-type``: both results are empty but typed differently (``(gc)``: GEOS's GC
+      path types by the non-empty elements, the exact rule by ``getDimension``, which
+      counts empty elements);
     - ``gc-overlay (...)``: the point sets differ on a case with a GeometryCollection
       operand, which OverlayNG proper rejects and GEOS 3.13 overlays heuristically; the
       detail says whether GEOS drops or adds parts;
@@ -86,7 +94,6 @@ from geotruth.geom import (  # noqa: E402
     GeometryCollection,
     LineString,
     MultiPolygon,
-    Point,
     Polygon,
 )
 from geotruth.io import canonicalize, geometry_from_json, geometry_to_json, to_wkt  # noqa: E402
@@ -174,7 +181,7 @@ def parts_signature(g: Geometry) -> tuple:
 
 def point_set_area(g: Geometry) -> Any:
     """The area of the point set of ``g`` (overlapping GC polygons counted once)."""
-    res = overlay(g, EMPTY, "union", "areal", strict=True)
+    res = overlay(g, EMPTY, "union", "areal", certify=True, strict=True)
     return res.area
 
 
@@ -366,6 +373,10 @@ def geos_verdict(
         return "geos-error", theirs
     if exact_json(canonicalize(theirs)) == exact_json(mine):
         return "exact", ""
+    gc = _is_gc(a) or _is_gc(b)
+    if theirs.is_empty and mine.is_empty:
+        detail = f"GEOS {theirs.geom_type} EMPTY, exact {mine.geom_type} EMPTY"
+        return ("empty-type (gc)" if gc else "empty-type"), detail
     ps = certify(a, b, op, theirs, "non_strict", structure=False)
     if ps.ok:
         full = certify(a, b, op, theirs, "non_strict", structure=True)
@@ -377,7 +388,6 @@ def geos_verdict(
             tags.append("collinear-vertices")
         return f"same-point-set ({', '.join(sorted(set(tags)))})", ""
     detail = ps.summary()
-    gc = _is_gc(a) or _is_gc(b)
     if not doubles_only(mine):
         rounded = canonicalize(
             mine.map_coords(lambda c: (rational_to_float(c[0]), rational_to_float(c[1])))
@@ -492,7 +502,7 @@ def _identities(rep: Report, a: Geometry, b: Geometry, res: dict) -> None:
         rep.problems.append(f"identity: {msg}")
 
     area = {op: res[op]["areal"].area for op in OPS}
-    ba = overlay(b, a, "difference", "areal", strict=True).area
+    ba = overlay(b, a, "difference", "areal", certify=True, strict=True).area
     pa, pb = point_set_area(a), point_set_area(b)
     if area["intersection"] + area["difference"] != pa:
         fail(f"|AnB| + |A-B| = {area['intersection'] + area['difference']} != |A| = {pa}")
@@ -505,17 +515,17 @@ def _identities(rep: Report, a: Geometry, b: Geometry, res: dict) -> None:
     for g, p in ((a, pa), (b, pb)):
         if isinstance(g, (Polygon, MultiPolygon)) and shoelace_area(g) != p:
             fail(f"point-set area {p} != shoelace area {shoelace_area(g)}")
-    swapped = overlay_all(b, a, ops=SYMMETRIC, strict=True)
+    swapped = overlay_all(b, a, ops=SYMMETRIC, certify=True, strict=True)
     for op in SYMMETRIC:
         for v in VARIANTS:
             if exact_json(swapped[op][v].geometry) != exact_json(res[op][v].geometry):
                 fail(f"{op} ({v}) does not commute")
     u, i, s = (res[op]["non_strict"].geometry for op in ("union", "intersection", "symdifference"))
-    ui = overlay(u, i, "difference", strict=True).geometry
+    ui = overlay(u, i, "difference", certify=True, strict=True).geometry
     if not same_point_set(ui, s):
         fail("(A u B) - (A n B) is not the point set of A x B")
     for g, name in ((a, "A"), (b, "B")):
-        self_ = overlay_all(g, g, strict=True)
+        self_ = overlay_all(g, g, certify=True, strict=True)
         if not same_point_set(self_["union"]["non_strict"].geometry, g):
             fail(f"{name} u {name} is not {name}")
         if not same_point_set(self_["intersection"]["non_strict"].geometry, g):
@@ -523,7 +533,8 @@ def _identities(rep: Report, a: Geometry, b: Geometry, res: dict) -> None:
         for op in ("difference", "symdifference"):
             if not self_[op]["non_strict"].geometry.is_empty:
                 fail(f"{name} {op} {name} is not empty")
-        if not same_point_set(overlay(g, EMPTY, "union", strict=True).geometry, g):
+        with_empty = overlay(g, EMPTY, "union", certify=True, strict=True).geometry
+        if not same_point_set(with_empty, g):
             fail(f"{name} u EMPTY is not {name}")
     rep.identities = ok
 
@@ -534,7 +545,7 @@ def _transform(rep: Report, a: Geometry, b: Geometry, res: dict, rng: random.Ran
     if ta is None or tb is None:
         return
     rep.transform = name
-    tres = overlay_all(ta, tb, strict=True)
+    tres = overlay_all(ta, tb, certify=True, strict=True)
     ok = True
     for op in OPS:
         for v in VARIANTS:

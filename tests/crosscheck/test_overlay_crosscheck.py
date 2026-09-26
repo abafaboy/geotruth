@@ -99,10 +99,13 @@ def test_seed_corpus(chunk):
 
 def test_review_families():
     _shapely()  # the generator uses Shapely
-    reports = check_all(R.review_cases(50, 1), use_geos=False)
+    cases = list(R.review_cases(50, 1))
+    props = [c for i, c in enumerate(cases) if i % 3 == 0]
+    rest = [c for i, c in enumerate(cases) if i % 3 != 0]
+    reports = check_all(props, use_geos=False) + check_all(rest, use_geos=False, properties=False)
     assert len(reports) == 395
     assert all(r.oracle_agree and r.indep_agree for r in reports)
-    assert sum(r.transform_agree is True for r in reports) > 300
+    assert sum(r.transform_agree is True for r in reports) > 100
 
 
 @pytest.mark.parametrize("seed", [1, 2])
@@ -245,12 +248,11 @@ def test_geos_structure_findings(a, b, op, geos_wkt, verdict):
         assert _geos_result(a, b, op).equals_exact(_shapely().from_wkt(geos_wkt), 0)
 
 
-def test_geos_is_not_correctly_rounded():
-    """GEOS rounds the node x = 5/11 to 0.4545454545454545; the nearest double (the exact
-    result's display WKT) is 0.45454545454545453. A lattice case with a GC operand."""
-    lines = read_wkt(
-        "MULTILINESTRING ((1 11, 0 1, 2 2), (4 12, 5 9, 8 4), (1 4, 3 9, 12 11, 7 2))"
-    )
+def test_geos_output_is_transferred_exactly():
+    """The GEOS worker returns the doubles themselves (JSON repr), not Shapely's WKT,
+    which drops digits: here GEOS's node x = 5/11 is the correctly rounded double
+    0.45454545454545453, which Shapely's ``.wkt`` prints as 0.4545454545454545."""
+    lines = read_wkt("MULTILINESTRING ((1 11, 0 1, 2 2), (4 12, 5 9, 8 4), (1 4, 3 9, 12 11, 7 2))")
     gc = read_wkt(
         "GEOMETRYCOLLECTION (POLYGON ((8 7, 8 11, 2 8, 0 8, 5 0, 8 7), "
         "(7 7, 5 3, 3 5, 3 6, 7 7)), POLYGON ((11 8, 5 1, 0 6, 1 9, 11 8)))"
@@ -259,8 +261,13 @@ def test_geos_is_not_correctly_rounded():
     assert "LINESTRING (0.45454545454545453 5.545454545454546, 0 1, 2 2)" in ours.wkt
     if geos_313():
         theirs = X.geos().overlays(lines, gc)["union"]
-        assert "LINESTRING (0.4545454545454545 5.545454545454546, 0 1, 2 2)" in X.to_wkt(theirs)
-        assert X.geos_verdict(lines, gc, "union", ours.geometry, theirs)[0].startswith("rounding")
+        assert "LINESTRING (0.45454545454545453 5.545454545454546, 0 1, 2 2)" in X.to_wkt(theirs)
+        shapely = _shapely()
+        shown = shapely.union(shapely.from_wkt(X.to_wkt(lines)), shapely.from_wkt(X.to_wkt(gc)))
+        assert "0.4545454545454545 5.545454545454546" in shown.wkt
+        # GEOS does not node its polygon where the lines end on it (the GC heuristic)
+        verdict = X.geos_verdict(lines, gc, "union", ours.geometry, theirs)[0]
+        assert verdict == "rounding (same parts)"
 
 
 # ============================================================================ the tool

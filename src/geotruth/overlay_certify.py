@@ -397,7 +397,9 @@ class _Refinement:
     def _step(m: HPoint, d: IntPoint, best: tuple[int, int] | None) -> HPoint:
         """``m + 2**-k d`` with ``|2**-k d| < sqrt(best) / W``."""
         x, y, w = m
-        k = 0 if best is None else safe_step_exponent(d[0] ** 2 + d[1] ** 2, (best[0], best[1] * w * w))
+        k = 0
+        if best is not None:
+            k = safe_step_exponent(d[0] ** 2 + d[1] ** 2, (best[0], best[1] * w * w))
         return hpoint((x << k) + d[0] * w, (y << k) + d[1] * w, w << k)
 
     def _offsets(self, s: _Sub) -> tuple[HPoint, HPoint]:
@@ -457,10 +459,12 @@ def _check(
     fr = [s_(a, b) for a, b in zip(la.right, lb.right, strict=True)]
     fe = [s_(a, b) for a, b in zip(la.mid, lb.mid, strict=True)]
     for i, s in enumerate(subs):
-        for side, p, f, got in (("left", s.left, fl[i], lr.left[i]), ("right", s.right, fr[i], lr.right[i])):
+        for p, f, got, a, b in (
+            (s.left, fl[i], lr.left[i], la.left[i], lb.left[i]),
+            (s.right, fr[i], lr.right[i], la.right[i], lb.right[i]),
+        ):
             want = INTERIOR if f else EXTERIOR
             if got != want:
-                a, b = (la.left[i], lb.left[i]) if side == "left" else (la.right[i], lb.right[i])
                 bad("face", p, a, b, ch[want], got)
         if fl[i] and fr[i]:
             want = INTERIOR
@@ -558,14 +562,14 @@ def _structure(
             )
             break
     for s in ref.subs:
-        if poly_loc is not None and any(g == gi and is_line for g, is_line in s.sources):
-            if poly_loc.locate(s.mid) != EXTERIOR:
-                x, y = ref.real(s.mid)
-                problems.append(
-                    "a result line lies on or in the polygonal part near "
-                    f"({format_rational(x)} {format_rational(y)})"
-                )
-                break
+        on_line = any(g == gi and is_line for g, is_line in s.sources)
+        if on_line and poly_loc is not None and poly_loc.locate(s.mid) != EXTERIOR:
+            x, y = ref.real(s.mid)
+            problems.append(
+                "a result line lies on or in the polygonal part near "
+                f"({format_rational(x)} {format_rational(y)})"
+            )
+            break
     seen: set[HPoint] = set()
     for pt in points:
         p = frame.hpoint(pt.coord)
@@ -641,9 +645,7 @@ def certify_many(
     dims = (a.dimension, b.dimension)
     out = []
     for (op, variant, r), j in zip(items, index, strict=True):
-        mism, n = _check(
-            ref, la, lb, labels[j], op, variant == "areal", structure, max_problems
-        )
+        mism, n = _check(ref, la, lb, labels[j], op, variant == "areal", structure, max_problems)
         problems = _structure(ref, 2 + j, r, op, variant, dims) if structure else []
         out.append(
             Certificate(

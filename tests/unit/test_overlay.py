@@ -71,6 +71,13 @@ def run(a, b, **kw):
     return res
 
 
+def ov(a, b, op, variant="non_strict"):
+    """overlay() with its certificate required."""
+    r = overlay(a, b, op, variant, certify=True, strict=True)
+    assert r.ok and r.certificate.ok
+    return r
+
+
 def same(g, wkt: str) -> bool:
     """Exact equality with the canonical form of a WKT geometry."""
     return ej(g) == ej(canonicalize(W(wkt)))
@@ -242,7 +249,7 @@ def test_hand_cases(a, b, op, want, areal):
 
 
 def test_non_dyadic_result_is_exact():
-    r = overlay(W("LINESTRING (0 0, 3 1)"), W("LINESTRING (0 1, 2 0)"), "intersection")
+    r = ov(W("LINESTRING (0 0, 3 1)"), W("LINESTRING (0 1, 2 0)"), "intersection")
     assert r.geometry == Point((Fraction(6, 5), Fraction(2, 5)))
     assert r.exact == {"type": "Point", "coordinates": ["6/5", "2/5"]}
     assert r.wkt == "POINT (1.2 0.4)"
@@ -261,9 +268,11 @@ def test_every_ring_is_canonical_and_oriented():
 
 
 def _area2(ring) -> Fraction:
+    pts = [(Fraction(x), Fraction(y)) for x, y in ring]
     return sum(
-        (Fraction(ring[i - 1][0]) * Fraction(ring[i][1]) - Fraction(ring[i][0]) * Fraction(ring[i - 1][1])
-         for i in range(len(ring))), Fraction(0))  # fmt: skip
+        (pts[i - 1][0] * pts[i][1] - pts[i][0] * pts[i - 1][1] for i in range(len(pts))),
+        Fraction(0),
+    )
 
 
 # ============================================================ typed empties
@@ -349,7 +358,8 @@ def test_result_accessors_and_json():
     assert geometry_from_json(j["exact"], exact=True) == r.geometry
     assert r.certificate.ok and r.stats["V"] > 0 and "t_overlay" in r.stats
     assert r.arrangement is None
-    kept = overlay(W(SQ), W("POINT (1 1)"), "union", keep_arrangement=True)
+    kept = overlay(W(SQ), W("POINT (1 1)"), "union", keep_arrangement=True, certify=True)
+    assert kept.certificate.ok
     assert kept.arrangement is not None and kept.arrangement.num_faces == 2
 
 
@@ -436,7 +446,8 @@ def test_engine_exceptions_become_engine_error(monkeypatch):
 
 
 def test_assembly_assertions(monkeypatch):
-    """A broken ring assembly is caught by the internal checks (area identity)."""
+    """A broken ring assembly is caught by the internal checks (the rings must hold every
+    boundary half-edge, or the area of the selected faces is not kept)."""
     real = O._Overlay._split
 
     def drop_last_ring(self, cyc):
@@ -485,8 +496,8 @@ def test_invalid_input_raises():
 
 
 def test_rational_input_is_accepted():
-    r = overlay(W("POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0))"), W("POLYGON ((1 -1, 4 2, 1 2, 1 -1))"),
-                "intersection").geometry  # fmt: skip
+    r = ov(W("POLYGON ((0 0, 3 0, 3 3, 0 3, 0 0))"), W("POLYGON ((1 -1, 4 2, 1 2, 1 -1))"),
+           "intersection").geometry  # fmt: skip
     res = run(r, W("LINESTRING (0 0, 3 3)"))
     assert same(res["intersection"]["non_strict"].geometry, "LINESTRING (1 1, 2 2)")
     thirds = Polygon([[(Fraction(0), Fraction(0)), (Fraction(1, 3), Fraction(0)),
@@ -536,9 +547,9 @@ def _random_cases(n: int, seed: int):
 def test_area_identities_on_random_cases():
     for a, b in _random_cases(40, 11):
         res = run(a, b)
-        ba = overlay(b, a, "difference", "areal").area
-        pa = overlay(a, EMPTY, "union", "areal").area
-        pb = overlay(b, EMPTY, "union", "areal").area
+        ba = ov(b, a, "difference", "areal").area
+        pa = ov(a, EMPTY, "union", "areal").area
+        pb = ov(b, EMPTY, "union", "areal").area
         i, u, d, s = (res[op]["areal"].area for op in OPS)
         assert i + d == pa and i + ba == pb
         assert u == i + d + ba and s == d + ba
@@ -582,8 +593,8 @@ def test_self_and_empty_identities():
 
 def test_a_union_a_is_noded_like_geos():
     a = W("LINESTRING (2 4, 3 2, 9 7)")
-    assert same(overlay(a, EMPTY, "union").geometry, "LINESTRING (2 4, 3 2, 9 7)")
-    assert same(overlay(a, a, "union").geometry, "MULTILINESTRING ((2 4, 3 2), (3 2, 9 7))")
+    assert same(ov(a, EMPTY, "union").geometry, "LINESTRING (2 4, 3 2, 9 7)")
+    assert same(ov(a, a, "union").geometry, "MULTILINESTRING ((2 4, 3 2), (3 2, 9 7))")
 
 
 TRANSFORMS = {
@@ -617,7 +628,7 @@ def test_deterministic_and_backend_independent():
         frac = [
             ej(r.geometry)
             for a, b in cases
-            for per in overlay_all(a, b, strict=True).values()
+            for per in overlay_all(a, b, certify=True, strict=True).values()
             for r in per.values()
         ]
     assert frac == first
@@ -632,7 +643,8 @@ def test_one_arrangement_for_all_results(monkeypatch):
         return real(*a, **k)
 
     monkeypatch.setattr(O, "build_arrangement", spy)
-    res = overlay_all(W(SQ), W("LINESTRING (-1 1, 3 1)"))
+    res = overlay_all(W(SQ), W("LINESTRING (-1 1, 3 1)"), certify=True)
+    assert all(r.certificate.ok for per in res.values() for r in per.values())
     assert len(calls) == 1 and sum(len(v) for v in res.values()) == 8
 
 
@@ -663,7 +675,7 @@ def test_measures_and_harness_use_this_engine():
 def test_arrangement_build_matches_direct_build():
     a, b = W(SQ), W("POLYGON ((1 1, 3 1, 3 3, 1 3, 1 1))")
     arr = build_arrangement(a, b)
-    res = overlay_all(a, b)
+    res = run(a, b)
     for op in OPS:
         for v in VARIANTS:
             assert ej(overlay_arrangement(arr, op, v)) == ej(res[op][v].geometry)

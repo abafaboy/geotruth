@@ -107,7 +107,8 @@ def test_case_file_and_id(capsys, tmp_path):
     status, out, _ = run(capsys, f"@{f}", "union", "--id", "two", "--json")
     rec = json.loads(out)
     assert status == 0 and rec["id"] == "two"
-    assert rec["result"]["wkt"] == "GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 0)), POINT (5 5))"
+    want = "GEOMETRYCOLLECTION (POLYGON ((0 0, 2 0, 2 2, 0 0)), POINT (5 5))"
+    assert rec["result"]["wkt"] == want
     single = tmp_path / "case.json"
     single.write_text(json.dumps({"a": cases[0]["a"], "b": cases[0]["b"]}))
     status, out, _ = run(capsys, f"@{single}", "intersection")
