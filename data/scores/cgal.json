@@ -29,9 +29,9 @@
   "core": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T09:22:35Z",
-    "finished": "2026-09-26T09:22:50Z",
-    "elapsed_s": 15.561,
+    "started": "2026-09-26T11:52:37Z",
+    "finished": "2026-09-26T11:52:55Z",
+    "elapsed_s": 17.474,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
@@ -42,14 +42,14 @@
     "adapter": {
      "name": "cgal",
      "manifest_sha256": "2a4283cda4891e6e663be87df1b0d540079ce9741228c9bb16e2fe4c0c4d2be8",
-     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
+     "git_sha": "35b954fe198367dbaa1846290e7f1cfd5ac4b975"
     }
    },
    "versions": {
     "corpus": "2.0.0",
     "expected": "2",
     "engine": "0.1.0",
-    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
+    "adapter": "35b954fe198367dbaa1846290e7f1cfd5ac4b975"
    },
    "exact_backends": {
     "route": "auto",
@@ -481,9 +481,9 @@
   "curated": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T10:57:35Z",
-    "finished": "2026-09-26T10:57:36Z",
-    "elapsed_s": 0.356,
+    "started": "2026-09-26T11:58:18Z",
+    "finished": "2026-09-26T11:58:18Z",
+    "elapsed_s": 0.689,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
@@ -494,14 +494,14 @@
     "adapter": {
      "name": "cgal",
      "manifest_sha256": "2a4283cda4891e6e663be87df1b0d540079ce9741228c9bb16e2fe4c0c4d2be8",
-     "git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
+     "git_sha": "35b954fe198367dbaa1846290e7f1cfd5ac4b975"
     }
    },
    "versions": {
     "corpus": "2.0.0",
     "expected": "2",
     "engine": "0.1.0",
-    "adapter": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty"
+    "adapter": "35b954fe198367dbaa1846290e7f1cfd5ac4b975"
    },
    "exact_backends": {
     "route": "auto",

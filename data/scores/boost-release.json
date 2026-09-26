@@ -26,9 +26,9 @@
   "core": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T09:09:31Z",
-    "finished": "2026-09-26T09:09:46Z",
-    "elapsed_s": 15.11,
+    "started": "2026-09-26T11:53:45Z",
+    "finished": "2026-09-26T11:54:00Z",
+    "elapsed_s": 15.068,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,
@@ -739,9 +739,9 @@
   "curated": {
    "date": "2026-09-26",
    "run": {
-    "started": "2026-09-26T10:57:38Z",
-    "finished": "2026-09-26T10:57:39Z",
-    "elapsed_s": 0.355,
+    "started": "2026-09-26T11:58:20Z",
+    "finished": "2026-09-26T11:58:20Z",
+    "elapsed_s": 0.29,
     "host": "vm",
     "runner_image": "host: Ubuntu 24.04.4 LTS, python 3.11.15",
     "op_timeout_s": 3.0,

@@ -116,14 +116,13 @@ failures all the same; the fields above let a reader separate them:
 ## This snapshot
 
 - Runs: 2026-09-26, every target on one host (Ubuntu 24.04.4 LTS VM, 4 cores, Python
-  3.11.15), per-operation timeout 3 s: the `core` tier from 09:06 to 09:23 UTC, the
-  `curated` tier (rebuilt from the registry's 14 findings and the leads) from 10:43 to
-  10:44 UTC. Library builds and versions are in each `<target>.json`.
-- geotruth: the core runs at commit `e529fd3`, the curated runs and this summary at
-  `9061dd8`, both with uncommitted changes (`summary.json` → `geotruth`). The only
-  uncommitted change that affects results is the CGAL adapter's conversion of its output to
-  OGC polygons (see [`../adapters/cgal/README.md`](../adapters/cgal/README.md)), which is why
-  CGAL's adapter hash ends in `+dirty`.
+  3.11.15), per-operation timeout 3 s, from 11:49 to 11:59 UTC (the `core` tier, then the
+  `curated` tier, which is built from the registry's 14 findings and the leads). Library
+  builds and versions are in each `<target>.json`.
+- geotruth: every run at the v0.1.0 release commit `3a72e05`, from a clean checkout.
+  `summary.json` → `geotruth` records the commit the summary was made at and whether the
+  checkout was clean (changes under `data/scores/` itself do not count). The adapter commit
+  recorded for each target is the last commit that changed that adapter's directory.
 - Engine 0.1.0, corpus 2.0.0, expected answers v2: `core.jsonl` sha256 `70c78e04…`,
   `curated.jsonl` sha256 `daf738bb…` (full hashes in `summary.json` → `tiers`), with no
   `engine_skipped` or `engine_error` record.
@@ -133,9 +132,10 @@ failures all the same; the fields above let a reader separate them:
 - The parse-echo canary (DESIGN.md §4.1, `schemas/examples/case.v2.valid.json`) comes back
   bit for bit from 17 of the 18 targets. CGAL returns `-0.0` as `0.0`, as its README
   documents (an exact rational has no signed zero).
-- Every target was run and scored twice on the core tier, from scratch (runs from 08:21 to
-  08:40 and from 09:06 to 09:23 UTC). Apart from CGAL, whose adapter changed in between, the
-  libraries' answers came out byte-identical, and so did the score records, except for the
-  adapter commit they record (the JS adapter was committed in between). At 10:44 UTC
-  `controls.py --run-cgal` recomputed CGAL's exact side-car for both tiers, and every control
+- Every target was run and scored three times on the core tier, from scratch (runs from
+  08:21 to 08:40, 09:06 to 09:23 and 11:49 to 11:58 UTC). Apart from CGAL, whose adapter
+  changed after the first run, the libraries' answers came out byte-identical, and so did the
+  score records, except for the adapter commit they record. The release run gave the same
+  verdict on every score record of both tiers as the run before it. `controls.py --run-cgal`
+  recomputed CGAL's exact side-car for both tiers after the release run, and every control
   held again.

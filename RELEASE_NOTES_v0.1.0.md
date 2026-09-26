@@ -48,7 +48,10 @@ changes is in [CHANGELOG.md](CHANGELOG.md).
 ## Checked for this release
 
 Every number here comes from a run on 2026-09-26 (Ubuntu 24.04 VM, 4 cores, Python 3.11.15,
-gmpy2 2.3.1).
+gmpy2 2.3.1). The library scores in `data/scores/` were run at the release commit from a
+clean checkout. At that commit the expected answers of all three tiers were also recomputed
+without the cache, and came out byte-identical to the committed files (their manifest keeps
+the commit where each file was first computed).
 
 | check | result |
 |---|---|

@@ -414,7 +414,9 @@ def main(argv: list[str] | None = None) -> int:
         # <target>.json: adapter git hash, "+dirty" when the adapter had local changes)
         "geotruth": {
             "git_head": head,
-            "git_worktree_clean": not _git("status", "--porcelain"),
+            # changes under data/scores/ are this script's own output, not the checkout's
+            "git_worktree_clean": not _git("status", "--porcelain", "--", ".",
+                                           ":(exclude)data/scores"),
             "src_sha256": source_digest(),
         },
         "runs": {

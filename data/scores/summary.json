@@ -2,13 +2,13 @@
  "format": "geotruth-score-summary/1",
  "note": "Counts from `geotruth score` against the committed exact answers. The corpus is deliberately adversarial (near-degenerate input), so these rates are not real-world failure rates, and there is no single ranking: compare per capability. Unreviewed failure clusters are not confirmed bugs (findings/registry.toml).",
  "geotruth": {
-  "git_head": "9061dd814c2d55f2929a1e59f8958e240ff953b1",
+  "git_head": "3a72e05d66c4c41e2347e77f1be94227f1a2a34d",
   "git_worktree_clean": false,
-  "src_sha256": "9022e1750f8fcd5bd8acf208b1fecebc2f37d36911a08c6d04bcd18ce9bf770b"
+  "src_sha256": "c64ef911ed6eec233b68e08b255bca91b7389713b678603e7b09a8c12d66b01f"
  },
  "runs": {
-  "first_started": "2026-09-26T09:06:09Z",
-  "last_finished": "2026-09-26T10:58:19Z"
+  "first_started": "2026-09-26T11:49:53Z",
+  "last_finished": "2026-09-26T11:58:53Z"
  },
  "tiers": {
   "core": {
@@ -1422,7 +1422,7 @@
      "headline_failures": 182,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty",
+     "adapter_git_sha": "35b954fe198367dbaa1846290e7f1cfd5ac4b975",
      "capabilities": {
       "relate": {
        "graded": 0,
@@ -1619,7 +1619,7 @@
      "headline_failures": 22,
      "timeouts": 0,
      "crashes": 0,
-     "adapter_git_sha": "a179a18bb73b5e96e017aa7eaf17977f6931f5e3+dirty",
+     "adapter_git_sha": "35b954fe198367dbaa1846290e7f1cfd5ac4b975",
      "capabilities": {
       "relate": {
        "graded": 0,
